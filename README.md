@@ -5,7 +5,7 @@ A new Flutter project.
 ## sanathan_nepal_mobile_app is the app that has many features completely built by flutter
 
 ## Features
--Dark theme Light theme 
+-Dark theme Light theme \n
 -Dynamic checking of calendar in both AD And BS format
 -horoscope 
 -Events Reminds
