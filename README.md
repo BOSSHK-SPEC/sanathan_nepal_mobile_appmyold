@@ -7,13 +7,12 @@ A new Flutter project.
 ## Features
 -Dark theme Light theme. <br />
 -Dynamic checking of calendar in both AD And BS format.<br />
--horoscope 
--Events Reminds
--Foreign exchange
-
--Suva Sait
--Panchanga
--Book an appointment to astrologer
+-horoscope <br />
+-Events Reminds<br />
+-Foreign exchange<br />
+-Suva Sait<br />
+-Panchanga<br />
+-Book an appointment to astrologer<br />
 
 ## Screenshots
 ![Screenshot 2023-07-22 000605](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/eb411509-fec6-4ae1-8ea7-28e89e6f22b6)
