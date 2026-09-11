@@ -1,0 +1,138 @@
+{
+  "@@locale": "en",
+  "appName": "Sanatan Nepal",
+  "navHome": "Home",
+  "navMarketplace": "Marketplace",
+  "navHoroscope": "Horoscope",
+  "navProfile": "Profile",
+  "navMenu": "Menu",
+  "menuPatro": "Patro",
+  "menuBazar": "Bazar",
+  "menuNotification": "Notification",
+  "menuSupport": "Support",
+  "menuSuvaSaits": "Suva Saits",
+  "menuDateConverter": "Date Converter",
+  "menuHoroscope": "Horoscope",
+  "menuEvents": "Events",
+  "menuForex": "FOREX",
+  "menuPanchanga": "Panchanga",
+  "menuWeather": "Weather",
+  "menuAppointment": "Appointment",
+  "menuWishlist": "Wishlist",
+  "menuSettings": "Settings",
+  "menuProfile": "Profile",
+  "menuChat": "Chat",
+  "menuAddProducts": "Add Products",
+  "menuSellerProfile": "Seller Profile",
+  "menuMyProfile": "My Profile",
+  "silentMode": "Silent Mode",
+  "language": "Language",
+  "theme": "Theme",
+  "light": "Light",
+  "dark": "Dark",
+  "nepali": "Nepali",
+  "english": "English",
+  "continueLabel": "Continue",
+  "skip": "SKIP",
+  "cancel": "Cancel",
+  "ok": "OK",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "submit": "Submit",
+  "next": "Next",
+  "back": "Back",
+  "search": "Search...",
+  "seeAll": "See All",
+  "moreInfo": "More Info",
+  "retry": "Retry",
+  "loading": "Loading…",
+  "somethingWentWrong": "Something went wrong",
+  "noInternet": "No internet connection",
+  "noData": "Nothing to show",
+  "advertisement": "ADVERTISEMENT",
+  "today": "Today",
+  "homeTitle": "Home",
+  "settingTabAds": "SETTING TAB ADS",
+  "homeBelowEventAds": "HOME BELOW EVENT ADS",
+  "patroPageAds": "PATRO PAGE ADS",
+  "region": "Region",
+  "selectRegion": "Select your region",
+  "regionNepal": "Nepal",
+  "regionIndia": "India",
+  "hindi": "हिन्दी",
+  "chooseLanguage": "Choose language",
+  "chooseTheme": "Choose theme",
+  "menuBlogs": "Blogs",
+  "menuNews": "News",
+  "justNow": "Just now",
+  "minutesAgo": "{count} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{count} hr ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yesterday": "Yesterday",
+  "daysAgo": "{count} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monthsAgo": "{count} months ago",
+  "@monthsAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearsAgo": "{count} years ago",
+  "@yearsAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "menuAstrologers": "Talk to Astrologer",
+  "menuWallet": "Wallet",
+  "menuConsultations": "My consultations",
+  "menuKundli": "Kundli",
+  "menuReports": "Reports",
+  "menuPuja": "Online puja",
+  "menuSaved": "Saved items",
+  "menuOffers": "Offers",
+  "menuOrders": "My orders",
+  "menuBecomeAstrologer": "Become an astrologer",
+  "addAPhoto": "Add a photo",
+  "takeAPhoto": "Take a photo",
+  "chooseFromGallery": "Choose from gallery",
+  "chooseAFile": "Choose a file",
+  "pdfOrImage": "PDF or image",
+  "maxFileSize": "Max {size}",
+  "@maxFileSize": {
+    "description": "Largest file the current upload accepts",
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "example": "8 MB"
+      }
+    }
+  },
+  "uploading": "Uploading…",
+  "uploadFailed": "Upload failed",
+  "removePhoto": "Remove photo"
+}

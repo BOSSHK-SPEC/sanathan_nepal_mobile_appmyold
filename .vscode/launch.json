@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Sanatan \u2014 live server",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file",
+        "config/production.json"
+      ]
+    },
+    {
+      "name": "Sanatan \u2014 local backend",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file",
+        "config/development.json"
+      ]
+    },
+    {
+      "name": "Sanatan \u2014 mock data (no backend)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file",
+        "config/mock.json"
+      ]
+    },
+    {
+      "name": "Sanatan \u2014 live server (release)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "release",
+      "toolArgs": [
+        "--dart-define-from-file",
+        "config/production.json"
+      ]
+    },
+    {
+      "name": "Console \u2014 live server",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_admin.dart",
+      "toolArgs": [
+        "--web-port",
+        "5173",
+        "--dart-define-from-file",
+        "config/admin.json"
+      ]
+    },
+    {
+      "name": "Console \u2014 local backend",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_admin.dart",
+      "toolArgs": [
+        "--web-port",
+        "5173",
+        "--dart-define-from-file",
+        "config/development.json"
+      ]
+    }
+  ]
+}

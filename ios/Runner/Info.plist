@@ -2,10 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Sanatan Nepal uses your location to show local weather.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Sanathan Nepal Mobile App</string>
+	<string>Sanatan Nepal</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -47,5 +49,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Shown verbatim in the iOS permission prompt. iOS terminates the app
+	     when a picker opens without one, so these are required, not optional —
+	     and they say what the photo is for, because "this app needs access" is
+	     what makes people decline. -->
+	<key>NSCameraUsageDescription</key>
+	<string>Take a photo for your profile, a product listing or a verification document.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo for your profile, a product listing or a verification document.</string>
 </dict>
 </plist>

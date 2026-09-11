@@ -1,27 +1,79 @@
-# sanathan_nepal_mobile_app
+# Sanatan Nepal – Mobile App
 
-A new Flutter project.
+Flutter implementation of the [Sanatan Nepal Figma design](https://www.figma.com/design/3W6r3GNnEXOLcw5VBqTski)
+– Patro/Panchang calendar, Panchanga & Shubh Muhurat, Horoscope, Events, Weather,
+Forex, Date Converter, Marketplace, Appointments, Profile, Blogs/News – with the **light
+(orange)** and **dark (indigo/purple)** themes from the design.
 
-## sanathan_nepal_mobile_app is the app that has many features completely built by flutter
+**Multi-region:** the user picks **Nepal 🇳🇵** or **India 🇮🇳** (onboarding / profile
+preferences) and the whole app adapts:
 
-## Features
--Dark theme Light theme. <br />
--Dynamic checking of calendar in both AD And BS format.<br />
--horoscope <br />
--Events Reminds<br />
--Foreign exchange<br />
--Suva Sait<br />
--Panchanga<br />
--Book an appointment to astrologer<br />
+| | Nepal | India |
+|---|---|---|
+| Languages | नेपाली, English | English, हिन्दी |
+| Calendar | Bikram Sambat primary, AD secondary | Gregorian primary, Saka (Indian national) secondary + Vikram Samvat year |
+| Weekend | Saturday | Sunday |
+| Festivals/holidays | Nepali festivals & public holidays | Indian national holidays + Hindu/Sikh/Muslim/Christian/Jain/Buddhist festivals (2025–27) |
+| Panchanga | Kathmandu, NST, Nepal Sambat | New Delhi, IST, Rahu Kaal / Yamaganda / Gulika / Abhijit / Choghadiya |
+| Currency & forex | NPR (रु./Rs.), Nepal Rastra Bank rates | INR (₹), ECB/Frankfurter rates |
+| Payments | eSewa, Khalti, bank, COD | UPI, card, net banking, COD |
+| Phone / bullion | +977, per tola | +91, per 10 g |
 
-## Screenshots
-![Screenshot 2023-07-22 000605](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/eb411509-fec6-4ae1-8ea7-28e89e6f22b6)
-![Screenshot 2023-07-22 000731](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/bcd52e99-e1f9-4212-b749-92c847b0649b)
-![Screenshot 2023-07-22 000844](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/7949e9e4-62be-46d5-b06c-fd1c36767b97)
-![Screenshot 2023-07-22 004306](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/a2633bd0-378c-4552-bcca-b45a71c37b06)
-![Screenshot 2023-07-22 004418](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/8a8e935c-0088-4de5-a4fb-796a7d926c8c)
+Region logic lives in `lib/core/region` (`RegionConfig`, `RegionScope`, `RegionResolver`) and
+`lib/core/calendar` (`TraditionalCalendar`: `BikramSambatCalendar`, `SakaCalendar`) – see
+ARCHITECTURE.md → "Regions".
 
-![Screenshot 2023-07-22 004606](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/ae1a5414-9256-4734-bb92-74908bf79355)
-![Screenshot 2023-07-22 004645](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/fc9827ec-7ab0-4ca1-9581-8f30b323afdb)
-![Screenshot 2023-07-22 004800](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/ac36aedc-1c62-4e3c-af6a-2887322951df)
-![Screenshot 2023-07-22 005200](https://github.com/BOSSHK-SPEC/sanathan_nepal_mobile_appmyold/assets/84731518/f670b06e-598b-4f91-80b9-1e6b3f51ae32)
+## Architecture
+
+Clean Architecture, feature-first, SOLID. See [ARCHITECTURE.md](ARCHITECTURE.md) for the
+full guide (layer rules, state management, theming, l10n, DI, testing).
+
+```
+lib/
+  app/        MaterialApp.router, GetIt DI, go_router (bottom-nav shell + feature routes)
+  core/       theme tokens (AppColors ThemeExtension, Mukta typography), Result/Failure,
+              use-case contracts, ApiClient (Dio), KeyValueStore, shared widgets
+  l10n/       ARB files (ne/en) → generated AppLocalizations (shared strings)
+  features/   <feature>/{domain,data,presentation} + <feature>_routes.dart + <feature>_injection.dart
+```
+
+| Feature | Screens (Figma) | Data |
+|---|---|---|
+| onboarding | Splash, Language/Theme, Login, Phone/OTP, Details, Notification prefs | mock auth + local |
+| home | Home (calendar strip, weather, horoscope, events, suva sait, forex, panchanga, ads) | composes features |
+| calendar / date_converter | Patro month grid, date popups, Traditional⇄Gregorian converter | BS via `nepali_utils`, Saka rule-based; region festival seeds |
+| horoscope / panchanga | 12-sign daily/weekly/monthly/yearly, Panchanga tables, Suva Sait | mock (deterministic) |
+| weather / forex | Weather page & card, Forex trend/converter/table | **Open-Meteo**, **NRB forex API** (Nepal) / **Frankfurter** (India), mock fallback |
+| events / notifications | Festivals, My events, To-do, details, create/edit, notifications & settings | mock in-memory + local prefs |
+| marketplace | Marketplace tab, listing, product details, cart, checkout, boost flow, popups | mock + persisted cart |
+| appointment | Provider profile/tabs, booking wizard, my appointments, details, reschedule/cancel | mock in-memory |
+| profile | User profile (About/Activities/Notifications/Links), edit, business profile & form, support | mock + local |
+| legal / content | Privacy policy, Terms, Blogs, News, article details | seeded |
+
+State: `flutter_bloc` Cubits with **freezed** states (`LoadState<T>` slices) · Entities/models:
+**freezed** (+ `json_serializable` for models) · DI: `get_it` · Navigation: `go_router` · Errors:
+freezed sealed `Failure` + `Result<T>` · Fonts: Mukta (bundled).
+
+## Getting started
+
+```bash
+flutter pub get
+flutter gen-l10n
+dart run build_runner build --delete-conflicting-outputs   # freezed / json_serializable
+flutter run
+```
+
+Quality gate:
+
+```bash
+flutter analyze      # 0 issues
+flutter test         # ~380 tests (bloc_test, mocktail, widget tests, both regions)
+```
+
+## Notes
+
+* No backend exists yet; every feature ships a deterministic `Mock*DataSource` behind its
+  repository interface. Swapping to a real API = new data source class + one DI line.
+* The pre-rewrite code is kept in `legacy/` for reference only (excluded from analysis).
+* Android/iOS location permission entries are in place for the weather feature (falls back to
+  Kathmandu when denied).

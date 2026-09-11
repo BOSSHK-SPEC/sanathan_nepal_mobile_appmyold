@@ -1,123 +1,111 @@
 name: sanathan_nepal_mobile_app
-description: A new Flutter project.
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+description: Sanatan Nepal – Patro, Horoscope, Panchanga, Events, Marketplace & more.
+publish_to: 'none'
+version: 2.0.0+1
 
 environment:
-  sdk: '>=2.19.1 <3.0.0'
+  sdk: ^3.8.0
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
+  # --- Architecture / state ---
+  flutter_bloc: ^9.1.1
+  get_it: ^8.0.3
+  go_router: ^16.0.0
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.11.0
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
+  # --- Data / networking / persistence ---
+  dio: ^5.7.0
+  shared_preferences: ^2.3.3
+  # Refresh tokens are long-lived credentials — keychain/keystore, not prefs.
+  flutter_secure_storage: ^9.2.4
+  # Client-generated request ids for tracing and idempotency keys.
+  uuid: ^4.5.1
 
-  nepali_date_picker: ^5.3.1
-  intl: '>=0.15.2 <0.18.0'
-  geolocator: ^9.0.2
-  dart_suncalc: ^0.2.1
-  charts_flutter: any
-  animated_bottom_navigation_bar: ^1.2.0
-  expandable_menu: ^0.0.5
-  flutter_speed_dial: ^7.0.0
-  toggle_switch: ^2.1.0
-  group_radio_button: ^1.3.0
-  flutter_rating_bar: ^4.0.1
-  flutter_switch: ^0.3.2
-  percent_indicator: ^4.2.3
-  dio: ^5.2.1+1
-  provider: ^6.0.5
-  material_color_utilities: ^0.2.0
-  dotted_border: ^2.0.0+3
-  path_drawing: ^1.0.1
-  flutter_dash: ^1.0.0
-  expandable_widgets: ^1.0.2
-  expansion_card: ^0.1.0
-  expansion_tile_card: ^3.0.0
-  country_picker: ^2.0.20
-  money_converter: ^2.0.2
-  modal_bottom_sheet: ^2.1.2
-  currency_picker: ^2.0.16
+  # --- Nepali date utilities ---
+  nepali_utils: ^3.0.8
+  intl: ^0.20.2
 
+  # --- UI ---
+  flutter_svg: ^2.0.17
+  fl_chart: ^1.0.0
+  cupertino_icons: ^1.0.8
+
+  # --- Device ---
+  geolocator: ^14.0.2
+  image_picker: ^1.2.3
+  url_launcher: ^6.3.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.4
+  flutter_lints: ^6.0.0
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  # --- Code generation (freezed states/entities, JSON models) ---
+  build_runner: ^2.10.5
+  freezed: ^3.2.3
+  json_serializable: ^6.11.2
+  image_picker_platform_interface: ^2.11.1
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
+  generate: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-    - assets/images/timeline.png
-    - assets/images/Group 2 (2).png
-    - assets/images/Group 2 (3).png
-    - assets/images/Photo (1).png
-    - assets/images/Photo (2).png
-    - assets/images/england_icon.png
-  #   - images/a_dot_ham.jpeg
+    - assets/icons/
+    - assets/fonts/
+    - assets/images/onboarding/
+    - assets/icons/onboarding/
+    - assets/images/home/
+    - assets/icons/home/
+    - assets/images/calendar/
+    - assets/icons/calendar/
+    - assets/images/date_converter/
+    - assets/icons/date_converter/
+    - assets/images/weather/
+    - assets/icons/weather/
+    - assets/images/forex/
+    - assets/icons/forex/
+    - assets/images/horoscope/
+    - assets/icons/horoscope/
+    - assets/images/panchanga/
+    - assets/icons/panchanga/
+    - assets/images/events/
+    - assets/icons/events/
+    - assets/images/notifications/
+    - assets/icons/notifications/
+    - assets/images/marketplace/
+    - assets/icons/marketplace/
+    - assets/images/appointment/
+    - assets/icons/appointment/
+    - assets/images/profile/
+    - assets/icons/profile/
+    - assets/images/legal/
+    - assets/icons/legal/
+    - assets/images/content/
+    - assets/icons/content/
+    - assets/images/shared/
+    - assets/icons/shared/
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: Mukta
+      fonts:
+        - asset: assets/fonts/Mukta-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Mukta-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Mukta-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Mukta-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Mukta-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Mukta-ExtraBold.ttf
+          weight: 800

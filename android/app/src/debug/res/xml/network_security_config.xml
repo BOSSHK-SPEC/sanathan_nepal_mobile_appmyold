@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only — this file lives in src/debug and is not part of a
+  release APK, which keeps the app HTTPS-only everywhere it ships.
+
+  Android has blocked cleartext HTTP by default since API 28, so a dev stack
+  served over http:// is refused before a request leaves the device. Dio
+  reports that as a connection error, which the app renders as "no internet
+  connection" — the server is fine, the platform never let us dial.
+
+  Only the development hosts are exempted, never a blanket
+  `cleartextTrafficPermitted="true"`.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- The host machine, as seen from inside the Android emulator. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- A server running on the device itself (adb reverse tunnels). -->
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>
