@@ -46,21 +46,14 @@ scp deploy/console/headers.conf root@2.25.163.51:/tmp/console-headers.conf
 On the server:
 
 ```bash
-# Find the config that serves the console today, and back it up.
-grep -rl "console.yashwanthhk.com" /etc/nginx/sites-enabled /etc/nginx/conf.d
-cp <that file> /root/console-nginx.backup
-
-# Confirm the certificate paths used in nginx.conf exist.
-ls /etc/letsencrypt/live/console.yashwanthhk.com/ /etc/letsencrypt/options-ssl-nginx.conf
+# Back up the existing console site (sites-enabled only holds a symlink to it).
+cp /etc/nginx/sites-available/console.yashwanthhk.com /root/console-nginx.backup
 
 cp /tmp/console-headers.conf /etc/nginx/snippets/sanatan-console-headers.conf
 cp /tmp/console-nginx.conf   /etc/nginx/sites-available/console.yashwanthhk.com
-# If the old file (from grep) is a DIFFERENT file, remove it from sites-enabled
-# so two blocks don't claim the same server_name:
-#   rm /etc/nginx/sites-enabled/<old file>
-ln -sfn /etc/nginx/sites-available/console.yashwanthhk.com /etc/nginx/sites-enabled/
 
 nginx -t && systemctl reload nginx
+# If nginx -t fails: cp /root/console-nginx.backup /etc/nginx/sites-available/console.yashwanthhk.com
 ```
 
 `nginx -t` must say *syntax is ok / test is successful* before the reload. If
@@ -106,6 +99,11 @@ for your click). Add these **environment secrets**:
 Then **Settings → Secrets and variables → Actions** → delete `VPS_SSH_KEY` and
 `VPS_HOST` (the old root key).
 
+Deleting the secret does not disable the key — the server still accepts it.
+After the first successful deploy, remove its line from
+`/root/.ssh/authorized_keys` (compare with the public half of the key you
+generated for GitHub; keep the line for your own login).
+
 ### Step 5 — First deploy
 
 Commit and push to `master` (or Actions → **deploy-console** → *Run workflow*).
@@ -126,7 +124,7 @@ login, not the mobile app. Once that works, `releases/legacy` and the old
 Instant (no rebuild) — point `current` at the previous release:
 
 ```bash
-ssh deploy@2.25.163.51
+ssh sanatan                  # = deploy@2.25.163.51 with ~/.ssh/sanatan_deploy
 cd /var/www/sanatan-console
 ls -1 releases | sort -r                # newest first
 ln -sfn releases/<previous> current.next && mv -Tf current.next current
