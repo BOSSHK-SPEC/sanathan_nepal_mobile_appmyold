@@ -16,13 +16,19 @@ jobs:
       - name: 🛠 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'
+          flutter-version: '3.44.9'
           channel: 'stable'
 
-      - name: 📦 Build Web Release
+      # Build the ADMIN console (lib/main_admin.dart). Without -t, Flutter
+      # builds lib/main.dart — the mobile app — which is what used to get deployed.
+      - name: 📦 Build Web Release (admin console)
         run: |
           flutter pub get
-          flutter build web --release
+          flutter build web --release \
+            -t lib/main_admin.dart \
+            --dart-define-from-file=config/admin.json
+          grep -q 'Sanatan Console' build/web/main.dart.js \
+            || { echo "::error::build/web is not the admin console"; exit 1; }
 
       - name: 🚀 Deploy to VPS (/var/www/sanathan-web)
         uses: appleboy/scp-action@v0.1.7

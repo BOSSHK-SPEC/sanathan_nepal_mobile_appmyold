@@ -1,0 +1,245 @@
+name: deploy-console
+
+# Builds the staff console (lib/main_admin.dart) for the web and ships it to
+# https://console.yashwanthhk.com.
+#
+# The mobile app (lib/main.dart) is NOT deployed here: this repo has two
+# entrypoints, and a bare `flutter build web` silently picks lib/main.dart —
+# which is exactly how the consumer app ended up on the console domain. The
+# target is therefore explicit, and the artifact is checked for the console
+# before it is allowed anywhere near the server.
+#
+# Two jobs on purpose: `build` runs pub packages and third-party actions and
+# never sees a secret; `deploy` holds the SSH key and runs nothing but ssh/scp.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'assets/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'l10n.yaml'
+      - 'config/admin.json'
+      - 'deploy/console/**'
+      - '.github/workflows/deploy-console.yml'
+
+  # Manual redeploy and rollback: rolling back is deploying an older SHA.
+  # (For an instant rollback without a rebuild, see deploy/console/README.md.)
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Commit SHA, tag or branch to deploy'
+        required: true
+        default: master
+
+# One console deploy at a time; a newer push waits rather than racing the
+# symlink switch.
+concurrency:
+  group: deploy-console
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.44.9'
+  PUBLIC_URL: https://console.yashwanthhk.com
+  WEB_ROOT: /var/www/sanatan-console
+  KEEP_RELEASES: '5'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      sha: ${{ steps.stamp.outputs.sha }}
+      release: ${{ steps.stamp.outputs.release }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Stamp the release
+        id: stamp
+        run: |
+          set -euo pipefail
+          SHA=$(git rev-parse HEAD)
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          # Sorts chronologically as a plain string, which is what lets the
+          # server prune "all but the newest N".
+          echo "release=$(date -u +%Y%m%dT%H%M%SZ)-${SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      # Pinned, not '3.x': the console must be built by the toolchain the code
+      # was tested with, not whatever stable happens to be this afternoon.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies (lockfile is the contract)
+        run: flutter pub get --enforce-lockfile
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build the console
+        run: |
+          flutter build web --release \
+            --target lib/main_admin.dart \
+            --dart-define-from-file=config/admin.json \
+            --base-href / \
+            --output build/console
+
+      # Guard against shipping the wrong entrypoint again. 'Sanatan Console' is
+      # the MaterialApp title in lib/admin/admin_app.dart and survives dart2js.
+      - name: Verify the artifact is the console, not the mobile app
+        run: |
+          set -euo pipefail
+          test -f build/console/index.html
+          grep -q 'Sanatan Console' build/console/main.dart.js \
+            || { echo "::error::build/console is not the staff console — was lib/main.dart built instead?"; exit 1; }
+
+      # Served no-cache and read back by the smoke test, to prove the public
+      # site is serving THIS build rather than a cached or stale one.
+      - name: Write build-info.json
+        run: |
+          cat > build/console/build-info.json <<EOF
+          {"app":"console","sha":"${{ steps.stamp.outputs.sha }}","release":"${{ steps.stamp.outputs.release }}","flutter":"${{ env.FLUTTER_VERSION }}"}
+          EOF
+
+      - name: Package
+        run: tar -czf console.tar.gz -C build/console .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: console-${{ steps.stamp.outputs.sha }}
+          path: console.tar.gz
+          retention-days: 14
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Settings → Environments → production: required reviewers, branch rules
+    # and the SSH secrets below live here.
+    environment:
+      name: production
+      url: ${{ env.PUBLIC_URL }}
+
+    env:
+      RELEASE: ${{ needs.build.outputs.release }}
+      SHA: ${{ needs.build.outputs.sha }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: console-${{ needs.build.outputs.sha }}
+
+      - name: Checksum
+        id: sum
+        run: echo "sha256=$(sha256sum console.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      # Plain ssh with a pinned host key and the unprivileged `deploy` user —
+      # never root, never a blindly accepted host key.
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_PRIVATE_KEY" || { echo "::error::secret SSH_PRIVATE_KEY is not set"; exit 1; }
+          test -n "$SSH_KNOWN_HOSTS" || { echo "::error::secret SSH_KNOWN_HOSTS is not set — run 'ssh-keyscan HOST' and paste the output"; exit 1; }
+          test -n "$SERVER_HOST"     || { echo "::error::secret SERVER_HOST is not set"; exit 1; }
+          test -n "$SERVER_USER"     || { echo "::error::secret SERVER_USER is not set (e.g. 'deploy')"; exit 1; }
+
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_deploy ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host production
+            HostName $SERVER_HOST
+            User $SERVER_USER
+            Port $SERVER_PORT
+            IdentityFile ~/.ssh/id_deploy
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+          EOF
+          chmod 600 ~/.ssh/config
+          ssh production 'echo connected as $(id -un) to $(hostname)'
+
+      - name: Upload
+        run: |
+          set -euo pipefail
+          ssh production "test -d '$WEB_ROOT/releases' || { echo 'run the one-time setup in deploy/console/README.md first' >&2; exit 1; }"
+          scp console.tar.gz "production:/tmp/console-$RELEASE.tar.gz"
+
+      # Unpack into a fresh release directory, then swap the `current` symlink
+      # with a rename — atomic, so nginx never serves a half-copied build (the
+      # old scp-into-webroot did, and left stale files behind forever).
+      - name: Release
+        run: |
+          set -euo pipefail
+          ssh production bash -s <<EOF
+          set -euo pipefail
+          cd /tmp
+          echo '${{ steps.sum.outputs.sha256 }}  console-$RELEASE.tar.gz' | sha256sum -c -
+
+          install -d -m 755 "$WEB_ROOT/releases/$RELEASE"
+          tar -xzf "/tmp/console-$RELEASE.tar.gz" -C "$WEB_ROOT/releases/$RELEASE"
+          rm -f "/tmp/console-$RELEASE.tar.gz"
+          test -f "$WEB_ROOT/releases/$RELEASE/index.html"
+
+          ln -sfn "releases/$RELEASE" "$WEB_ROOT/current.next"
+          mv -Tf "$WEB_ROOT/current.next" "$WEB_ROOT/current"
+          echo "current -> \$(readlink "$WEB_ROOT/current")"
+
+          # Keep the newest N builds for instant rollback.
+          ls -1d "$WEB_ROOT"/releases/2*/ | sort -r | tail -n +\$(( $KEEP_RELEASES + 1 )) | xargs -r rm -rf
+          EOF
+
+      - name: Smoke test the public site
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 10); do
+            LIVE=$(curl -fsS --max-time 10 "$PUBLIC_URL/build-info.json?ts=$(date +%s)" | jq -r .sha || true)
+            [ "$LIVE" = "$SHA" ] && break
+            [ "$i" = 10 ] && { echo "::error::$PUBLIC_URL serves '$LIVE', expected '$SHA' — is nginx's root pointed at $WEB_ROOT/current?"; exit 1; }
+            sleep 3
+          done
+          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/"
+          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/admin/businesses"   # SPA deep link
+          echo "✓ $PUBLIC_URL is serving $SHA"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Console deploy \`${{ job.status }}\`"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Commit | \`$SHA\` |"
+            echo "| Release | \`$RELEASE\` |"
+            echo "| URL | $PUBLIC_URL |"
+            echo
+            echo "Roll back: re-run this workflow with \`ref\` set to the previous commit, or re-point the symlink (deploy/console/README.md)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Revoke the key material
+        if: always()
+        run: rm -rf ~/.ssh
