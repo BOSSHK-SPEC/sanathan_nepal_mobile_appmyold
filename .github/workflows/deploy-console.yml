@@ -1,7 +1,8 @@
 name: deploy-console
 
-# Builds the staff console (lib/main_admin.dart) for the web and ships it to
-# https://console.yashwanthhk.com.
+# Builds the staff console (lib/main_admin.dart) for the web, plus the static
+# 3D landing site (landing/) that nginx serves for the bare domain, and ships
+# both as one release to https://console.yashwanthhk.com.
 #
 # The mobile app (lib/main.dart) is NOT deployed here: this repo has two
 # entrypoints, and a bare `flutter build web` silently picks lib/main.dart —
@@ -17,6 +18,7 @@ on:
     branches: [master]
     paths:
       - 'lib/**'
+      - 'landing/**'
       - 'web/**'
       - 'assets/**'
       - 'pubspec.yaml'
@@ -84,11 +86,26 @@ jobs:
       - name: Install dependencies (lockfile is the contract)
         run: flutter pub get --enforce-lockfile
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: landing/.nvmrc
+          cache: npm
+          cache-dependency-path: landing/package-lock.json
+
       - name: Analyze
         run: flutter analyze
 
       - name: Test
         run: flutter test
+
+      # Fonts, typecheck, tests and production build of the landing site, into
+      # web/welcome/ — so the Flutter build below ships it at /welcome/. npm ci
+      # refuses to run if package-lock.json and package.json disagree.
+      - name: Build the landing site
+        working-directory: landing
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
 
       - name: Build the console
         run: |
@@ -106,6 +123,24 @@ jobs:
           test -f build/console/index.html
           grep -q 'Sanatan Console' build/console/main.dart.js \
             || { echo "::error::build/console is not the staff console — was lib/main.dart built instead?"; exit 1; }
+          test -f build/console/welcome/index.html
+          # Every public page, prerendered in every language (landing/src/i18n/locales.ts).
+          for code in en ne hi as bn gu kn ml mr or pa ta te; do
+            for page in "" privacy/ delete-account/; do
+              grep -q "lang=\"$code\"" "build/console/welcome/$code/${page}index.html" \
+                || { echo "::error::build/console/welcome/$code/${page}index.html is missing or not in $code"; exit 1; }
+            done
+          done
+          # The app's placeholder phone numbers must never be published.
+          if grep -rqE '4XXX|X{6}' build/console/welcome --include=index.html; then
+            echo "::error::a placeholder phone number reached the public pages"; exit 1
+          fi
+          grep -q 'class="journey"' build/console/welcome/index.html \
+            || { echo "::error::build/console/welcome/index.html is not the landing page"; exit 1; }
+          # The landing CSP forbids inline scripts; fail here rather than ship a blank page.
+          if grep -Eq '<script>|<script type="module">' build/console/welcome/index.html; then
+            echo "::error::landing/index.html has an inline script, which the CSP (deploy/console/landing-csp.conf) blocks"; exit 1
+          fi
 
       # Served no-cache and read back by the smoke test, to prove the public
       # site is serving THIS build rather than a cached or stale one.
@@ -221,8 +256,24 @@ jobs:
             [ "$i" = 10 ] && { echo "::error::$PUBLIC_URL serves '$LIVE', expected '$SHA' — is nginx's root pointed at $WEB_ROOT/current?"; exit 1; }
             sleep 3
           done
-          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/"
-          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/admin/businesses"   # SPA deep link
+          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/welcome/index.html"
+          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/welcome/kn/"
+          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/welcome/en/privacy/"
+          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/welcome/en/delete-account/"
+          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/sign-in"              # SPA route
+          curl -fsS --max-time 10 -o /dev/null "$PUBLIC_URL/console/businesses"   # SPA deep link
+          # nginx serves the landing site for `/` once deploy/console/nginx.conf is
+          # installed; until then the console boots there and forwards to it.
+          # /privacy and /delete-account must be the public pages, not the console (the store listing links them).
+          for path in privacy delete-account; do
+            curl -fsS --max-time 10 "$PUBLIC_URL/$path" | grep -q "data-page=\"$path\"" \
+              || echo "::warning::$PUBLIC_URL/$path is not the public page yet — install deploy/console/nginx.conf (the console still forwards it)"
+          done
+          if curl -fsS --max-time 10 "$PUBLIC_URL/" | grep -q 'class="journey"'; then
+            echo "✓ / serves the landing site"
+          else
+            echo "::warning::$PUBLIC_URL/ is not serving the landing site — install deploy/console/nginx.conf and landing-csp.conf (deploy/console/README.md)"
+          fi
           echo "✓ $PUBLIC_URL is serving $SHA"
 
       - name: Summary

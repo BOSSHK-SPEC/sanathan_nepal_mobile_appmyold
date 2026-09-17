@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Sanatan \u2014 live server",
+      "name": "Sanatan — live server",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
@@ -12,7 +12,7 @@
       ]
     },
     {
-      "name": "Sanatan \u2014 local backend",
+      "name": "Sanatan — local backend",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
@@ -22,7 +22,7 @@
       ]
     },
     {
-      "name": "Sanatan \u2014 mock data (no backend)",
+      "name": "Sanatan — mock data (no backend)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
@@ -32,7 +32,7 @@
       ]
     },
     {
-      "name": "Sanatan \u2014 live server (release)",
+      "name": "Sanatan — live server (release)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "name": "Console \u2014 live server",
+      "name": "Console — live server",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_admin.dart",
@@ -52,10 +52,11 @@
         "5173",
         "--dart-define-from-file",
         "config/admin.json"
-      ]
+      ],
+      "preLaunchTask": "Build landing site"
     },
     {
-      "name": "Console \u2014 local backend",
+      "name": "Console — local backend",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_admin.dart",
@@ -64,7 +65,8 @@
         "5173",
         "--dart-define-from-file",
         "config/development.json"
-      ]
+      ],
+      "preLaunchTask": "Build landing site"
     }
   ]
 }

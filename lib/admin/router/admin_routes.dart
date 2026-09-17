@@ -4,7 +4,12 @@ import '../../core/session/permission.dart';
 
 /// Every path the console knows, in one place.
 abstract final class AdminRoutes {
+  /// The static landing site (`landing/`). nginx serves it for the bare `/`,
+  /// so the app only reaches this path client-side, and redirects it.
   static const String landing = '/';
+
+  /// Staff sign-in — where unauthenticated console visits are sent.
+  static const String signIn = '/sign-in';
   static const String console = '/console';
   static const String overview = '/console/overview';
   static const String applications = '/console/astrologers';

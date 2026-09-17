@@ -6,18 +6,23 @@ import '../../core/extensions/context_extensions.dart';
 import '../motion/motion.dart';
 import 'cubit/admin_auth_cubit.dart';
 
-/// Staff sign-in, as a drawer rather than a page.
+/// Staff sign-in form.
 ///
-/// The console is not the product — the app is — so the landing page is the
-/// front door and this slides in over it. It also means signing in never loses
-/// the visitor's place, and there is no `/login` route to be linked, indexed,
-/// or brute-forced as a page of its own.
+/// Shown [embedded] on the console's `/sign-in` page — the public front door
+/// is the static landing site (`landing/`), which links there — and still
+/// usable as a drawer where a page wants it to slide in over its content.
+/// Brute-forcing is the server's problem either way: codes are rate-limited
+/// and only allow-listed numbers can sign in.
 ///
 /// Phone OTP only. Google and Apple are refused by the server in this
 /// deployment, and offering a button that always fails is worse than not
 /// offering it.
 class AdminLoginPanel extends StatefulWidget {
-  const AdminLoginPanel({super.key});
+  const AdminLoginPanel({super.key, this.embedded = false});
+
+  /// Renders the bare form (no drawer chrome, no close button) for a page to
+  /// place itself.
+  final bool embedded;
 
   @override
   State<AdminLoginPanel> createState() => _AdminLoginPanelState();
@@ -38,157 +43,157 @@ class _AdminLoginPanelState extends State<AdminLoginPanel> {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
+    final form = BlocBuilder<AdminAuthCubit, AdminAuthState>(
+      builder: (context, state) {
+        final cubit = context.read<AdminAuthCubit>();
+
+        return ListView(
+          shrinkWrap: widget.embedded,
+          // Embedded, the page around it scrolls.
+          physics: widget.embedded
+              ? const NeverScrollableScrollPhysics()
+              : null,
+          padding: const EdgeInsets.fromLTRB(28, 32, 28, 32),
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Staff sign in',
+                    style: context.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                if (!widget.embedded)
+                  IconButton(
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: const Icon(Icons.close_rounded),
+                    tooltip: 'Close',
+                  ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'For moderators, finance and support. Everyone else uses the app.',
+              style: context.textTheme.bodySmall?.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            if (state.isSignedInWithoutAccess)
+              _Notice(
+                icon: Icons.lock_person_rounded,
+                tone: colors.warning,
+                title: 'This account is not staff',
+                body:
+                    'You are signed in, but this number holds no staff role. '
+                    'Ask a superAdmin to grant one, then sign in again.',
+                action: TextButton(
+                  onPressed: cubit.signOut,
+                  child: const Text('Use a different number'),
+                ),
+              )
+            else ...[
+              _PhoneField(
+                controller: _phone,
+                enabled: !state.awaitingCode && !state.busy,
+                onChanged: cubit.setPhone,
+                onSubmit: cubit.requestCode,
+              ),
+              const SizedBox(height: 16),
+
+              if (state.awaitingCode) ...[
+                _CodeField(
+                  controller: _code,
+                  enabled: !state.busy,
+                  onSubmit: () => cubit.verify(_code.text),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: state.busy
+                        ? null
+                        : () {
+                            _code.clear();
+                            cubit.changeNumber();
+                          },
+                    child: Text('Change number (${state.phone})'),
+                  ),
+                ),
+              ] else
+                _RegionPicker(region: state.region, onChanged: cubit.setRegion),
+
+              if (state.errorMessage != null) ...[
+                const SizedBox(height: 16),
+                _Notice(
+                  icon: Icons.error_outline_rounded,
+                  tone: colors.error,
+                  title: 'Could not sign in',
+                  body: state.errorMessage!,
+                ),
+              ],
+
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: state.busy
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(12),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : Align(
+                        alignment: Alignment.centerLeft,
+                        child: MagneticButton(
+                          label: state.awaitingCode
+                              ? 'Verify and continue'
+                              : 'Send me a code',
+                          icon: state.awaitingCode
+                              ? Icons.login_rounded
+                              : Icons.sms_rounded,
+                          onPressed: state.awaitingCode
+                              ? () => cubit.verify(_code.text)
+                              : cubit.requestCode,
+                        ),
+                      ),
+              ),
+            ],
+
+            const SizedBox(height: 40),
+            Divider(color: colors.divider),
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.shield_outlined, size: 16, color: colors.textMuted),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Sign-in is limited to numbers an administrator has enabled. '
+                    'Every action you take in the console is recorded against '
+                    'your account in the audit log.',
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: colors.textMuted,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+
+    if (widget.embedded) return form;
     return Drawer(
       width: 420,
       backgroundColor: colors.surface,
-      child: SafeArea(
-        child: BlocBuilder<AdminAuthCubit, AdminAuthState>(
-          builder: (context, state) {
-            final cubit = context.read<AdminAuthCubit>();
-
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(28, 32, 28, 32),
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Staff sign in',
-                        style: context.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      icon: const Icon(Icons.close_rounded),
-                      tooltip: 'Close',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'For moderators, finance and support. Everyone else uses the app.',
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                if (state.isSignedInWithoutAccess)
-                  _Notice(
-                    icon: Icons.lock_person_rounded,
-                    tone: colors.warning,
-                    title: 'This account is not staff',
-                    body:
-                        'You are signed in, but this number holds no staff role. '
-                        'Ask a superAdmin to grant one, then sign in again.',
-                    action: TextButton(
-                      onPressed: cubit.signOut,
-                      child: const Text('Use a different number'),
-                    ),
-                  )
-                else ...[
-                  _PhoneField(
-                    controller: _phone,
-                    enabled: !state.awaitingCode && !state.busy,
-                    onChanged: cubit.setPhone,
-                    onSubmit: cubit.requestCode,
-                  ),
-                  const SizedBox(height: 16),
-
-                  if (state.awaitingCode) ...[
-                    _CodeField(
-                      controller: _code,
-                      enabled: !state.busy,
-                      onSubmit: () => cubit.verify(_code.text),
-                    ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: state.busy
-                            ? null
-                            : () {
-                                _code.clear();
-                                cubit.changeNumber();
-                              },
-                        child: Text('Change number (${state.phone})'),
-                      ),
-                    ),
-                  ] else
-                    _RegionPicker(
-                      region: state.region,
-                      onChanged: cubit.setRegion,
-                    ),
-
-                  if (state.errorMessage != null) ...[
-                    const SizedBox(height: 16),
-                    _Notice(
-                      icon: Icons.error_outline_rounded,
-                      tone: colors.error,
-                      title: 'Could not sign in',
-                      body: state.errorMessage!,
-                    ),
-                  ],
-
-                  const SizedBox(height: 28),
-                  SizedBox(
-                    width: double.infinity,
-                    child: state.busy
-                        ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(12),
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        : Align(
-                            alignment: Alignment.centerLeft,
-                            child: MagneticButton(
-                              label: state.awaitingCode
-                                  ? 'Verify and continue'
-                                  : 'Send me a code',
-                              icon: state.awaitingCode
-                                  ? Icons.login_rounded
-                                  : Icons.sms_rounded,
-                              onPressed: state.awaitingCode
-                                  ? () => cubit.verify(_code.text)
-                                  : cubit.requestCode,
-                            ),
-                          ),
-                  ),
-                ],
-
-                const SizedBox(height: 40),
-                Divider(color: colors.divider),
-                const SizedBox(height: 16),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.shield_outlined,
-                      size: 16,
-                      color: colors.textMuted,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Sign-in is limited to numbers an administrator has enabled. '
-                        'Every action you take in the console is recorded against '
-                        'your account in the audit log.',
-                        style: context.textTheme.labelSmall?.copyWith(
-                          color: colors.textMuted,
-                          height: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+      child: SafeArea(child: form),
     );
   }
 }

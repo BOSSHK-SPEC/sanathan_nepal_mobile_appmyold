@@ -1,0 +1,218 @@
+<!doctype html>
+<!--
+  Template, in English. Every translatable string is bound with data-i18n /
+  data-i18n-attr to src/i18n/messages/*.ts; the build renders one page per
+  locale from this file (vite.config.ts), and the page switches in place.
+-->
+<html lang="en" data-page="home" data-act="river">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Sanatan Nepal</title>
+    <meta name="description" content="The calendar, the stars and the puja room in one app, for Nepal and India. Staff sign in to the Sanatan console." />
+    <meta name="theme-color" content="#060A14" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="author" content="Yashwanth H K" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- Decides before first paint whether this session has already seen the splash. -->
+    <script src="/welcome/splash-gate.js"></script>
+    <!-- Hold the first paint until the main content is parsed, so a page transition never reveals a half-built page. -->
+    <link rel="expect" href="#top" blocking="render" />
+    <script type="module" src="/src/pages/home.ts"></script>
+  </head>
+  <body>
+    <!-- Opening splash (src/ui/splash.ts, src/styles/splash.css): decorative, first page of a session only. -->
+    <div class="splash" data-splash aria-hidden="true">
+      <div class="splash-glow"></div>
+      <div class="splash-ring"></div>
+      <svg class="splash-mark" viewBox="0 0 200 200" focusable="false">
+        <defs>
+          <radialGradient id="splash-flame" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#fff6dc" />
+            <stop offset="0.28" stop-color="#ffcf73" />
+            <stop offset="0.62" stop-color="#e8903b" stop-opacity="0.45" />
+            <stop offset="1" stop-color="#e8903b" stop-opacity="0" />
+          </radialGradient>
+          <path id="splash-petal" d="M100 25 C 111 36, 112 49, 100 57 C 88 49, 89 36, 100 25 Z" />
+        </defs>
+        <circle class="splash-draw splash-draw--1" cx="100" cy="100" r="88" pathLength="1" />
+        <circle class="splash-draw splash-draw--2" cx="100" cy="100" r="80" pathLength="1" />
+        <g class="splash-lotus">
+          <g><use href="#splash-petal" /></g>
+          <g transform="rotate(45 100 100)"><use href="#splash-petal" /></g>
+          <g transform="rotate(90 100 100)"><use href="#splash-petal" /></g>
+          <g transform="rotate(135 100 100)"><use href="#splash-petal" /></g>
+          <g transform="rotate(180 100 100)"><use href="#splash-petal" /></g>
+          <g transform="rotate(225 100 100)"><use href="#splash-petal" /></g>
+          <g transform="rotate(270 100 100)"><use href="#splash-petal" /></g>
+          <g transform="rotate(315 100 100)"><use href="#splash-petal" /></g>
+        </g>
+        <path class="splash-draw splash-draw--3" d="M100 64 L131.2 118 L68.8 118 Z" pathLength="1" />
+        <path class="splash-draw splash-draw--4" d="M100 136 L68.8 82 L131.2 82 Z" pathLength="1" />
+        <circle class="splash-flame" cx="100" cy="100" r="22" fill="url(#splash-flame)" />
+        <circle class="splash-bindu" cx="100" cy="100" r="2.6" />
+        <g class="splash-orbit">
+          <circle cx="100" cy="12" r="2.4" />
+        </g>
+      </svg>
+      <div class="splash-words">
+        <p class="splash-brand" translate="no">Sanatan Nepal</p>
+        <p class="splash-tagline"><span class="splash-om" lang="sa">ॐ</span> <span data-i18n="footer">for Nepal and India</span></p>
+      </div>
+    </div>
+
+    <a class="skip" href="#sign-in" data-i18n="skip">Skip to staff sign in</a>
+
+    <div class="backdrop" aria-hidden="true"></div>
+    <canvas class="stage" aria-hidden="true"></canvas>
+    <div class="shade" aria-hidden="true"></div>
+
+    <header class="nav">
+      <a class="brand" href="#top" aria-label="Sanatan Nepal, back to the start" data-i18n-attr="aria-label:brandLabel">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 3 28 24H4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M16 29 4 8h24Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" opacity=".55" />
+          <circle cx="16" cy="16" r="2.2" fill="currentColor" />
+        </svg>
+        <span class="brand-name">Sanatan Nepal</span>
+      </a>
+      <nav class="site-tabs" aria-label="Pages" data-i18n-attr="aria-label:links.label">
+        <a href="/welcome/en/index.html" data-href-page="home" data-tab aria-current="page"><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.home">Home</span></a>
+        <a href="/welcome/en/privacy/index.html" data-href-page="privacy" data-tab><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.privacy">Privacy Policy</span></a>
+        <a href="/welcome/en/delete-account/index.html" data-href-page="delete-account" data-tab><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.deleteAccount">Delete account</span></a>
+      </nav>
+      <div class="lang">
+        <button class="lang-button" type="button" popovertarget="lang-menu" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="Language" data-i18n-attr="aria-label:language.button" data-lang-button>
+          <svg class="lang-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+          </svg>
+          <span class="lang-current" data-locale-name>English</span>
+        </button>
+        <div class="lang-menu" id="lang-menu" popover>
+          <p class="lang-heading" data-i18n="language.heading">Choose a language</p>
+          <ul class="lang-list" data-lang-list></ul>
+        </div>
+      </div>
+      <a class="nav-cta" href="/sign-in" data-i18n="signIn">Staff sign in</a>
+    </header>
+
+    <div class="rail" aria-hidden="true">
+      <div class="rail-act" data-rail="river"><span data-i18n="rail.river"><span class="term" lang="ne">दीप</span></span><i><b></b></i></div>
+      <div class="rail-act" data-rail="sky"><span data-i18n="rail.sky"><span class="term" lang="sa">नवग्रह</span></span><i><b></b></i></div>
+      <div class="rail-act" data-rail="temple"><span data-i18n="rail.temple"><span class="term" lang="ne">न्यातपोल</span></span><i><b></b></i></div>
+      <div class="rail-act" data-rail="yantra"><span data-i18n="rail.yantra"><span class="term" lang="sa">श्रीयन्त्र</span></span><i><b></b></i></div>
+    </div>
+
+    <main id="top" class="journey">
+      <!-- Act I · River -->
+      <section class="view view--hero" id="river" data-act="river">
+        <div class="copy">
+          <p class="label" data-i18n="hero.label"><span class="term" lang="sa">ॐ</span><span class="sep" aria-hidden="true"> · </span><span class="name">Nepal and India</span></p>
+          <h1>Sanatan Nepal</h1>
+          <p class="lead" data-i18n="hero.lead">The calendar, the stars and the puja room — in one app, in Nepali, Hindi and English.</p>
+          <p class="cue" data-i18n="hero.cue">Scroll to begin</p>
+        </div>
+      </section>
+      <section class="view" data-act="river">
+        <div class="copy">
+          <p class="label" data-i18n="views.0.label"><span class="term" lang="ne">पात्रो</span><span class="sep" aria-hidden="true"> · </span><span class="name">Calendar</span></p>
+          <h2 data-i18n="views.0.title">Bikram Sambat, day by day.</h2>
+          <p data-i18n="views.0.body">Tithis, festivals and public holidays for any date — and the Saka calendar for India.</p>
+        </div>
+      </section>
+      <section class="view" data-act="river">
+        <div class="copy">
+          <p class="label" data-i18n="views.1.label"><span class="term" lang="sa">पञ्चाङ्ग</span><span class="sep" aria-hidden="true"> · </span><span class="name">Panchanga</span></p>
+          <h2 data-i18n="views.1.title">Tithi, nakshatra, yoga, karana, var.</h2>
+          <p data-i18n="views.1.body">The five limbs of every day, sunrise for your city, and a vrat reminder the evening before.</p>
+        </div>
+      </section>
+
+      <!-- Act II · Sky -->
+      <section class="view" id="sky" data-act="sky">
+        <div class="copy">
+          <p class="label" data-i18n="views.2.label"><span class="term" lang="sa">नवग्रह</span><span class="sep" aria-hidden="true"> · </span><span class="name">Horoscope</span></p>
+          <h2 data-i18n="views.2.title">Nine grahas, read for you.</h2>
+          <p data-i18n="views.2.body">Daily, weekly, monthly and yearly horoscopes for all twelve rashis.</p>
+        </div>
+      </section>
+      <section class="view" data-act="sky">
+        <div class="copy">
+          <p class="label" data-i18n="views.3.label"><span class="term" lang="sa">चन्द्र</span><span class="sep" aria-hidden="true"> · </span><span class="name">Kundli</span></p>
+          <h2 data-i18n="views.3.title">Your rashi is where the moon stood.</h2>
+          <p data-i18n="views.3.body">Birth charts from the minute you were born, and guna milan scored out of 36.</p>
+        </div>
+      </section>
+      <section class="view" data-act="sky">
+        <div class="copy">
+          <p class="label" data-i18n="views.4.label"><span class="term" lang="sa">गुरु</span><span class="sep" aria-hidden="true"> · </span><span class="name">Astrologers</span></p>
+          <h2 data-i18n="views.4.title">Astrologers you can actually call.</h2>
+          <p data-i18n="views.4.body">Verified astrologers by voice or video, billed by the minute from your wallet.</p>
+        </div>
+      </section>
+
+      <!-- Act III · Temple -->
+      <section class="view" id="temple" data-act="temple">
+        <div class="copy">
+          <p class="label" data-i18n="views.5.label"><span class="term" lang="ne">न्यातपोल</span><span class="sep" aria-hidden="true"> · </span><span class="name">Puja</span></p>
+          <h2 data-i18n="views.5.title">A pandit at your door.</h2>
+          <p data-i18n="views.5.body">Book a puja at home or at the temple, from the same app that told you the day.</p>
+        </div>
+      </section>
+      <section class="view" data-act="temple">
+        <div class="copy">
+          <p class="label" data-i18n="views.6.label"><span class="term" lang="ne">बजार</span><span class="sep" aria-hidden="true"> · </span><span class="name">Marketplace</span></p>
+          <h2 data-i18n="views.6.title">Samagri from sellers we approved.</h2>
+          <p data-i18n="views.6.body">Rudraksha, idols, books and puja kits from businesses our team has checked.</p>
+        </div>
+      </section>
+      <section class="view" data-act="temple">
+        <div class="copy">
+          <p class="label" data-i18n="views.7.label"><span class="term" lang="ne">गजुर</span><span class="sep" aria-hidden="true"> · </span><span class="name">Wallet</span></p>
+          <h2 data-i18n="views.7.title">One wallet, two countries.</h2>
+          <p data-i18n="views.7.body">Pay with eSewa, Khalti or a bank in Nepal — UPI, cards or net banking in India.</p>
+        </div>
+      </section>
+
+      <!-- Act IV · Yantra -->
+      <section class="view" id="yantra" data-act="yantra">
+        <div class="copy">
+          <p class="label" data-i18n="views.8.label"><span class="term" lang="sa">भूपुर</span><span class="sep" aria-hidden="true"> · </span><span class="name">Languages</span></p>
+          <h2 data-i18n="views.8.title">Every door opens on the same centre.</h2>
+          <p data-i18n="views.8.body">The app speaks Nepali, Hindi and English, and shows prices in Nepali and Indian rupees.</p>
+        </div>
+      </section>
+      <section class="view" data-act="yantra">
+        <div class="copy">
+          <p class="label" data-i18n="views.9.label"><span class="term" lang="sa">षोडशदल</span><span class="sep" aria-hidden="true"> · </span><span class="name">Trust</span></p>
+          <h2 data-i18n="views.9.title">Kept honest by people, not just code.</h2>
+          <p data-i18n="views.9.body">Astrologers are verified, sellers approved, payouts reconciled — and every staff action is written to the audit log.</p>
+        </div>
+      </section>
+      <section class="view" id="sign-in" data-act="yantra">
+        <div class="copy">
+          <p class="label" data-i18n="views.10.label"><span class="term" lang="sa">बिन्दु</span><span class="sep" aria-hidden="true"> · </span><span class="name">Staff console</span></p>
+          <h2 data-i18n="views.10.title">The centre is where the work happens.</h2>
+          <p data-i18n="views.10.body">For moderators, finance and support. Everyone else uses the app.</p>
+          <a class="button" href="/sign-in" data-i18n="signIn">Staff sign in</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p><strong>Sanatan Nepal</strong> · <span data-i18n="footer">for Nepal and India</span></p>
+      <p class="footer-credit" translate="no"><a href="https://yashwanthhk.com" rel="author">Yashwanth H K</a></p>
+    </footer>
+
+    <div class="suggest" data-suggest hidden>
+      <p data-suggest-prompt></p>
+      <div class="suggest-actions">
+        <button type="button" class="suggest-accept" data-suggest-accept></button>
+        <button type="button" class="suggest-dismiss" data-suggest-dismiss></button>
+      </div>
+    </div>
+    <p class="visually-hidden" role="status" aria-live="polite" data-i18n-status></p>
+  </body>
+</html>

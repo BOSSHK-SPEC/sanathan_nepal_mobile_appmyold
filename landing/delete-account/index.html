@@ -1,0 +1,161 @@
+<!doctype html>
+<!-- Template, in English; rendered per locale by the build (see ../index.html). -->
+<html lang="en" data-page="delete-account">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0A0B1A" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="author" content="Yashwanth H K" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- Hold the first paint until the main content is parsed, so a page transition never reveals a half-built page. -->
+    <link rel="expect" href="#main" blocking="render" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Delete your account · Sanatan Nepal</title>
+    <meta name="description" content="Permanently delete your Sanatan Nepal account and personal data by verifying your phone number." />
+    <script type="module" src="/src/pages/delete-account.ts"></script>
+  </head>
+  <body class="doc">
+    <div class="doc-backdrop" aria-hidden="true"></div>
+    <header class="nav nav--doc">
+      <a class="brand" href="/welcome/en/index.html" data-href-page="home" aria-label="Sanatan Nepal, back to the start" data-i18n-attr="aria-label:brandLabel">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 3 28 24H4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M16 29 4 8h24Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" opacity=".55" />
+          <circle cx="16" cy="16" r="2.2" fill="currentColor" />
+        </svg>
+        <span class="brand-name">Sanatan Nepal</span>
+      </a>
+      <nav class="site-tabs" aria-label="Pages" data-i18n-attr="aria-label:links.label">
+        <a href="/welcome/en/index.html" data-href-page="home" data-tab><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.home">Home</span></a>
+        <a href="/welcome/en/privacy/index.html" data-href-page="privacy" data-tab><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.privacy">Privacy Policy</span></a>
+        <a href="/welcome/en/delete-account/index.html" data-href-page="delete-account" data-tab aria-current="page"><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.deleteAccount">Delete account</span></a>
+      </nav>
+      <div class="lang">
+        <button class="lang-button" type="button" popovertarget="lang-menu" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="Language" data-i18n-attr="aria-label:language.button" data-lang-button>
+          <svg class="lang-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+          </svg>
+          <span class="lang-current" data-locale-name>English</span>
+        </button>
+        <div class="lang-menu" id="lang-menu" popover>
+          <p class="lang-heading" data-i18n="language.heading">Choose a language</p>
+          <ul class="lang-list" data-lang-list></ul>
+        </div>
+      </div>
+      <a class="nav-cta" href="/sign-in" data-i18n="signIn">Staff sign in</a>
+    </header>
+
+    <main id="main" class="doc-main doc-main--narrow">
+      <header class="doc-head">
+        <p class="eyebrow" data-i18n="account.eyebrow">Your data</p>
+        <h1 data-i18n="account.title">Delete your account</h1>
+        <p class="lead" data-i18n="account.lead">Verify your phone number, and your Sanatan Nepal account and personal details are deleted straight away.</p>
+      </header>
+
+      <div class="facts">
+        <section class="fact fact--removed" aria-labelledby="removed-title">
+          <h2 id="removed-title" data-i18n="account.removedTitle">What is deleted</h2>
+          <ul>
+            <li data-i18n="account.removed.0">Your name, photo, bio, city and birth details</li>
+            <li data-i18n="account.removed.1">Your phone number and e-mail address</li>
+            <li data-i18n="account.removed.2">Every sign-in</li>
+            <li data-i18n="account.removed.3">Your public profile</li>
+          </ul>
+        </section>
+        <section class="fact fact--kept" aria-labelledby="kept-title">
+          <h2 id="kept-title" data-i18n="account.keptTitle">What is kept</h2>
+          <p data-i18n="account.kept">Orders, payments and consultations stay on record for tax, legal and dispute reasons.</p>
+        </section>
+      </div>
+      <p class="doc-warning" data-i18n="account.permanent">Deletion cannot be undone.</p>
+
+      <section class="flow" aria-labelledby="flow-title" data-flow>
+        <h2 class="visually-hidden" id="flow-title" data-i18n="account.title">Delete your account</h2>
+        <ol class="stepper" aria-hidden="true">
+          <li data-step-indicator="phone" data-i18n="account.steps.phone">Phone number</li>
+          <li data-step-indicator="code" data-i18n="account.steps.code">Verify</li>
+          <li data-step-indicator="confirm" data-i18n="account.steps.confirm">Confirm</li>
+        </ol>
+
+        <noscript>
+          <p class="flow-panel" data-i18n="account.noScript">This page needs JavaScript to verify your phone number. You can also e-mail us with the phone number on your account, and we will delete it for you:</p>
+        </noscript>
+
+        <form class="flow-panel" data-panel="phone" novalidate hidden>
+          <label class="field-label" for="phone" data-i18n="account.phoneLabel">Phone number on your account</label>
+          <input class="field" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+977 98XXXXXXXX" aria-describedby="phone-hint flow-error" spellcheck="false" />
+          <p class="field-hint" id="phone-hint" data-i18n="account.phoneHint">With the country code: +977 for Nepal, +91 for India.</p>
+          <div class="flow-actions">
+            <button class="button" type="submit" data-i18n="account.sendCode">Send code</button>
+          </div>
+        </form>
+
+        <form class="flow-panel" data-panel="code" novalidate hidden>
+          <p class="field-hint" id="code-hint" data-code-hint></p>
+          <label class="field-label" for="code" data-i18n="account.codeLabel">Verification code</label>
+          <input class="field field--code" id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" aria-describedby="code-hint flow-error" spellcheck="false" />
+          <div class="flow-actions">
+            <button class="button" type="submit" data-i18n="account.verify">Verify</button>
+            <button class="button button--ghost" type="button" data-action="change-number" data-i18n="account.changeNumber">Use a different number</button>
+          </div>
+        </form>
+
+        <form class="flow-panel" data-panel="confirm" novalidate hidden>
+          <h3 class="flow-title" tabindex="-1" data-i18n="account.confirmTitle">Delete this account?</h3>
+          <p class="flow-account" data-signed-in></p>
+          <p class="flow-staff" data-staff-note data-i18n="account.staffNote" hidden>This is a staff account.</p>
+          <label class="check">
+            <input type="checkbox" id="understand" name="understand" aria-describedby="flow-error" />
+            <span data-i18n="account.understand">I understand my account will be deleted permanently and this cannot be undone.</span>
+          </label>
+          <div class="flow-actions">
+            <button class="button button--danger" type="submit" data-i18n="account.deleteButton">Delete my account</button>
+            <button class="button button--ghost" type="button" data-action="keep" data-i18n="account.keepButton">Keep my account</button>
+          </div>
+        </form>
+
+        <div class="flow-panel flow-result" data-panel="done" hidden>
+          <h3 class="flow-title" tabindex="-1" data-i18n="account.doneTitle">Your account has been deleted</h3>
+          <p data-i18n="account.doneBody">Your personal details and phone number have been removed, and you are signed out everywhere.</p>
+          <a class="button button--ghost" href="/welcome/en/index.html" data-href-page="home" data-i18n="links.home">Home</a>
+        </div>
+        <div class="flow-panel flow-result" data-panel="noAccount" hidden>
+          <h3 class="flow-title" tabindex="-1" data-i18n="account.noAccountTitle">No account for this number</h3>
+          <p data-i18n="account.noAccountBody">There is no Sanatan Nepal account for this phone number.</p>
+          <button class="button button--ghost" type="button" data-action="restart" data-i18n="account.startOver">Start again</button>
+        </div>
+        <div class="flow-panel flow-result" data-panel="cancelled" hidden>
+          <h3 class="flow-title" tabindex="-1" data-i18n="account.cancelledTitle">Your account was not deleted</h3>
+          <p data-i18n="account.cancelledBody">Nothing has changed, and this page has signed you out.</p>
+          <a class="button button--ghost" href="/welcome/en/index.html" data-href-page="home" data-i18n="links.home">Home</a>
+        </div>
+
+        <p class="flow-error" id="flow-error" role="alert" data-error></p>
+        <p class="flow-busy" aria-live="polite" data-busy></p>
+      </section>
+
+      <p class="doc-help">
+        <span data-i18n="account.help">Can’t sign in? E-mail us from any address with the phone number on your account, and we will delete it for you:</span>
+        <a href="mailto:info@ourvirtualtribes.com">info@ourvirtualtribes.com</a> (<span data-i18n="privacy.nepal">Nepal</span>) ·
+        <a href="mailto:info.in@ourvirtualtribes.com">info.in@ourvirtualtribes.com</a> (<span data-i18n="privacy.india">India</span>)
+      </p>
+    </main>
+
+    <footer class="footer">
+      <p><strong>Sanatan Nepal</strong> · <span data-i18n="footer">for Nepal and India</span></p>
+      <p class="footer-credit" translate="no"><a href="https://yashwanthhk.com" rel="author">Yashwanth H K</a></p>
+    </footer>
+
+    <div class="suggest" data-suggest hidden>
+      <p data-suggest-prompt></p>
+      <div class="suggest-actions">
+        <button type="button" class="suggest-accept" data-suggest-accept></button>
+        <button type="button" class="suggest-dismiss" data-suggest-dismiss></button>
+      </div>
+    </div>
+    <p class="visually-hidden" role="status" aria-live="polite" data-i18n-status></p>
+  </body>
+</html>

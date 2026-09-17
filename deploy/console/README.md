@@ -39,8 +39,10 @@ From the Mac, copy the two files up:
 
 ```bash
 cd "/Users/yashwanthhk/projects /Sanathan App/sanathan_nepal_mobile_appmyold"
-scp deploy/console/nginx.conf   root@2.25.163.51:/tmp/console-nginx.conf
-scp deploy/console/headers.conf root@2.25.163.51:/tmp/console-headers.conf
+scp deploy/console/nginx.conf       root@2.25.163.51:/tmp/console-nginx.conf
+scp deploy/console/headers.conf     root@2.25.163.51:/tmp/console-headers.conf
+scp deploy/console/landing-csp.conf root@2.25.163.51:/tmp/landing-csp.conf
+scp deploy/console/account-csp.conf root@2.25.163.51:/tmp/account-csp.conf
 ```
 
 On the server:
@@ -50,6 +52,8 @@ On the server:
 cp /etc/nginx/sites-available/console.yashwanthhk.com /root/console-nginx.backup
 
 cp /tmp/console-headers.conf /etc/nginx/snippets/sanatan-console-headers.conf
+cp /tmp/landing-csp.conf     /etc/nginx/snippets/sanatan-landing-csp.conf
+cp /tmp/account-csp.conf     /etc/nginx/snippets/sanatan-account-csp.conf
 cp /tmp/console-nginx.conf   /etc/nginx/sites-available/console.yashwanthhk.com
 
 nginx -t && systemctl reload nginx
@@ -64,6 +68,27 @@ Check from the Mac — `cache-control` must now be `no-cache`, not `max-age=2592
 ```bash
 curl -sI https://console.yashwanthhk.com/main.dart.js | grep -i cache-control
 ```
+
+Once a release containing the landing site is live (any deploy after the
+`landing/` folder was added), the bare domain must be the landing page with its
+CSP, and sign-in must still be the console:
+
+```bash
+curl -s  https://console.yashwanthhk.com/ | grep -c 'class="journey"'          # 1
+curl -sI https://console.yashwanthhk.com/ | grep -i content-security-policy     # present
+curl -sI https://console.yashwanthhk.com/sign-in | grep -i '^HTTP'              # 200
+curl -s -H 'Cookie: sanatan_lang=kn' https://console.yashwanthhk.com/ | grep -o '<html[^>]*lang="kn"'   # Kannada page
+curl -s https://console.yashwanthhk.com/privacy        | grep -c 'data-page="privacy"'          # 1
+curl -s https://console.yashwanthhk.com/delete-account | grep -c 'data-page="delete-account"'   # 1
+curl -sI https://console.yashwanthhk.com/delete-account | grep -i content-security-policy | grep -c sanatan-api   # 1
+curl -sI https://console.yashwanthhk.com/welcome/kn/privacy/ | grep -i '^content-type'       # text/html, not the console
+```
+
+Re-running this step is required whenever `nginx.conf`, `headers.conf`,
+`landing-csp.conf` or `account-csp.conf` change — the workflow deploys files, not nginx config. Until
+it is done, `/` still shows the landing page: the console boots, sees `/` and
+replaces the page with `/welcome/index.html` — just a second slower, without the
+strict CSP header, and with that path in the address bar (the smoke test warns).
 
 ### Step 3 — Let the API accept requests from the console (server)
 
@@ -115,8 +140,9 @@ curl -s https://console.yashwanthhk.com/build-info.json
 # {"app":"console","sha":"<the commit you pushed>","release":"…","flutter":"3.44.9"}
 ```
 
-Open the site in a normal browser window — it should be the Sanatan Console
-login, not the mobile app. Once that works, `releases/legacy` and the old
+Open the site in a normal browser window — `/` should be the 3D landing page
+(`landing/`), and its "Staff sign in" button the Sanatan Console sign-in, not
+the mobile app. Once that works, `releases/legacy` and the old
 `/var/www/sanathan-web` can be deleted.
 
 ## Rollback

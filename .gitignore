@@ -42,3 +42,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Landing site build output (landing/ → npm run build)
+/web/welcome/

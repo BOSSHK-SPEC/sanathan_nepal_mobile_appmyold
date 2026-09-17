@@ -182,3 +182,12 @@ flutter run
 ```
 Legacy (pre-rewrite) code is kept in `legacy/` for reference only and is
 excluded from analysis.
+
+The staff console's public landing page is a separate static site in `landing/`
+(Vite + TypeScript + three.js, see `landing/README.md`). `npm --prefix landing run build`
+writes it to `web/welcome/` (git-ignored), so console builds ship it; the console
+hands `/` to it at startup and handles every other path (`/sign-in`, `/console/*`).
+The VS Code Console launch configs build it first; `deploy-console.yml` builds it in CI.
+It is translated into 13 languages (`landing/src/i18n/`, one prerendered page each at `/welcome/<code>/`),
+and also carries the public Privacy Policy (`/privacy`, text ported from `lib/features/legal`) and the
+web Delete account flow (`/delete-account`: phone OTP → `DELETE /api/v1/profile`), which store listings link to.

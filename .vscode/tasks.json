@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build landing site",
+      "detail": "landing/ \u2192 web/welcome/, served by the console at /",
+      "type": "shell",
+      "command": "test -d node_modules || npm ci --no-audit --no-fund; npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/landing"
+      },
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ]
+}

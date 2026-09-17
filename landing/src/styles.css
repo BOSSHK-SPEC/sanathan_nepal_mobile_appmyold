@@ -1,0 +1,286 @@
+/* One night-time world, so one theme: every colour is painted explicitly. */
+:root {
+  --ink: #060a14;
+  --text: #f4ebdd;
+  --text-soft: rgba(244, 235, 221, 0.8);
+  --text-faint: rgba(244, 235, 221, 0.56);
+  --gold: #e8b04b;
+  --gold-deep: #c8923a;
+  --line: rgba(244, 235, 221, 0.16);
+
+  /* One family per role; scripts/fonts.mjs gives each a face per script. */
+  --display: 'Sanatan Display', Georgia, serif;
+  --body: 'Sanatan Text', system-ui, sans-serif;
+  --mono: 'Sanatan Mono', 'Sanatan Text', ui-monospace, Menlo, Consolas, monospace;
+
+  --gutter: clamp(16px, 5vw, 72px);
+  --view: 115vh;
+  color-scheme: dark;
+}
+@supports (height: 1svh) {
+  :root { --view: 115svh; }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+/* Author display rules (.suggest is flex) must not resurrect hidden elements. */
+[hidden] { display: none !important; }
+html { background: var(--ink); scroll-padding-top: 0; }
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font: 400 1.0625rem/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 2px; }
+
+.skip {
+  position: fixed; left: var(--gutter); top: 12px; z-index: 50;
+  padding: 10px 16px; border-radius: 999px;
+  background: var(--gold); color: #140c05; font-weight: 600; text-decoration: none;
+  transform: translateY(-160%);
+}
+.skip:focus-visible { transform: none; }
+
+/* ---------- Scene layers ---------- */
+.backdrop, .stage, .shade { position: fixed; inset: 0 0 auto 0; width: 100%; height: 100vh; }
+@supports (height: 1lvh) {
+  .backdrop, .stage, .shade { height: 100lvh; }
+}
+.backdrop { z-index: 0; transition: background 1.2s ease; background: radial-gradient(120% 70% at 70% 100%, #3a2410 0%, #0b1320 45%, #060a14 100%); }
+html[data-act='sky'] .backdrop { background: radial-gradient(90% 70% at 70% 40%, #1b2a5c 0%, #0a1230 55%, #060a1a 100%); }
+html[data-act='temple'] .backdrop { background: linear-gradient(#1c1633 0%, #5e2c3e 58%, #c5664a 88%, #d9774a 100%); }
+html[data-act='yantra'] .backdrop { background: radial-gradient(70% 60% at 68% 45%, #4a1a12 0%, #14060a 60%, #0d0407 100%); }
+
+.stage { z-index: 1; display: block; opacity: 0; transition: opacity 1.4s ease; }
+.stage.is-ready { opacity: 1; }
+.shade {
+  z-index: 2; pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(3, 4, 10, 0.78) 0%, rgba(3, 4, 10, 0.3) 34%, rgba(3, 4, 10, 0) 58%),
+    linear-gradient(to right, rgba(3, 4, 10, 0.55) 0%, rgba(3, 4, 10, 0) 52%),
+    linear-gradient(to bottom, rgba(3, 4, 10, 0.55) 0%, rgba(3, 4, 10, 0) 14%);
+}
+
+/* ---------- Navigation ---------- */
+.nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 20;
+  display: flex; align-items: center; gap: 24px;
+  padding: max(14px, env(safe-area-inset-top)) var(--gutter) 14px;
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; letter-spacing: 0.01em; }
+.brand-mark { width: 28px; height: 28px; color: var(--gold); }
+.nav-cta {
+  padding: 9px 18px; border-radius: 999px; text-decoration: none; max-width: 16rem; overflow: hidden; text-overflow: ellipsis;
+  border: 1px solid rgba(232, 176, 75, 0.6); color: var(--gold);
+  font: 600 0.9rem/1.2 var(--body); white-space: nowrap;
+  transition: background-color 0.3s, color 0.3s;
+}
+.nav-cta:hover { background: var(--gold); color: #140c05; }
+.lang { margin-left: auto; }
+
+/* ---------- Page tabs (Home · Privacy Policy · Delete account) ----------
+   Real links, one per page; the active one carries aria-current="page". The
+   gold pill behind it is a named view transition, so it glides to the new tab
+   when a page is opened (see the View Transitions section below). */
+.site-tabs {
+  display: flex; align-items: center; gap: 2px; margin-inline: auto; padding: 4px;
+  border-radius: 999px; border: 1px solid var(--line); background: rgba(6, 10, 20, 0.45);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.site-tabs + .lang { margin-left: 0; }
+.site-tabs a {
+  position: relative; display: inline-flex; align-items: center; padding: 7px 14px; border-radius: 999px;
+  text-decoration: none; white-space: nowrap; color: var(--text-faint);
+  font: 500 0.8rem/1.2 var(--mono); letter-spacing: 0.03em; transition: color 0.25s ease;
+}
+.site-tabs a:hover { color: var(--text); }
+.site-tabs a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.site-tabs a[aria-current='page'] { color: var(--gold); }
+.tab-bg {
+  position: absolute; inset: 0; border-radius: inherit; opacity: 0;
+  background: rgba(232, 176, 75, 0.13); box-shadow: inset 0 0 0 1px rgba(232, 176, 75, 0.4);
+  transition: opacity 0.25s ease;
+}
+.site-tabs a:hover .tab-bg { opacity: 0.35; }
+.site-tabs a[aria-current='page'] .tab-bg { opacity: 1; view-transition-name: site-tab-indicator; }
+.tab-label { position: relative; }
+html:not([data-script='latn']) .site-tabs a { font-family: var(--body); font-size: 0.9rem; letter-spacing: 0; }
+
+/* Narrow screens: the tabs take a row of their own under the brand and language. */
+@media (max-width: 900px) {
+  .nav { flex-wrap: wrap; row-gap: 10px; }
+  /* Columns sized by their labels; a long label (Malayalam, Tamil) wraps at a space onto a
+     second line instead of being cut off or broken mid-word. */
+  .site-tabs { order: 10; flex: 1 1 100%; margin-inline: 0; display: grid; grid-template-columns: repeat(3, auto); border-radius: 16px; }
+  .site-tabs a { justify-content: center; text-align: center; white-space: normal; min-height: 36px; padding: 6px 10px; border-radius: 12px; line-height: 1.2; }
+  .site-tabs + .lang { margin-left: auto; }
+}
+
+/* ---------- Language ---------- */
+.lang { position: relative; }
+.lang-button {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: rgba(6, 10, 20, 0.35); color: var(--text); cursor: pointer;
+  font: 500 0.9rem/1.2 var(--body); transition: border-color 0.3s, background-color 0.3s;
+}
+.lang-button:hover, .lang-button[aria-expanded='true'] { border-color: rgba(232, 176, 75, 0.6); background: rgba(232, 176, 75, 0.08); }
+.lang-button[aria-busy='true'] .lang-icon { animation: lang-spin 1s linear infinite; }
+.lang-icon { width: 18px; height: 18px; color: var(--gold); flex: none; }
+@keyframes lang-spin { to { transform: rotate(360deg); } }
+.lang-menu {
+  position: fixed; inset: 64px var(--gutter) auto auto; margin: 0; z-index: 40;
+  width: min(22rem, calc(100vw - 2 * var(--gutter))); max-height: min(70vh, 36rem); overflow: auto;
+  padding: 10px; border-radius: 16px; border: 1px solid var(--line);
+  background: rgba(10, 14, 28, 0.96); color: var(--text); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.lang-menu.is-fallback { position: fixed; }
+.lang-heading { margin: 6px 10px 10px; font: 500 0.75rem/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
+.lang-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; }
+.lang-list a {
+  display: grid; gap: 1px; padding: 9px 10px; border-radius: 10px; text-decoration: none; color: var(--text);
+  transition: background-color 0.2s;
+}
+.lang-list a:hover, .lang-list a:focus-visible { background: rgba(244, 235, 221, 0.08); outline-offset: -2px; }
+.lang-list a[aria-current='true'] { background: rgba(232, 176, 75, 0.14); color: var(--gold); }
+.lang-own { font: 400 1.02rem/1.35 'Sanatan Names', var(--body); }
+.lang-english { font: 500 0.7rem/1.3 var(--mono); letter-spacing: 0.04em; color: var(--text-faint); }
+@media (max-width: 520px) {
+  .brand-name { display: none; }
+  .lang-current { display: none; }
+  .lang-button { padding: 8px; }
+  .nav { gap: 12px; }
+  /* Brand name and language name hide first, so the sign-in label keeps the room it needs. */
+  .brand { flex: none; }
+  .nav-cta { max-width: calc(100vw - 2 * var(--gutter) - 104px); min-width: 0; padding: 7px 14px; font-size: 0.85rem; line-height: 1.15; white-space: normal; text-align: center; }
+  .lang-menu { inset: auto var(--gutter) max(16px, env(safe-area-inset-bottom)) var(--gutter); width: auto; }
+}
+
+/* A language change fades the words out and back, not the scene. (Not .copy
+   itself: its opacity follows the scroll every frame and must not lag.) */
+.copy > *, .lang-current, .rail-act span, .footer p, .footer a { transition: opacity 0.16s ease; }
+.nav a { transition: color 0.3s, background-color 0.3s, opacity 0.16s ease; }
+.is-switching-language .copy > *, .is-switching-language .nav a, .is-switching-language .lang-current,
+.is-switching-language .rail-act span, .is-switching-language .footer p, .is-switching-language .footer a { opacity: 0; }
+
+.suggest {
+  position: fixed; z-index: 45; left: 50%; bottom: max(20px, env(safe-area-inset-bottom));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; width: max-content; max-width: calc(100vw - 2 * var(--gutter));
+  padding: 12px 14px 12px 18px; border-radius: 16px; border: 1px solid rgba(232, 176, 75, 0.35);
+  background: rgba(10, 14, 28, 0.94); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  transform: translate(-50%, 16px); opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.suggest.is-visible { transform: translate(-50%, 0); opacity: 1; }
+.suggest p { margin: 0; font: 400 1rem/1.4 var(--body); }
+.suggest-actions { display: flex; gap: 8px; }
+.suggest button { border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer; font: 600 0.9rem/1.2 var(--body); }
+.suggest-accept { background: var(--gold); color: #140c05; }
+.suggest-dismiss { background: transparent; color: var(--text-soft); }
+.suggest-dismiss:hover { color: var(--text); }
+
+/* ---------- Progress rail ---------- */
+.rail {
+  position: fixed; z-index: 10; right: var(--gutter); top: 50%; transform: translateY(-50%);
+  display: grid; gap: 18px; justify-items: end;
+}
+.rail-act { display: grid; justify-items: end; gap: 6px; font: 400 0.8rem/1.2 var(--display); color: var(--text-faint); transition: color 0.4s; }
+.rail-act i { display: block; width: 44px; height: 2px; background: var(--line); overflow: hidden; }
+.rail-act b { display: block; height: 100%; width: 100%; background: var(--gold); transform-origin: left; transform: scaleX(0); }
+.rail-act.is-active { color: var(--gold); }
+@media (max-width: 700px) { .rail { gap: 10px; } .rail-act span { display: none; } .rail-act i { width: 22px; } }
+
+/* ---------- Journey copy ---------- */
+.journey { position: relative; z-index: 5; }
+.view { position: relative; min-height: var(--view); }
+.copy {
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 14px;
+  min-height: 100vh; max-width: calc(36rem + 2 * var(--gutter));
+  padding: 96px var(--gutter) clamp(48px, 13vh, 132px);
+}
+.label { margin: 0; font: 500 0.8rem/1.4 var(--mono); letter-spacing: 0.06em; color: var(--gold); }
+.label .term { font: 400 1.15em/1 var(--display); letter-spacing: 0; }
+.copy h1, .copy h2 { margin: 0; font-family: var(--display); font-weight: 400; color: #fff; text-wrap: balance; }
+.copy h1 { font-size: clamp(3.2rem, 9vw, 7.2rem); line-height: 0.92; letter-spacing: -0.015em; }
+.copy h2 { font-size: clamp(2rem, 4.8vw, 3.7rem); line-height: 1.04; letter-spacing: -0.01em; }
+.copy p { margin: 0; max-width: 44ch; color: var(--text-soft); font-size: clamp(1.02rem, 1.3vw, 1.15rem); }
+.copy .lead { font-size: clamp(1.15rem, 1.8vw, 1.4rem); max-width: 34ch; color: var(--text); }
+.cue { font: 500 0.75rem/1 var(--mono) !important; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint) !important; margin-top: 18px !important; }
+.button {
+  align-self: flex-start; margin-top: 8px; padding: 13px 26px; border-radius: 999px;
+  background: var(--gold); color: #140c05; text-decoration: none; font: 600 1rem/1.2 var(--body);
+  box-shadow: 0 0 0 0 rgba(232, 176, 75, 0.5); transition: box-shadow 0.35s, transform 0.35s;
+}
+.button:hover { box-shadow: 0 0 0 8px rgba(232, 176, 75, 0.14); transform: translateY(-1px); }
+@media (max-width: 700px) { .copy { padding-right: calc(var(--gutter) + 36px); } }
+
+/* With JS: copy is pinned in place and faded by scroll position (src/journey.ts).
+   Without JS it stays in normal flow and everything is readable. */
+html.js .copy {
+  position: fixed; inset: auto 0 0 0; z-index: 6; min-height: 0;
+  visibility: hidden; opacity: 0; will-change: opacity, transform;
+}
+html.js .view--hero .copy { visibility: visible; opacity: 1; }
+
+/* ---------- Footer ---------- */
+.footer {
+  position: relative; z-index: 7;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
+  padding: 28px var(--gutter) max(28px, env(safe-area-inset-bottom));
+  background: var(--ink); border-top: 1px solid var(--line); color: var(--text-faint); font-size: 0.95rem;
+}
+.footer p { margin: 0; }
+.footer-credit { margin: 0; font-weight: 500; letter-spacing: 0.01em; }
+.footer .footer-credit a { color: var(--text-soft); text-decoration: none; transition: color 0.2s ease; }
+.footer .footer-credit a:hover { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
+.footer strong { color: var(--text); font-weight: 600; }
+.footer a { color: var(--gold); }
+
+/* ---------- Scripts other than Latin ----------
+   Indic scripts stack matras above and below the line and break if letters are
+   spaced apart, so: more leading, no tracking, no uppercasing, a step smaller. */
+html:not([data-script='latn']) .label, html:not([data-script='latn']) .cue,
+html:not([data-script='latn']) .lang-heading {
+  letter-spacing: 0; text-transform: none; font-family: var(--body); font-weight: 500;
+}
+html:not([data-script='latn']) .label { font-size: 0.95rem; }
+html:not([data-script='latn']) .cue { font-size: 0.9rem !important; font-family: var(--body) !important; letter-spacing: 0; }
+html:not([data-script='latn']) .copy h2 { font-size: clamp(1.75rem, 4.1vw, 3.1rem); line-height: 1.25; }
+html:not([data-script='latn']) .copy p { line-height: 1.75; }
+html:not([data-script='latn']) .copy .lead { line-height: 1.6; }
+html[data-script='taml'] .copy h2, html[data-script='mlym'] .copy h2, html[data-script='telu'] .copy h2 {
+  font-size: clamp(1.55rem, 3.6vw, 2.7rem);
+}
+.copy h2, .copy p { overflow-wrap: break-word; }
+
+/* ---------- View Transitions: moving between pages ----------
+   Same-origin navigations between the site's pages animate where the browser
+   supports cross-document view transitions (no script involved): the page
+   fades and rises, while the header stays put and the active-tab pill glides
+   to its new tab. Elsewhere src/ui/transitions.ts runs a short fade. */
+@view-transition { navigation: auto; }
+.nav { view-transition-name: site-header; }
+::view-transition-old(root) { animation: 160ms ease-in both site-page-out; }
+::view-transition-new(root) { animation: 360ms cubic-bezier(0.2, 0.7, 0.2, 1) 60ms both site-page-in; }
+::view-transition-group(site-tab-indicator) { animation-duration: 380ms; animation-timing-function: cubic-bezier(0.3, 0.8, 0.25, 1); }
+::view-transition-old(site-header), ::view-transition-new(site-header) { animation-duration: 200ms; }
+@keyframes site-page-out { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes site-page-in { from { opacity: 0; transform: translateY(14px); } }
+
+/* Fallback fade (src/ui/transitions.ts) for browsers without cross-document view
+   transitions. Opacity only: a transform on <body> would unpin the fixed header. */
+html.is-leaving body { opacity: 0; transition: opacity 160ms ease-in; }
+html.is-arriving body { animation: site-fade-in 320ms ease-out both; }
+@keyframes site-fade-in { from { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  html.is-leaving body, html.is-arriving body { opacity: 1; transition: none; animation: none; }
+  .site-tabs a, .tab-bg { transition: none; }
+  .backdrop, .stage, .nav-cta, .button, .rail-act, .lang-button, .lang-list a, .suggest,
+  .copy > *, .nav a, .lang-current, .rail-act span, .footer p, .footer a { transition: none; }
+  .lang-button[aria-busy='true'] .lang-icon { animation: none; }
+}

@@ -1,0 +1,93 @@
+<!doctype html>
+<!-- Template, in English; rendered per locale by the build (see ../index.html). -->
+<html lang="en" data-page="privacy">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0A0B1A" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="author" content="Yashwanth H K" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- Hold the first paint until the main content is parsed, so a page transition never reveals a half-built page. -->
+    <link rel="expect" href="#main" blocking="render" />
+    <title>Privacy Policy · Sanatan Nepal</title>
+    <meta name="description" content="How Sanatan Nepal collects, uses, keeps and protects your personal data in Nepal and India." />
+    <script type="module" src="/src/pages/privacy.ts"></script>
+  </head>
+  <body class="doc">
+    <div class="doc-backdrop" aria-hidden="true"></div>
+    <header class="nav nav--doc">
+      <a class="brand" href="/welcome/en/index.html" data-href-page="home" aria-label="Sanatan Nepal, back to the start" data-i18n-attr="aria-label:brandLabel">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 3 28 24H4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M16 29 4 8h24Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" opacity=".55" />
+          <circle cx="16" cy="16" r="2.2" fill="currentColor" />
+        </svg>
+        <span class="brand-name">Sanatan Nepal</span>
+      </a>
+      <nav class="site-tabs" aria-label="Pages" data-i18n-attr="aria-label:links.label">
+        <a href="/welcome/en/index.html" data-href-page="home" data-tab><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.home">Home</span></a>
+        <a href="/welcome/en/privacy/index.html" data-href-page="privacy" data-tab aria-current="page"><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.privacy">Privacy Policy</span></a>
+        <a href="/welcome/en/delete-account/index.html" data-href-page="delete-account" data-tab><span class="tab-bg" aria-hidden="true"></span><span class="tab-label" data-i18n="links.deleteAccount">Delete account</span></a>
+      </nav>
+      <div class="lang">
+        <button class="lang-button" type="button" popovertarget="lang-menu" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="Language" data-i18n-attr="aria-label:language.button" data-lang-button>
+          <svg class="lang-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+          </svg>
+          <span class="lang-current" data-locale-name>English</span>
+        </button>
+        <div class="lang-menu" id="lang-menu" popover>
+          <p class="lang-heading" data-i18n="language.heading">Choose a language</p>
+          <ul class="lang-list" data-lang-list></ul>
+        </div>
+      </div>
+      <a class="nav-cta" href="/sign-in" data-i18n="signIn">Staff sign in</a>
+    </header>
+
+    <main id="main" class="doc-main">
+      <header class="doc-head">
+        <p class="eyebrow" data-i18n="privacy.eyebrow">Legal</p>
+        <h1 data-i18n="privacy.title">Privacy Policy</h1>
+        <p class="doc-updated" data-policy-updated>Last updated 10 April 2023</p>
+      </header>
+
+      <fieldset class="segmented">
+        <legend data-i18n="privacy.regionLabel">Where do you use the app?</legend>
+        <div class="segmented-options">
+          <input type="radio" name="region" id="region-np" value="NP" checked />
+          <label for="region-np" data-i18n="privacy.nepal">Nepal</label>
+          <input type="radio" name="region" id="region-in" value="IN" />
+          <label for="region-in" data-i18n="privacy.india">India</label>
+        </div>
+      </fieldset>
+      <p class="doc-note" data-i18n="privacy.languageNote"></p>
+
+      <div class="policy" data-policy></div>
+
+      <aside class="doc-callout" aria-labelledby="delete-callout-title">
+        <div>
+          <h2 id="delete-callout-title" data-i18n="privacy.deleteTitle">Delete your account</h2>
+          <p data-i18n="privacy.deleteBody">Sign in with your phone number to delete your account and personal data yourself.</p>
+        </div>
+        <a class="button" href="/welcome/en/delete-account/index.html" data-href-page="delete-account" data-i18n="links.deleteAccount">Delete account</a>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <p><strong>Sanatan Nepal</strong> · <span data-i18n="footer">for Nepal and India</span></p>
+      <p class="footer-credit" translate="no"><a href="https://yashwanthhk.com" rel="author">Yashwanth H K</a></p>
+    </footer>
+
+    <div class="suggest" data-suggest hidden>
+      <p data-suggest-prompt></p>
+      <div class="suggest-actions">
+        <button type="button" class="suggest-accept" data-suggest-accept></button>
+        <button type="button" class="suggest-dismiss" data-suggest-dismiss></button>
+      </div>
+    </div>
+    <p class="visually-hidden" role="status" aria-live="polite" data-i18n-status></p>
+  </body>
+</html>

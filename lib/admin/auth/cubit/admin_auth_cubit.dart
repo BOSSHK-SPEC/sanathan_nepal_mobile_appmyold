@@ -31,7 +31,7 @@ class AdminAuthCubit extends AppCubit<AdminAuthState> {
         session: result.fold(
           state.session.toFailed,
           // No stored session is not a failure — it is a visitor on the
-          // landing page, which is the normal case for this app.
+          // sign-in page, which is the normal case for this app.
           (session) => session == null
               ? const LoadState.idle()
               : LoadState.loaded(session),

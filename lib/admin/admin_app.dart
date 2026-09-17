@@ -33,8 +33,8 @@ class _SanatanAdminAppState extends State<SanatanAdminApp> {
   void initState() {
     super.initState();
     // Restores a stored session before the first frame settles, so a browser
-    // refresh inside the console does not bounce staff back to the landing
-    // page and make them sign in again.
+    // refresh inside the console does not bounce staff back to sign-in and
+    // make them sign in again.
     _auth.restore();
   }
 
