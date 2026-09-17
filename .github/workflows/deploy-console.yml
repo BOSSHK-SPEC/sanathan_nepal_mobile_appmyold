@@ -131,9 +131,12 @@ jobs:
                 || { echo "::error::build/console/welcome/$code/${page}index.html is missing or not in $code"; exit 1; }
             done
           done
-          # The app's placeholder phone numbers must never be published.
-          if grep -rqE '4XXX|X{6}' build/console/welcome --include=index.html; then
-            echo "::error::a placeholder phone number reached the public pages"; exit 1
+          # The app's placeholder company phone numbers (+977 1 4XXXXXX, +91 11 4XXX XXXX in
+          # lib/features/legal) must never be published. Matches those numbers only — the
+          # phone field's format hint (+977 98XXXXXXXX) on Delete account is fine.
+          # landing/test/documents.test.ts enforces the same rule before the build.
+          if grep -rnoE '\+(977|91)[ -]?1{1,2}[ -]?4X{3}' build/console/welcome --include=index.html; then
+            echo "::error::a placeholder company phone number reached the public pages"; exit 1
           fi
           grep -q 'class="journey"' build/console/welcome/index.html \
             || { echo "::error::build/console/welcome/index.html is not the landing page"; exit 1; }

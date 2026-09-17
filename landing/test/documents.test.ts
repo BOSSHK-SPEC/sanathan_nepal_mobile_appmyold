@@ -74,6 +74,19 @@ describe('Privacy Policy', () => {
     for (const region of ['NP', 'IN'] as const) expect(JSON.stringify(privacyPolicy(region))).not.toMatch(/X{3,}/);
   });
 
+  it.each(LOCALES.map((l) => l.code))('%s: no rendered page carries the app’s placeholder company numbers', (code) => {
+    // Same pattern as the check in .github/workflows/deploy-console.yml — keep them in step.
+    const placeholder = /\+(977|91)[ -]?1{1,2}[ -]?4X{3}/;
+    for (const page of Object.keys(TEMPLATES) as (keyof typeof TEMPLATES)[]) {
+      const html = (render(page, code) as unknown as { documentElement: { outerHTML: string } }).documentElement.outerHTML;
+      expect(html, `${code} ${page}`).not.toMatch(placeholder);
+    }
+    // The pattern really does catch the numbers it exists for, and not the phone field's format hint.
+    expect('+977 1 4XXXXXX').toMatch(placeholder);
+    expect('+91 11 4XXX XXXX').toMatch(placeholder);
+    expect('+977 98XXXXXXXX').not.toMatch(placeholder);
+  });
+
   it('names the grievance officer for India only', () => {
     expect(privacyPolicy('IN').sections.some((s) => s.id === 'grievance')).toBe(true);
     expect(privacyPolicy('NP').sections.some((s) => s.id === 'grievance')).toBe(false);
