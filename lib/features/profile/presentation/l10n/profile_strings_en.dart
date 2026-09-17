@@ -124,6 +124,16 @@ class _En extends ProfileStrings {
   @override
   String get complete => 'Complete';
   @override
+  String get markShipped => 'Mark Shipped';
+  @override
+  String get markDelivered => 'Mark Delivered';
+  @override
+  String get shipped => 'Shipped';
+  @override
+  String get outForDelivery => 'Out for delivery';
+  @override
+  String get awaitingSeller => 'Awaiting seller';
+  @override
   String get call => 'Call';
   @override
   String get chat => 'Chat';
@@ -235,6 +245,37 @@ class _En extends ProfileStrings {
 
   @override
   String get profilePhoto => 'Profile photo';
+
+  @override
+  String get businessLogo => 'Business logo';
+
+  @override
+  String get businessBanner => 'Cover banner';
+
+  @override
+  String get addLogo => 'Add logo';
+
+  @override
+  String get addBanner => 'Add banner';
+
+  @override
+  String get changeLogo => 'Change logo';
+
+  @override
+  String get changeBanner => 'Change banner';
+
+  @override
+  String get removeLogo => 'Remove logo';
+
+  @override
+  String get removeBanner => 'Remove banner';
+
+  @override
+  String get brandingHint =>
+      'Banner: a wide picture, about 3:1. Logo: square. JPG, PNG or WebP, up to 8 MB.';
+
+  @override
+  String get imageUpdated => 'Picture updated';
   @override
   String get noFileChosen => 'no files choosen';
   @override
@@ -345,9 +386,9 @@ class _En extends ProfileStrings {
   String get noItems => 'Nothing listed yet.';
 
   @override
-  String get itemsAreForReview =>
-      'Tell the reviewer what you sell. Your public listings are added from '
-      'the Marketplace once your business is approved.';
+  String get itemsPublishOnApproval =>
+      'Add what you sell or offer. Once your business is approved, these are '
+      "published as your shop's products and services.";
   @override
   String get noReviews => 'No reviews yet.';
 

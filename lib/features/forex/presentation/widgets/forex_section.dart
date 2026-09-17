@@ -8,6 +8,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/state/load_state.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/section_chevron_button.dart';
 import '../../../../core/widgets/state_widgets.dart';
 import '../../domain/entities/currency.dart';
 import '../cubit/forex_cubit.dart';
@@ -119,8 +120,10 @@ class _SectionBody extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Container(width: 12, height: 2, color: colors.accent),
+            // A `>` rather than the accent rule, like Panchanga, Events and
+            // Suva Sait: the rule read as decoration, so the full forex page
+            // (every currency, longer trends) went undiscovered.
+            SectionChevronButton(onPressed: onMoreTap),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),

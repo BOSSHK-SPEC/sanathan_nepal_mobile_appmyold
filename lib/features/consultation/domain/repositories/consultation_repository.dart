@@ -1,5 +1,6 @@
 import '../../../../core/utils/result.dart';
 import '../entities/astrologer_session.dart';
+import '../entities/call_credentials.dart';
 import '../entities/chat_message.dart';
 import '../entities/consult_intake.dart';
 import '../entities/consultation.dart';
@@ -46,6 +47,12 @@ abstract interface class ConsultationRepository {
 
   /// Spendable wallet balance, for the live meter's low-balance warning.
   Future<Result<double>> spendableBalance();
+
+  /// Credentials for joining this session's live call.
+  Future<Result<CallCredentials>> callCredentials(String consultationId);
+
+  /// Whether this deployment can carry voice and video at all.
+  Future<Result<bool>> callsAvailable();
 
   // --- Astrologer side --------------------------------------------------
 

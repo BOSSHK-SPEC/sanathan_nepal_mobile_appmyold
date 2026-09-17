@@ -175,7 +175,7 @@ void main() {
         create: (_) => ActivityCubit(
           getAppointments: GetAppointments(activityRepo),
           getOrders: GetOrders(activityRepo),
-          updateOrderStatus: UpdateOrderStatus(activityRepo),
+          applyOrderAction: ApplyOrderAction(activityRepo),
           rateOrder: RateOrder(activityRepo),
         )..load(),
       ),

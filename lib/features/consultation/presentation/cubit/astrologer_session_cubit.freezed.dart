@@ -14,10 +14,13 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AstrologerSessionState {
 
- LoadState<Consultation> get session; LoadState<List<ChatMessage>> get messages; LoadState<Consultation> get ending; LoadState<SessionSummary> get savingNotes; int get tick; String get draft;/// Local call controls. No media stack yet, so these only drive the UI;
-/// they are here rather than in the widget so state survives a rebuild
-/// and a rotation mid-call.
- bool get muted; bool get speakerOn; bool get cameraOn; String get notes; List<Remedy> get remedies;
+ LoadState<Consultation> get session; LoadState<List<ChatMessage>> get messages; LoadState<Consultation> get ending; LoadState<SessionSummary> get savingNotes; int get tick; String get draft;/// Call controls. Held here rather than in the widget so they survive a
+/// rebuild or a rotation mid-call, and so the media stack and the icons
+/// can never disagree about what is muted.
+ bool get muted; bool get speakerOn; bool get cameraOn;/// Where the media connection is, separate from the session's status: a
+/// consultation can be active — and billing — while the call is still
+/// connecting or has dropped.
+ CallConnectionState get callState; String? get callError; String get notes; List<Remedy> get remedies;
 /// Create a copy of AstrologerSessionState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +31,16 @@ $AstrologerSessionStateCopyWith<AstrologerSessionState> get copyWith => _$Astrol
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AstrologerSessionState&&(identical(other.session, session) || other.session == session)&&(identical(other.messages, messages) || other.messages == messages)&&(identical(other.ending, ending) || other.ending == ending)&&(identical(other.savingNotes, savingNotes) || other.savingNotes == savingNotes)&&(identical(other.tick, tick) || other.tick == tick)&&(identical(other.draft, draft) || other.draft == draft)&&(identical(other.muted, muted) || other.muted == muted)&&(identical(other.speakerOn, speakerOn) || other.speakerOn == speakerOn)&&(identical(other.cameraOn, cameraOn) || other.cameraOn == cameraOn)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other.remedies, remedies));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AstrologerSessionState&&(identical(other.session, session) || other.session == session)&&(identical(other.messages, messages) || other.messages == messages)&&(identical(other.ending, ending) || other.ending == ending)&&(identical(other.savingNotes, savingNotes) || other.savingNotes == savingNotes)&&(identical(other.tick, tick) || other.tick == tick)&&(identical(other.draft, draft) || other.draft == draft)&&(identical(other.muted, muted) || other.muted == muted)&&(identical(other.speakerOn, speakerOn) || other.speakerOn == speakerOn)&&(identical(other.cameraOn, cameraOn) || other.cameraOn == cameraOn)&&(identical(other.callState, callState) || other.callState == callState)&&(identical(other.callError, callError) || other.callError == callError)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other.remedies, remedies));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,session,messages,ending,savingNotes,tick,draft,muted,speakerOn,cameraOn,notes,const DeepCollectionEquality().hash(remedies));
+int get hashCode => Object.hash(runtimeType,session,messages,ending,savingNotes,tick,draft,muted,speakerOn,cameraOn,callState,callError,notes,const DeepCollectionEquality().hash(remedies));
 
 @override
 String toString() {
-  return 'AstrologerSessionState(session: $session, messages: $messages, ending: $ending, savingNotes: $savingNotes, tick: $tick, draft: $draft, muted: $muted, speakerOn: $speakerOn, cameraOn: $cameraOn, notes: $notes, remedies: $remedies)';
+  return 'AstrologerSessionState(session: $session, messages: $messages, ending: $ending, savingNotes: $savingNotes, tick: $tick, draft: $draft, muted: $muted, speakerOn: $speakerOn, cameraOn: $cameraOn, callState: $callState, callError: $callError, notes: $notes, remedies: $remedies)';
 }
 
 
@@ -48,7 +51,7 @@ abstract mixin class $AstrologerSessionStateCopyWith<$Res>  {
   factory $AstrologerSessionStateCopyWith(AstrologerSessionState value, $Res Function(AstrologerSessionState) _then) = _$AstrologerSessionStateCopyWithImpl;
 @useResult
 $Res call({
- LoadState<Consultation> session, LoadState<List<ChatMessage>> messages, LoadState<Consultation> ending, LoadState<SessionSummary> savingNotes, int tick, String draft, bool muted, bool speakerOn, bool cameraOn, String notes, List<Remedy> remedies
+ LoadState<Consultation> session, LoadState<List<ChatMessage>> messages, LoadState<Consultation> ending, LoadState<SessionSummary> savingNotes, int tick, String draft, bool muted, bool speakerOn, bool cameraOn, CallConnectionState callState, String? callError, String notes, List<Remedy> remedies
 });
 
 
@@ -65,7 +68,7 @@ class _$AstrologerSessionStateCopyWithImpl<$Res>
 
 /// Create a copy of AstrologerSessionState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? session = null,Object? messages = null,Object? ending = null,Object? savingNotes = null,Object? tick = null,Object? draft = null,Object? muted = null,Object? speakerOn = null,Object? cameraOn = null,Object? notes = null,Object? remedies = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? session = null,Object? messages = null,Object? ending = null,Object? savingNotes = null,Object? tick = null,Object? draft = null,Object? muted = null,Object? speakerOn = null,Object? cameraOn = null,Object? callState = null,Object? callError = freezed,Object? notes = null,Object? remedies = null,}) {
   return _then(_self.copyWith(
 session: null == session ? _self.session : session // ignore: cast_nullable_to_non_nullable
 as LoadState<Consultation>,messages: null == messages ? _self.messages : messages // ignore: cast_nullable_to_non_nullable
@@ -76,7 +79,9 @@ as int,draft: null == draft ? _self.draft : draft // ignore: cast_nullable_to_no
 as String,muted: null == muted ? _self.muted : muted // ignore: cast_nullable_to_non_nullable
 as bool,speakerOn: null == speakerOn ? _self.speakerOn : speakerOn // ignore: cast_nullable_to_non_nullable
 as bool,cameraOn: null == cameraOn ? _self.cameraOn : cameraOn // ignore: cast_nullable_to_non_nullable
-as bool,notes: null == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as bool,callState: null == callState ? _self.callState : callState // ignore: cast_nullable_to_non_nullable
+as CallConnectionState,callError: freezed == callError ? _self.callError : callError // ignore: cast_nullable_to_non_nullable
+as String?,notes: null == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
 as String,remedies: null == remedies ? _self.remedies : remedies // ignore: cast_nullable_to_non_nullable
 as List<Remedy>,
   ));
@@ -126,7 +131,7 @@ $LoadStateCopyWith<SessionSummary, $Res> get savingNotes {
 
 
 class _AstrologerSessionState extends AstrologerSessionState {
-  const _AstrologerSessionState({this.session = const LoadState.idle(), this.messages = const LoadState.idle(), this.ending = const LoadState.idle(), this.savingNotes = const LoadState.idle(), this.tick = 0, this.draft = '', this.muted = false, this.speakerOn = true, this.cameraOn = true, this.notes = '', final  List<Remedy> remedies = const <Remedy>[]}): _remedies = remedies,super._();
+  const _AstrologerSessionState({this.session = const LoadState.idle(), this.messages = const LoadState.idle(), this.ending = const LoadState.idle(), this.savingNotes = const LoadState.idle(), this.tick = 0, this.draft = '', this.muted = false, this.speakerOn = true, this.cameraOn = true, this.callState = CallConnectionState.idle, this.callError, this.notes = '', final  List<Remedy> remedies = const <Remedy>[]}): _remedies = remedies,super._();
   
 
 @override@JsonKey() final  LoadState<Consultation> session;
@@ -135,12 +140,17 @@ class _AstrologerSessionState extends AstrologerSessionState {
 @override@JsonKey() final  LoadState<SessionSummary> savingNotes;
 @override@JsonKey() final  int tick;
 @override@JsonKey() final  String draft;
-/// Local call controls. No media stack yet, so these only drive the UI;
-/// they are here rather than in the widget so state survives a rebuild
-/// and a rotation mid-call.
+/// Call controls. Held here rather than in the widget so they survive a
+/// rebuild or a rotation mid-call, and so the media stack and the icons
+/// can never disagree about what is muted.
 @override@JsonKey() final  bool muted;
 @override@JsonKey() final  bool speakerOn;
 @override@JsonKey() final  bool cameraOn;
+/// Where the media connection is, separate from the session's status: a
+/// consultation can be active — and billing — while the call is still
+/// connecting or has dropped.
+@override@JsonKey() final  CallConnectionState callState;
+@override final  String? callError;
 @override@JsonKey() final  String notes;
  final  List<Remedy> _remedies;
 @override@JsonKey() List<Remedy> get remedies {
@@ -160,16 +170,16 @@ _$AstrologerSessionStateCopyWith<_AstrologerSessionState> get copyWith => __$Ast
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AstrologerSessionState&&(identical(other.session, session) || other.session == session)&&(identical(other.messages, messages) || other.messages == messages)&&(identical(other.ending, ending) || other.ending == ending)&&(identical(other.savingNotes, savingNotes) || other.savingNotes == savingNotes)&&(identical(other.tick, tick) || other.tick == tick)&&(identical(other.draft, draft) || other.draft == draft)&&(identical(other.muted, muted) || other.muted == muted)&&(identical(other.speakerOn, speakerOn) || other.speakerOn == speakerOn)&&(identical(other.cameraOn, cameraOn) || other.cameraOn == cameraOn)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other._remedies, _remedies));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AstrologerSessionState&&(identical(other.session, session) || other.session == session)&&(identical(other.messages, messages) || other.messages == messages)&&(identical(other.ending, ending) || other.ending == ending)&&(identical(other.savingNotes, savingNotes) || other.savingNotes == savingNotes)&&(identical(other.tick, tick) || other.tick == tick)&&(identical(other.draft, draft) || other.draft == draft)&&(identical(other.muted, muted) || other.muted == muted)&&(identical(other.speakerOn, speakerOn) || other.speakerOn == speakerOn)&&(identical(other.cameraOn, cameraOn) || other.cameraOn == cameraOn)&&(identical(other.callState, callState) || other.callState == callState)&&(identical(other.callError, callError) || other.callError == callError)&&(identical(other.notes, notes) || other.notes == notes)&&const DeepCollectionEquality().equals(other._remedies, _remedies));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,session,messages,ending,savingNotes,tick,draft,muted,speakerOn,cameraOn,notes,const DeepCollectionEquality().hash(_remedies));
+int get hashCode => Object.hash(runtimeType,session,messages,ending,savingNotes,tick,draft,muted,speakerOn,cameraOn,callState,callError,notes,const DeepCollectionEquality().hash(_remedies));
 
 @override
 String toString() {
-  return 'AstrologerSessionState(session: $session, messages: $messages, ending: $ending, savingNotes: $savingNotes, tick: $tick, draft: $draft, muted: $muted, speakerOn: $speakerOn, cameraOn: $cameraOn, notes: $notes, remedies: $remedies)';
+  return 'AstrologerSessionState(session: $session, messages: $messages, ending: $ending, savingNotes: $savingNotes, tick: $tick, draft: $draft, muted: $muted, speakerOn: $speakerOn, cameraOn: $cameraOn, callState: $callState, callError: $callError, notes: $notes, remedies: $remedies)';
 }
 
 
@@ -180,7 +190,7 @@ abstract mixin class _$AstrologerSessionStateCopyWith<$Res> implements $Astrolog
   factory _$AstrologerSessionStateCopyWith(_AstrologerSessionState value, $Res Function(_AstrologerSessionState) _then) = __$AstrologerSessionStateCopyWithImpl;
 @override @useResult
 $Res call({
- LoadState<Consultation> session, LoadState<List<ChatMessage>> messages, LoadState<Consultation> ending, LoadState<SessionSummary> savingNotes, int tick, String draft, bool muted, bool speakerOn, bool cameraOn, String notes, List<Remedy> remedies
+ LoadState<Consultation> session, LoadState<List<ChatMessage>> messages, LoadState<Consultation> ending, LoadState<SessionSummary> savingNotes, int tick, String draft, bool muted, bool speakerOn, bool cameraOn, CallConnectionState callState, String? callError, String notes, List<Remedy> remedies
 });
 
 
@@ -197,7 +207,7 @@ class __$AstrologerSessionStateCopyWithImpl<$Res>
 
 /// Create a copy of AstrologerSessionState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? session = null,Object? messages = null,Object? ending = null,Object? savingNotes = null,Object? tick = null,Object? draft = null,Object? muted = null,Object? speakerOn = null,Object? cameraOn = null,Object? notes = null,Object? remedies = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? session = null,Object? messages = null,Object? ending = null,Object? savingNotes = null,Object? tick = null,Object? draft = null,Object? muted = null,Object? speakerOn = null,Object? cameraOn = null,Object? callState = null,Object? callError = freezed,Object? notes = null,Object? remedies = null,}) {
   return _then(_AstrologerSessionState(
 session: null == session ? _self.session : session // ignore: cast_nullable_to_non_nullable
 as LoadState<Consultation>,messages: null == messages ? _self.messages : messages // ignore: cast_nullable_to_non_nullable
@@ -208,7 +218,9 @@ as int,draft: null == draft ? _self.draft : draft // ignore: cast_nullable_to_no
 as String,muted: null == muted ? _self.muted : muted // ignore: cast_nullable_to_non_nullable
 as bool,speakerOn: null == speakerOn ? _self.speakerOn : speakerOn // ignore: cast_nullable_to_non_nullable
 as bool,cameraOn: null == cameraOn ? _self.cameraOn : cameraOn // ignore: cast_nullable_to_non_nullable
-as bool,notes: null == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as bool,callState: null == callState ? _self.callState : callState // ignore: cast_nullable_to_non_nullable
+as CallConnectionState,callError: freezed == callError ? _self.callError : callError // ignore: cast_nullable_to_non_nullable
+as String?,notes: null == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
 as String,remedies: null == remedies ? _self._remedies : remedies // ignore: cast_nullable_to_non_nullable
 as List<Remedy>,
   ));

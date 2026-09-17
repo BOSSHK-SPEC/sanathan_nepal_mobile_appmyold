@@ -9,10 +9,20 @@ enum ProductFormField {
   photos,
   price,
   phone,
+  website,
 }
 
 /// Validation outcome per field (rendered via `MarketplaceStrings`).
-enum ProductFormError { required, invalidPrice, invalidCategory, invalidPhone }
+enum ProductFormError {
+  required,
+  invalidPrice,
+  invalidCategory,
+  invalidPhone,
+
+  /// A website that is not an address the app could open. Optional field —
+  /// this fires only when something was typed.
+  invalidWebsite,
+}
 
 @freezed
 abstract class ProductFormState with _$ProductFormState {

@@ -114,6 +114,13 @@ abstract class EventModel with _$EventModel {
     @JsonKey(unknownEnumValue: EventRepeat.none)
     @Default(EventRepeat.none)
     EventRepeat repeat,
+
+    /// Whether a yearly event recurs on its traditional (B.S. / Saka) date.
+    ///
+    /// The server has always stored this; the app sent it and then dropped it
+    /// on the way back, so a birthday entered in Bikram Sambat came home
+    /// recurring on the Gregorian date instead.
+    @Default(false) bool useTraditionalDate,
   }) = _EventModel;
 
   factory EventModel.fromJson(Map<String, dynamic> json) =>
@@ -140,6 +147,7 @@ abstract class EventModel with _$EventModel {
         ? null
         : EventReminderModel.fromEntity(e.reminder!),
     repeat: e.repeat,
+    useTraditionalDate: e.useTraditionalDate,
   );
 
   Event toEntity() => Event(
@@ -161,5 +169,6 @@ abstract class EventModel with _$EventModel {
     checklist: [for (final c in checklist) c.toEntity()],
     reminder: reminder?.toEntity(),
     repeat: repeat,
+    useTraditionalDate: useTraditionalDate,
   );
 }

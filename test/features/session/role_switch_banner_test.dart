@@ -37,9 +37,12 @@ void main() {
     expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
   });
 
-  testWidgets('an approved astrologer is offered the switch instead', (
+  testWidgets('an approved astrologer is not invited again — nothing shows', (
     tester,
   ) async {
+    // The advertisement has been answered. Their Profile reads as a seeker's;
+    // the console is reached from Profile › Links or the quick menu, and left
+    // through "Switch to personal" in the console's own bar.
     final session = AppSession(
       userId: 'u1',
       isAuthenticated: true,
@@ -52,9 +55,10 @@ void main() {
     await tester.pumpWidget(harness(session));
     await tester.pumpAndSettle();
 
-    expect(find.text('Astrologer'), findsOneWidget);
-    expect(find.byIcon(Icons.swap_horiz_rounded), findsOneWidget);
     expect(find.text('Become an astrologer'), findsNothing);
+    expect(find.text('Astrologer'), findsNothing);
+    expect(find.byIcon(Icons.auto_awesome_rounded), findsNothing);
+    expect(find.byIcon(Icons.swap_horiz_rounded), findsNothing);
   });
 
   testWidgets('a signed-out visitor sees nothing', (tester) async {

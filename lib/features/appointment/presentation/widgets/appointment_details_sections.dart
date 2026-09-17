@@ -179,7 +179,11 @@ class AppointmentAstrologerCard extends StatelessWidget {
       child: Row(
         children: [
           ClipOval(
-            child: AppImage(astrologer.avatarAsset ?? '', width: 48, height: 48),
+            child: AppImage(
+              astrologer.avatarAsset ?? '',
+              width: 48,
+              height: 48,
+            ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -213,7 +217,6 @@ class AppointmentAstrologerCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _ActionChip extends StatelessWidget {

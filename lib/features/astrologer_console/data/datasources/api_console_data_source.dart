@@ -8,12 +8,14 @@ import '../../../../core/network/api_money.dart';
 import '../../../astrologers/domain/entities/astrologer_review.dart';
 import '../../../astrologers/domain/entities/consult_channel.dart';
 import '../../../astrologers/domain/entities/specialty.dart';
+import '../../../consultation/domain/entities/session_summary.dart';
 import '../../domain/entities/application.dart';
 import '../../domain/entities/astrologer_client.dart';
 import '../../domain/entities/astrologer_profile.dart';
 import '../../domain/entities/availability.dart';
 import '../../domain/entities/boost.dart';
 import '../../domain/entities/compliance_notice.dart';
+import '../../domain/entities/console_appointment.dart';
 import '../../domain/entities/console_pricing.dart';
 import '../../domain/entities/console_stats.dart';
 import '../../domain/entities/earnings.dart';
@@ -267,6 +269,114 @@ class ApiConsoleDataSource implements ConsoleDataSource {
     );
     return _toClient(asJsonMap(response));
   });
+
+  // --------------------------------------------------------- appointments --
+
+  @override
+  Future<List<ConsoleAppointment>> appointments(AppointmentScope scope) =>
+      guardApi(() async {
+        final response = await _client.get<dynamic>(
+          ApiEndpoints.consoleAppointments,
+          query: {'scope': scope.name},
+        );
+        return asJsonList(response).map(_toAppointment).toList(growable: false);
+      });
+
+  @override
+  Future<ConsoleAppointment> appointment(String id) => guardApi(() async {
+    final response = await _client.get<dynamic>(
+      ApiEndpoints.consoleAppointment(id),
+    );
+    return _toAppointment(asJsonMap(response));
+  });
+
+  @override
+  Future<ConsoleAppointment> recordAppointmentOutcome(
+    String id, {
+    required bool completed,
+  }) => guardApi(() async {
+    final response = await _client.post<dynamic>(
+      completed
+          ? ApiEndpoints.consoleAppointmentComplete(id)
+          : ApiEndpoints.consoleAppointmentNoShow(id),
+    );
+    return _toAppointment(asJsonMap(response));
+  });
+
+  @override
+  Future<ConsoleAppointment> cancelAppointment(
+    String id, {
+    required String reason,
+  }) => guardApi(() async {
+    final response = await _client.post<dynamic>(
+      ApiEndpoints.consoleAppointmentCancel(id),
+      data: {'reason': reason},
+    );
+    return _toAppointment(asJsonMap(response));
+  });
+
+  ConsoleAppointment _toAppointment(Map<String, dynamic> json) {
+    Map<String, dynamic> map(Object? raw) =>
+        raw is Map ? Map<String, dynamic>.from(raw) : const <String, dynamic>{};
+    String? text(Object? raw) =>
+        raw is String && raw.trim().isNotEmpty ? raw : null;
+    final client = map(json['client']);
+    final intake = map(json['intake']);
+    final advice = map(json['advice']);
+    final startsAt = ApiTime.instantOr(json['startsAt'], DateTime.now());
+    return ConsoleAppointment(
+      id: json['id'] as String? ?? '',
+      reference: json['reference'] as String? ?? '',
+      kind: json['kind'] == 'consultation'
+          ? ConsoleAppointmentKind.consultation
+          : ConsoleAppointmentKind.appointment,
+      channel: text(json['channel']),
+      status:
+          ConsoleAppointmentStatus.values.asNameMap()[json['status']] ??
+          ConsoleAppointmentStatus.pending,
+      startsAt: startsAt,
+      endsAt: ApiTime.instantOr(json['endsAt'], startsAt),
+      price: ApiMoney.toMajor(json['priceMinor']),
+      currency: json['currency'] as String? ?? '',
+      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
+      paymentMethod: text(json['paymentMethod']),
+      clientId: client['id'] as String? ?? '',
+      clientName: client['name'] as String? ?? '',
+      clientPhone: client['phone'] as String? ?? '',
+      clientEmail: client['email'] as String? ?? '',
+      country: client['country'] as String? ?? '',
+      birthDate: text(intake['birthDate']),
+      birthTime: text(intake['birthTime']),
+      birthPlace: text(intake['birthPlace']),
+      note: json['note'] as String? ?? '',
+      cancelReason: text(json['cancelReason']),
+      hasBirthChart: json['hasBirthChart'] == true,
+      hasReceipt: json['hasReceipt'] == true,
+      birthChartUrl: text(json['birthChartUrl']),
+      receiptUrl: text(json['receiptUrl']),
+      adviceNotes: advice['notes'] as String? ?? '',
+      remedies: _remedies(advice['remedies']),
+      followUpAt: advice['followUpAt'] == null
+          ? null
+          : ApiTime.instantOr(advice['followUpAt'], DateTime.now()),
+    );
+  }
+
+  /// The remedies the astrologer saved, however an older app wrote them.
+  static List<Remedy> _remedies(Object? raw) {
+    if (raw is! List) return const [];
+    return [
+      for (final item in raw.whereType<Map>())
+        Remedy(
+          kind:
+              RemedyKind.values.asNameMap()[item['kind']] ??
+              RemedyKind.practice,
+          title: asLocalizedText(item['title']),
+          description: asLocalizedText(item['description']),
+          productId: item['productId'] as String?,
+        ),
+    ];
+  }
 
   // ------------------------------------------------------------- earnings ---
 

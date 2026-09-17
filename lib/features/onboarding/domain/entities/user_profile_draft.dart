@@ -47,6 +47,10 @@ abstract class UserProfileDraft with _$UserProfileDraft {
     @Default('') String birthPlace,
     Gender? gender,
     ZodiacSign? zodiacSign,
+
+    /// Public URL of an uploaded profile photo. Optional — nobody should be
+    /// stopped at the door of the app for not having a photo to hand.
+    String? avatarUrl,
   }) = _UserProfileDraft;
 
   bool get isValid =>

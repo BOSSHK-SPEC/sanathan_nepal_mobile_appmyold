@@ -1,9 +1,11 @@
-import '../../core/config/data_source_selector.dart';
-import '../../core/network/api_client.dart';
-import 'data/datasources/api_panchanga_data_source.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../core/config/data_source_selector.dart';
+import '../../core/network/api_client.dart';
 import '../../core/region/region_resolver.dart';
+import '../../core/storage/bounded_json_cache.dart';
+import '../../core/storage/key_value_store.dart';
+import 'data/datasources/api_panchanga_data_source.dart';
 import 'data/datasources/mock_panchanga_data_source.dart';
 import 'data/datasources/panchanga_data_source.dart';
 import 'data/repositories/panchanga_repository_impl.dart';
@@ -15,8 +17,8 @@ import 'presentation/cubit/panchanga_cubit.dart';
 /// Registers data sources, repositories, use cases and blocs for `panchanga`.
 void registerPanchangaFeature(GetIt sl) {
   sl
-    // The calculator is not a stand-in for a server: panchanga is astronomy,
-    // and it is registered on its own so the live source can build on it.
+    // The on-device estimate: the base the server's calculation is laid over,
+    // and what shows (marked approximate) when a day was never fetched.
     ..registerLazySingleton<MockPanchangaDataSource>(
       () => MockPanchangaDataSource(resolver: sl<RegionResolver>()),
     )
@@ -26,6 +28,11 @@ void registerPanchangaFeature(GetIt sl) {
         live: () => ApiPanchangaDataSource(
           client: sl<ApiClient>(),
           local: sl<MockPanchangaDataSource>(),
+          cache: BoundedJsonCache(
+            sl<KeyValueStore>(),
+            namespace: 'panchanga.day.v1',
+          ),
+          resolver: sl<RegionResolver>(),
         ),
       ),
     )

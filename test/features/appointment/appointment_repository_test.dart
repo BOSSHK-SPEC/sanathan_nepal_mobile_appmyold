@@ -49,8 +49,10 @@ void main() {
     final today = (await repo.getTimeSlots(
       SlotQuery(astrologerId: featuredAstrologerId, date: now),
     )).valueOrNull!;
-    expect(today.where((s) => s.hour <= now.hour).every((s) => !s.available),
-        isTrue);
+    expect(
+      today.where((s) => s.hour <= now.hour).every((s) => !s.available),
+      isTrue,
+    );
   });
 
   test('book → cancel round trip via use case validation', () async {

@@ -28,7 +28,10 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(_wrap(const AppTextField(initialValue: '')));
-    expect(tester.widget<TextField>(find.byType(TextField)).controller?.text, '');
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller?.text,
+      '',
+    );
 
     // The load finished and the saved rate arrived.
     await tester.pumpWidget(_wrap(const AppTextField(initialValue: '250')));

@@ -19,6 +19,14 @@ abstract class LiveSessionState with _$LiveSessionState {
     @Default(false) bool muted,
     @Default(true) bool speakerOn,
     @Default(true) bool cameraOn,
+
+    /// Where the media connection is. Separate from the session's own status:
+    /// a consultation can be `active` — and billing — while the call is still
+    /// connecting or has dropped, and the screen has to say which.
+    @Default(CallConnectionState.idle) CallConnectionState callState,
+
+    /// Why the call could not be joined, in a sentence the user can act on.
+    String? callError,
   }) = _LiveSessionState;
 
   Consultation? get consultation => session.dataOrNull;
@@ -41,14 +49,26 @@ abstract class LiveSessionState with _$LiveSessionState {
   /// accepted has no messages yet, and that is the normal starting state. Both
   /// screens used to render a spinner whenever the list was empty, so a fresh
   /// session sat loading forever until somebody happened to send something.
-  bool get isLoadingChat => chat.isEmpty && !messages.isLoaded && !messages.isFailed;
+  bool get isLoadingChat =>
+      chat.isEmpty && !messages.isLoaded && !messages.isFailed;
 
   /// Loaded, and there is nothing to show — invite the first message instead.
   bool get hasNoMessagesYet => chat.isEmpty && messages.isLoaded;
 
   /// The chat could not be fetched, and we have nothing cached to fall back on.
-  String? get chatError => chat.isEmpty ? messages.failureOrNull?.message : null;
+  String? get chatError =>
+      chat.isEmpty ? messages.failureOrNull?.message : null;
 
+  /// Connected, or briefly re-establishing — either way, do not start a
+  /// second join.
+  bool get isCallLive =>
+      callState == CallConnectionState.connected ||
+      callState == CallConnectionState.reconnecting;
+
+  bool get isCallConnecting => callState == CallConnectionState.connecting;
+
+  /// The call failed and there is something to retry.
+  bool get hasCallFailed => callState == CallConnectionState.failed;
 
   bool get isQueued => consultation?.status == ConsultationStatus.queued;
 

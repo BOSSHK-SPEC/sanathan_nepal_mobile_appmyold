@@ -102,6 +102,16 @@ class _Hi extends ConsultationStrings {
   @override
   String get callEnded => 'कॉल समाप्त';
   @override
+  String get connectingCall => 'जुड़ रहा है…';
+  @override
+  String get callFailed => 'कॉल नहीं जुड़ सका';
+  @override
+  String get retry => 'पुनः प्रयास';
+  @override
+  String get waitingForOther => 'जुड़ने की प्रतीक्षा…';
+  @override
+  String get cameraOff => 'कैमरा बंद';
+  @override
   String get sessionSummary => 'परामर्श सारांश';
   @override
   String get duration => 'अवधि';
@@ -178,8 +188,7 @@ class _Hi extends ConsultationStrings {
   String get chatEmptyTitle => 'कनेक्ट हो गया';
 
   @override
-  String get chatEmptyBody =>
-      'सत्र शुरू हो गया है। पहला संदेश भेजें।';
+  String get chatEmptyBody => 'सत्र शुरू हो गया है। पहला संदेश भेजें।';
 
   @override
   String get sessionEnded => 'परामर्श समाप्त';

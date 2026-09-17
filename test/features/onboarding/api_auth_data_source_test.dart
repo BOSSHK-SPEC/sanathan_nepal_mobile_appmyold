@@ -10,6 +10,8 @@ import 'package:sanathan_nepal_mobile_app/core/region/region.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_resolver.dart';
 import 'package:sanathan_nepal_mobile_app/core/storage/key_value_store.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/data/datasources/api_auth_data_source.dart';
+import 'package:sanathan_nepal_mobile_app/features/onboarding/data/models/user_profile_draft_model.dart';
+import 'package:sanathan_nepal_mobile_app/features/onboarding/domain/entities/user_profile_draft.dart';
 
 /// The regions the server's `regionSchema` accepts. It does not reject
 /// anything else outright — `RegionOf` falls back to Nepal — so sending the
@@ -97,14 +99,6 @@ void main() {
         expect(body['region'], region.code);
       }
     });
-
-    test('social sign-in sends the same code', () async {
-      await sourceFor(Region.india).signInWithGoogle();
-
-      final body = adapter.bodies.last as Map<String, dynamic>;
-      expect(body['region'], 'IN');
-      expect(body['provider'], 'google');
-    });
   });
 
   group('the OTP challenge', () {
@@ -149,5 +143,36 @@ void main() {
         expect(body.containsKey('phone'), isFalse);
       },
     );
+  });
+
+  group('registration details', () {
+    const photo = 'https://sanatan-api.yashwanthhk.com/public-catalog/u1/a.jpg';
+
+    test(
+      'the sign and the photo reach the server; a blank email does not',
+      () async {
+        await sourceFor(Region.nepal).submitProfile(
+          const UserProfileDraftModel(
+            fullName: 'Sita Sharma',
+            zodiacSign: ZodiacSign.leo,
+            avatarUrl: photo,
+          ),
+        );
+        final body = adapter.bodies.last! as Map<String, dynamic>;
+        // Picked on the form and, until now, never sent.
+        expect(body['zodiacSign'], 'leo');
+        expect(body['avatarUrl'], photo);
+        expect(body.containsKey('email'), isFalse, reason: 'email is optional');
+      },
+    );
+
+    test('neither is sent when neither was chosen', () async {
+      await sourceFor(
+        Region.nepal,
+      ).submitProfile(const UserProfileDraftModel(fullName: 'Sita Sharma'));
+      final body = adapter.bodies.last! as Map<String, dynamic>;
+      expect(body.containsKey('zodiacSign'), isFalse);
+      expect(body.containsKey('avatarUrl'), isFalse);
+    });
   });
 }

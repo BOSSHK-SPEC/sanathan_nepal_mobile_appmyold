@@ -12,5 +12,4 @@ abstract final class AppAssets {
   static const String flagNepal = '$_img/nepal_icon.png';
   static const String flagUsa = '$_img/usa-icon.png';
   static const String flagUk = '$_img/england_icon.png';
-  static const String googleLogo = '$_img/googleLogo.png';
 }

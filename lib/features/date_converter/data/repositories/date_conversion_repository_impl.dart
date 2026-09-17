@@ -4,7 +4,10 @@ import '../../../../core/region/region_resolver.dart';
 import '../../../../core/utils/repository_guard.dart';
 import '../../../../core/utils/result.dart';
 import '../../../calendar/data/datasources/calendar_events_data_source.dart';
+import '../../../calendar/data/datasources/panchanga_days_data_source.dart';
 import '../../../calendar/domain/entities/calendar_view_mode.dart';
+import '../../../calendar/domain/entities/lunar_day.dart';
+import '../../../calendar/domain/entities/panchanga_info.dart';
 import '../../../calendar/domain/services/calendar_year_range.dart';
 import '../../../calendar/domain/services/panchanga_approximator.dart';
 import '../../domain/entities/conversion_direction.dart';
@@ -14,16 +17,20 @@ import '../../domain/repositories/date_conversion_repository.dart';
 
 /// Validates input, converts with the active region's
 /// `TraditionalCalendar` (`RegionResolver.config.calendar`) and decorates the
-/// result with Panchanga (region default city) + events.
+/// result with the day's panchanga (the server's calculation when available)
+/// and events.
 class DateConversionRepositoryImpl implements DateConversionRepository {
   DateConversionRepositoryImpl(
     this._resolver,
     this._events, {
+    PanchangaDaysDataSource? panchanga,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+  }) : _panchanga = panchanga,
+       _now = now ?? DateTime.now;
 
   final RegionResolver _resolver;
   final CalendarEventsDataSource _events;
+  final PanchangaDaysDataSource? _panchanga;
   final DateTime Function() _now;
 
   @override
@@ -101,6 +108,7 @@ class DateConversionRepositoryImpl implements DateConversionRepository {
   ) async {
     final config = _resolver.config;
     final date = DateTime(ad.year, ad.month, ad.day);
+    final panchangaFuture = _panchangaFor(date);
     final events = (await _events.fetchEvents(
       from: date,
       to: date,
@@ -110,10 +118,47 @@ class DateConversionRepositoryImpl implements DateConversionRepository {
       direction: direction,
       traditional: traditional,
       ad: date,
-      panchanga: PanchangaApproximator.forRegion(date, config),
+      panchanga:
+          await panchangaFuture ??
+          PanchangaApproximator.forRegion(date, config),
       events: events,
       today: DateTime(today.year, today.month, today.day),
       isWeekend: config.weekendWeekdays.contains(date.weekday % 7),
     );
+  }
+
+  /// The server's calculation for [date], or `null` to fall back to the
+  /// labelled estimate. The converter's sunrise and sunset used to be the
+  /// estimate's, a few minutes out.
+  Future<PanchangaInfo?> _panchangaFor(DateTime date) async {
+    final source = _panchanga;
+    if (source == null) return null;
+    try {
+      final days = await source.fetchRange(from: date, to: date);
+      final exact = days
+          .map((m) => m.toEntity())
+          .where((d) => !d.isApproximate)
+          .firstOrNull;
+      if (exact == null) return null;
+      return PanchangaInfo(
+        lunarDay: LunarDay(
+          tithiIndex: exact.tithiIndex % 15 + 1,
+          paksha: exact.paksha,
+        ),
+        nakshatraNe: exact.nakshatra.ne,
+        nakshatraEn: exact.nakshatra.en,
+        karanNe: exact.karana.ne,
+        karanEn: exact.karana.en,
+        yogNe: exact.yoga.ne,
+        yogEn: exact.yoga.en,
+        chandraRashiNe: exact.moonRashi.ne,
+        chandraRashiEn: exact.moonRashi.en,
+        sunrise: exact.sunrise,
+        sunset: exact.sunset,
+        isApproximate: false,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 }

@@ -136,16 +136,10 @@ void main() {
     expect(find.text('₹540'), findsOneWidget);
   });
 
-  testWidgets('the picker renders in Nepali + dark theme', (
-    tester,
-  ) async {
+  testWidgets('the picker renders in Nepali + dark theme', (tester) async {
     phone(tester);
     await tester.pumpWidget(
-      app(
-        const AstrologerPickerPage(),
-        locale: const Locale('ne'),
-        dark: true,
-      ),
+      app(const AstrologerPickerPage(), locale: const Locale('ne'), dark: true),
     );
     await tester.pumpAndSettle();
     expect(find.text('डा. उत्तम उपाध्याय न्यौपाने (ज्योतिष)'), findsOneWidget);
@@ -169,8 +163,14 @@ void main() {
     // came from — a bare "Rs. 600" beside a profile advertising Rs. 20/min is
     // the same fact told two ways with nothing joining them.
     expect(find.textContaining('Chat · 30 min (Rs. 600)'), findsWidgets);
-    expect(find.textContaining('Voice call · 30 min (Rs. 1,050)'), findsWidgets);
-    expect(find.textContaining('Video call · 30 min (Rs. 1,500)'), findsWidgets);
+    expect(
+      find.textContaining('Voice call · 30 min (Rs. 1,050)'),
+      findsWidgets,
+    );
+    expect(
+      find.textContaining('Video call · 30 min (Rs. 1,500)'),
+      findsWidgets,
+    );
     expect(find.textContaining('Rs. 20/min × 30 min'), findsWidgets);
     expect(tester.takeException(), isNull);
   });

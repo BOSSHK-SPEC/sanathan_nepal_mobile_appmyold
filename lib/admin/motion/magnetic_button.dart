@@ -46,7 +46,9 @@ class _MagneticButtonState extends State<MagneticButton> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return MouseRegion(
-          cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
+          cursor: enabled
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.forbidden,
           onHover: (event) {
             if (!animate) return;
             final size = Size(constraints.maxWidth, constraints.maxHeight);
@@ -69,16 +71,13 @@ class _MagneticButtonState extends State<MagneticButton> {
               curve: Motion.settle,
               transform: Matrix4.identity()
                 ..translateByDouble(_shift.dx, _shift.dy, 0, 1)
-                ..scaleByDouble(
-                  _pressed ? 0.97 : 1,
-                  _pressed ? 0.97 : 1,
-                  1,
-                  1,
-                ),
+                ..scaleByDouble(_pressed ? 0.97 : 1, _pressed ? 0.97 : 1, 1, 1),
               transformAlignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
               decoration: BoxDecoration(
-                gradient: widget.filled && enabled ? colors.primaryGradient : null,
+                gradient: widget.filled && enabled
+                    ? colors.primaryGradient
+                    : null,
                 color: widget.filled
                     ? (enabled ? null : colors.surfaceVariant)
                     : Colors.transparent,
@@ -89,7 +88,9 @@ class _MagneticButtonState extends State<MagneticButton> {
                 boxShadow: widget.filled && enabled
                     ? [
                         BoxShadow(
-                          color: colors.primary.withValues(alpha: _pressed ? 0.18 : 0.34),
+                          color: colors.primary.withValues(
+                            alpha: _pressed ? 0.18 : 0.34,
+                          ),
                           blurRadius: _pressed ? 12 : 26,
                           offset: Offset(0, _pressed ? 4 : 12),
                           spreadRadius: -6,
@@ -104,14 +105,18 @@ class _MagneticButtonState extends State<MagneticButton> {
                     Icon(
                       widget.icon,
                       size: 18,
-                      color: widget.filled ? colors.onPrimary : colors.textPrimary,
+                      color: widget.filled
+                          ? colors.onPrimary
+                          : colors.textPrimary,
                     ),
                     const SizedBox(width: 10),
                   ],
                   Text(
                     widget.label,
                     style: context.textTheme.labelLarge?.copyWith(
-                      color: widget.filled ? colors.onPrimary : colors.textPrimary,
+                      color: widget.filled
+                          ? colors.onPrimary
+                          : colors.textPrimary,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.2,
                     ),

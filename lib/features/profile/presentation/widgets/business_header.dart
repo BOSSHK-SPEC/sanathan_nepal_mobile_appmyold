@@ -11,6 +11,9 @@ import 'small_gradient_button.dart';
 /// Cover + logo + name/category/rating block and Follow / Message actions
 /// of the business profile page, with the admin status pill.
 class BusinessHeader extends StatelessWidget {
+  /// How far the logo hangs below the banner.
+  static const double _logoOverhang = 32;
+
   const BusinessHeader({
     required this.business,
     required this.isFollowing,
@@ -19,6 +22,8 @@ class BusinessHeader extends StatelessWidget {
     this.showMessage = true,
     super.key,
     this.onEdit,
+    this.onChangeCover,
+    this.onChangeLogo,
   });
 
   final BusinessProfile business;
@@ -31,8 +36,14 @@ class BusinessHeader extends StatelessWidget {
   /// produce an error.
   final bool showMessage;
 
-  /// Edit affordances (camera / pencil) – hidden when `null` (viewer mode).
+  /// Opens the edit form (pencil beside the name) – hidden when `null`.
   final VoidCallback? onEdit;
+
+  /// Owner only: change or remove the banner / logo. Hidden when `null`.
+  /// The camera used to open the whole edit form, which had no picture
+  /// fields at all — so neither picture could ever be set.
+  final VoidCallback? onChangeCover;
+  final VoidCallback? onChangeLogo;
 
   @override
   Widget build(BuildContext context) {
@@ -45,39 +56,50 @@ class BusinessHeader extends StatelessWidget {
         Stack(
           clipBehavior: Clip.none,
           children: [
-            Container(
-              height: 137,
-              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              decoration: BoxDecoration(
-                gradient: business.coverUrl == null
-                    ? colors.cardGradient
-                    : null,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                border: Border.all(color: colors.border),
+            // The logo hangs below the banner. Flutter only delivers taps
+            // inside a widget's own bounds, so the overhang is part of the
+            // Stack — otherwise the logo's camera is drawn but cannot be
+            // pressed.
+            Padding(
+              padding: const EdgeInsets.only(bottom: _logoOverhang),
+              child: Container(
+                height: 137,
+                margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                decoration: BoxDecoration(
+                  gradient: business.coverUrl == null
+                      ? colors.cardGradient
+                      : null,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  border: Border.all(color: colors.border),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: business.coverUrl == null
+                    ? Center(
+                        child: Icon(
+                          Icons.storefront_outlined,
+                          size: 40,
+                          color: colors.iconMuted,
+                        ),
+                      )
+                    : AppImage(business.coverUrl!, fit: BoxFit.cover),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: business.coverUrl == null
-                  ? Center(
-                      child: Icon(
-                        Icons.storefront_outlined,
-                        size: 40,
-                        color: colors.iconMuted,
-                      ),
-                    )
-                  : AppImage(business.coverUrl!, fit: BoxFit.cover),
             ),
-            if (onEdit != null)
+            if (onChangeCover != null)
               Positioned(
                 right: AppSpacing.xxl,
                 top: AppSpacing.sm,
-                child: _RoundIcon(
-                  icon: Icons.photo_camera_outlined,
-                  onTap: onEdit!,
+                child: Semantics(
+                  button: true,
+                  label: s.changeBanner,
+                  child: _RoundIcon(
+                    icon: Icons.photo_camera_outlined,
+                    onTap: onChangeCover!,
+                  ),
                 ),
               ),
             Positioned(
               left: AppSpacing.xxl,
-              bottom: -28,
+              bottom: _logoOverhang - 28,
               child: Container(
                 width: 64,
                 height: 64,
@@ -92,9 +114,22 @@ class BusinessHeader extends StatelessWidget {
                     : AppImage(business.logoUrl!),
               ),
             ),
+            if (onChangeLogo != null)
+              Positioned(
+                left: AppSpacing.xxl + 42,
+                bottom: 0,
+                child: Semantics(
+                  button: true,
+                  label: s.changeLogo,
+                  child: _RoundIcon(
+                    icon: Icons.photo_camera_outlined,
+                    onTap: onChangeLogo!,
+                  ),
+                ),
+              ),
           ],
         ),
-        const SizedBox(height: AppSpacing.xxxl),
+        const SizedBox(height: AppSpacing.xxxl - _logoOverhang),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Row(

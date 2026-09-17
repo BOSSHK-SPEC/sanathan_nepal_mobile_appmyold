@@ -40,13 +40,25 @@ void main() {
   test('keys already in use keep drawing what they drew before', () {
     // `home` has always meant the kitchen category. Real estate got its own
     // key instead of changing this one under existing data.
-    expect(CategoryIcons.forCategory(liveId, iconName: 'home'), Icons.kitchen_outlined);
-    expect(CategoryIcons.forCategory(liveId, iconName: 'lamp'), Icons.local_florist_outlined);
-    expect(CategoryIcons.forCategory(liveId, iconName: 'cloth'), Icons.checkroom_rounded);
+    expect(
+      CategoryIcons.forCategory(liveId, iconName: 'home'),
+      Icons.kitchen_outlined,
+    );
+    expect(
+      CategoryIcons.forCategory(liveId, iconName: 'lamp'),
+      Icons.local_florist_outlined,
+    );
+    expect(
+      CategoryIcons.forCategory(liveId, iconName: 'cloth'),
+      Icons.checkroom_rounded,
+    );
   });
 
   test('an unknown key falls back rather than crashing', () {
-    expect(CategoryIcons.forCategory(liveId, iconName: 'something-new'), fallback);
+    expect(
+      CategoryIcons.forCategory(liveId, iconName: 'something-new'),
+      fallback,
+    );
     expect(CategoryIcons.forCategory(liveId), fallback);
   });
 }

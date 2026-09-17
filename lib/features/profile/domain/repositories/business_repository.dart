@@ -15,6 +15,13 @@ abstract interface class BusinessRepository {
   /// Creates or updates a business and returns the persisted entity.
   Future<Result<BusinessProfile>> upsertBusiness(BusinessProfile business);
 
+  /// Changes or removes ([url] null) the logo or banner, and nothing else —
+  /// the listing's approval included.
+  Future<Result<BusinessProfile>> setBusinessImage(
+    BusinessImageSlot slot,
+    String? url,
+  );
+
   /// Admin action: approve / reject a listing.
   Future<Result<BusinessProfile>> setStatus(
     String id,

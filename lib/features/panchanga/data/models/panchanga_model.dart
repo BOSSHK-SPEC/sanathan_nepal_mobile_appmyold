@@ -42,6 +42,9 @@ abstract class PanchangaModel with _$PanchangaModel {
     TimeWindowModel? gulikaKaal,
     TimeWindowModel? abhijitMuhurat,
     @Default([]) List<TimeWindowModel> choghadiya,
+    @JsonKey(unknownEnumValue: PanchangaSource.approximate)
+    @Default(PanchangaSource.approximate)
+    PanchangaSource source,
   }) = _PanchangaModel;
 
   factory PanchangaModel.fromJson(Map<String, dynamic> json) =>
@@ -76,6 +79,7 @@ abstract class PanchangaModel with _$PanchangaModel {
     gulikaKaal: _window(e.gulikaKaal),
     abhijitMuhurat: _window(e.abhijitMuhurat),
     choghadiya: [for (final c in e.choghadiya) TimeWindowModel.fromEntity(c)],
+    source: e.source,
   );
 
   Panchanga toEntity() => Panchanga(
@@ -105,6 +109,7 @@ abstract class PanchangaModel with _$PanchangaModel {
     gulikaKaal: gulikaKaal?.toEntity(),
     abhijitMuhurat: abhijitMuhurat?.toEntity(),
     choghadiya: [for (final c in choghadiya) c.toEntity()],
+    source: source,
   );
 
   static TimeWindowModel? _window(TimeWindow? w) =>

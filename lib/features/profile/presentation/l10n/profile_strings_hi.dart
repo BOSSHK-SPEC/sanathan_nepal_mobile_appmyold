@@ -123,6 +123,16 @@ class _Hi extends ProfileStrings {
   @override
   String get complete => 'पूर्ण करें';
   @override
+  String get markShipped => 'भेजा गया';
+  @override
+  String get markDelivered => 'पहुँचाया गया';
+  @override
+  String get shipped => 'भेजा गया';
+  @override
+  String get outForDelivery => 'डिलीवरी पर';
+  @override
+  String get awaitingSeller => 'विक्रेता की प्रतीक्षा';
+  @override
   String get call => 'कॉल';
   @override
   String get chat => 'चैट';
@@ -233,6 +243,37 @@ class _Hi extends ProfileStrings {
 
   @override
   String get profilePhoto => 'प्रोफ़ाइल फ़ोटो';
+
+  @override
+  String get businessLogo => 'व्यवसाय का लोगो';
+
+  @override
+  String get businessBanner => 'कवर बैनर';
+
+  @override
+  String get addLogo => 'लोगो जोड़ें';
+
+  @override
+  String get addBanner => 'बैनर जोड़ें';
+
+  @override
+  String get changeLogo => 'लोगो बदलें';
+
+  @override
+  String get changeBanner => 'बैनर बदलें';
+
+  @override
+  String get removeLogo => 'लोगो हटाएँ';
+
+  @override
+  String get removeBanner => 'बैनर हटाएँ';
+
+  @override
+  String get brandingHint =>
+      'बैनर: चौड़ी तस्वीर, लगभग 3:1। लोगो: वर्गाकार। JPG, PNG या WebP, 8 MB तक।';
+
+  @override
+  String get imageUpdated => 'तस्वीर अपडेट हो गई';
   @override
   String get noFileChosen => 'कोई फ़ाइल नहीं चुनी गई';
   @override
@@ -343,9 +384,9 @@ class _Hi extends ProfileStrings {
   String get noItems => 'अभी तक कुछ सूचीबद्ध नहीं है।';
 
   @override
-  String get itemsAreForReview =>
-      'समीक्षक को बताएँ कि आप क्या बेचते हैं। व्यवसाय स्वीकृत होने पर '
-      'सार्वजनिक लिस्टिंग मार्केटप्लेस से जोड़ी जाती हैं।';
+  String get itemsPublishOnApproval =>
+      'आप क्या बेचते हैं या कौन-सी सेवा देते हैं, जोड़ें। व्यवसाय स्वीकृत होने '
+      'पर ये आपकी दुकान के उत्पाद और सेवाओं के रूप में प्रकाशित हो जाते हैं।';
   @override
   String get noReviews => 'अभी तक कोई समीक्षा नहीं।';
 

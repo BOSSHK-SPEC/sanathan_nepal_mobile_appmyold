@@ -28,6 +28,9 @@ abstract interface class BusinessDataSource {
   Future<List<BusinessProfileModel>> listBusinesses({BusinessStatus? status});
   Future<BusinessProfileModel> upsert(BusinessProfileModel model);
 
+  /// Changes or removes ([url] null) one picture of the caller's business.
+  Future<BusinessProfileModel> setImage(BusinessImageSlot slot, String? url);
+
   /// Records a moderation decision on someone else's business.
   ///
   /// Separate from [upsert] because it is a different act on a different
@@ -374,6 +377,19 @@ class MockBusinessDataSource implements BusinessDataSource {
     final saved = current.copyWith(status: status, moderationNote: note);
     await _saveUserBusinesses(_userBusinesses()..[id] = saved);
     return saved;
+  }
+
+  @override
+  Future<BusinessProfileModel> setImage(
+    BusinessImageSlot slot,
+    String? url,
+  ) async {
+    final current = await myBusiness();
+    return upsert(
+      slot == BusinessImageSlot.logo
+          ? current.copyWith(logoUrl: url)
+          : current.copyWith(coverUrl: url),
+    );
   }
 
   @override

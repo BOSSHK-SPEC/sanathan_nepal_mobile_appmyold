@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/calendar/traditional_date.dart';
 import 'calendar_event.dart';
+import 'day_panchanga.dart';
 import 'lunar_day.dart';
 
 part 'calendar_day.freezed.dart';
@@ -26,10 +27,22 @@ abstract class CalendarDay with _$CalendarDay {
     /// decided by `RegionConfig.weekendWeekdays`.
     required bool isWeekend,
 
-    /// Approximate tithi/paksha for this day.
+    /// Mean-motion tithi/paksha estimate. Kept for callers that have nothing
+    /// better; anything shown to a reader should prefer [panchanga].
     required LunarDay lunarDay,
     @Default(<CalendarEvent>[]) List<CalendarEvent> events,
+
+    /// The day's panchanga — the server's ephemeris calculation, or an
+    /// estimate marked `isApproximate`. `null` only when it could not be
+    /// loaded at all.
+    DayPanchanga? panchanga,
   }) = _CalendarDay;
+
+  /// The panchanga only when it is the server's calculation. Markers and
+  /// chips that carry no "approximate" label use this, so an estimate is
+  /// never presented as fact.
+  DayPanchanga? get exactPanchanga =>
+      panchanga?.isApproximate == false ? panchanga : null;
 
   /// 0 = Sunday … 6 = Saturday.
   int get weekdayIndex => ad.weekday % 7;

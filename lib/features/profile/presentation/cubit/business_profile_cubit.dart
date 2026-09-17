@@ -1,6 +1,7 @@
 import '../../domain/usecases/get_my_business.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/error/failures.dart';
 import '../../../../core/session/app_role.dart';
 import '../../../../core/session/role_granter.dart';
 import '../../../../core/session/session_refresher.dart';
@@ -97,6 +98,19 @@ class BusinessProfileCubit extends AppCubit<BusinessProfileState> {
   Future<void> refresh() async {
     final id = state.business.dataOrNull?.id;
     if (id != null) await load(id);
+  }
+
+  /// Owner action: changes or removes ([url] null) the logo or banner.
+  ///
+  /// Returns the failure, or null on success, so the page can say which. The
+  /// listing is replaced with the server's answer rather than patched locally,
+  /// so what is on screen is what was actually saved.
+  Future<Failure?> setImage(BusinessImageSlot slot, String? url) async {
+    final result = await _repository.setBusinessImage(slot, url);
+    return result.fold((failure) => failure, (business) {
+      emit(state.copyWith(business: LoadState.loaded(business)));
+      return null;
+    });
   }
 
   Future<void> approve() => _moderate(BusinessStatus.approved);

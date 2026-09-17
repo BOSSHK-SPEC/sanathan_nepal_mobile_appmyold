@@ -6,9 +6,9 @@ import '../../../../core/extensions/string_extensions.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/pill_tabs.dart';
+import '../../../../core/widgets/traditional_date_picker.dart';
 import '../../domain/entities/user_profile_draft.dart';
 import '../l10n/onboarding_strings.dart';
-import 'bs_date_picker_dialog.dart';
 
 /// Date-of-birth input with a traditional / Gregorian toggle (BS / AD in
 /// Nepal, Saka / A.D. in India). The value is always stored as Gregorian; the
@@ -110,9 +110,17 @@ class _DateOfBirthFieldState extends State<DateOfBirthField> {
     final initial = value ?? DateTime(now.year - 25, now.month, now.day);
     final DateTime? picked;
     if (widget.system == DateSystem.bs) {
-      picked = await TraditionalDatePickerDialog.show(
+      final s = OnboardingStrings.of(context);
+      picked = await TraditionalDatePicker.show(
         context,
+        title: s.dateOfBirthIn(
+          s.traditionalEra(context.traditionalCalendar.id),
+        ),
         initial: initial,
+        // Same range as the A.D. picker below, so switching calendars never
+        // offers a different set of birthdays.
+        firstDate: DateTime(1920),
+        lastDate: now,
       );
     } else {
       picked = await showDatePicker(

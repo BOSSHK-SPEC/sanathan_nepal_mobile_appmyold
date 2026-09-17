@@ -7,6 +7,7 @@ import '../../../../core/utils/localized_text.dart';
 import '../../../astrologers/domain/entities/consult_channel.dart';
 import '../../../astrologers/domain/repositories/astrologer_repository.dart';
 import '../../domain/entities/astrologer_session.dart';
+import '../../domain/entities/call_credentials.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/consult_intake.dart';
 import '../../domain/entities/consultation.dart';
@@ -45,6 +46,20 @@ class MockConsultationDataSource implements ConsultationDataSource {
 
   /// Grace period before an idle astrologer accepts.
   static const Duration acceptAfter = Duration(seconds: 4);
+
+  /// The demo carries no audio, and says so.
+  ///
+  /// Returning fake credentials would put the app back where it started: a
+  /// call screen that looks live, bills by the minute and connects nothing.
+  @override
+  Future<bool> callsAvailable() async => false;
+
+  @override
+  Future<CallCredentials> callCredentials(String consultationId) async {
+    throw const ValidationException(
+      'Voice and video calls need a live server. Continue in chat.',
+    );
+  }
 
   @override
   Future<Consultation> start(ConsultIntake intake) async {

@@ -16,7 +16,9 @@ mixin _$UserProfileDraft {
 
  String get fullName; String get email;/// Stored as Gregorian; presentation converts to BS when needed.
  DateTime? get dateOfBirth; DateSystem get dateSystem;/// Minutes since midnight (0–1439) or `null` if unknown.
- int? get birthTimeMinutes; String get birthPlace; Gender? get gender; ZodiacSign? get zodiacSign;
+ int? get birthTimeMinutes; String get birthPlace; Gender? get gender; ZodiacSign? get zodiacSign;/// Public URL of an uploaded profile photo. Optional — nobody should be
+/// stopped at the door of the app for not having a photo to hand.
+ String? get avatarUrl;
 /// Create a copy of UserProfileDraft
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,16 +29,16 @@ $UserProfileDraftCopyWith<UserProfileDraft> get copyWith => _$UserProfileDraftCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserProfileDraft&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.email, email) || other.email == email)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.dateSystem, dateSystem) || other.dateSystem == dateSystem)&&(identical(other.birthTimeMinutes, birthTimeMinutes) || other.birthTimeMinutes == birthTimeMinutes)&&(identical(other.birthPlace, birthPlace) || other.birthPlace == birthPlace)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.zodiacSign, zodiacSign) || other.zodiacSign == zodiacSign));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserProfileDraft&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.email, email) || other.email == email)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.dateSystem, dateSystem) || other.dateSystem == dateSystem)&&(identical(other.birthTimeMinutes, birthTimeMinutes) || other.birthTimeMinutes == birthTimeMinutes)&&(identical(other.birthPlace, birthPlace) || other.birthPlace == birthPlace)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.zodiacSign, zodiacSign) || other.zodiacSign == zodiacSign)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,fullName,email,dateOfBirth,dateSystem,birthTimeMinutes,birthPlace,gender,zodiacSign);
+int get hashCode => Object.hash(runtimeType,fullName,email,dateOfBirth,dateSystem,birthTimeMinutes,birthPlace,gender,zodiacSign,avatarUrl);
 
 @override
 String toString() {
-  return 'UserProfileDraft(fullName: $fullName, email: $email, dateOfBirth: $dateOfBirth, dateSystem: $dateSystem, birthTimeMinutes: $birthTimeMinutes, birthPlace: $birthPlace, gender: $gender, zodiacSign: $zodiacSign)';
+  return 'UserProfileDraft(fullName: $fullName, email: $email, dateOfBirth: $dateOfBirth, dateSystem: $dateSystem, birthTimeMinutes: $birthTimeMinutes, birthPlace: $birthPlace, gender: $gender, zodiacSign: $zodiacSign, avatarUrl: $avatarUrl)';
 }
 
 
@@ -47,7 +49,7 @@ abstract mixin class $UserProfileDraftCopyWith<$Res>  {
   factory $UserProfileDraftCopyWith(UserProfileDraft value, $Res Function(UserProfileDraft) _then) = _$UserProfileDraftCopyWithImpl;
 @useResult
 $Res call({
- String fullName, String email, DateTime? dateOfBirth, DateSystem dateSystem, int? birthTimeMinutes, String birthPlace, Gender? gender, ZodiacSign? zodiacSign
+ String fullName, String email, DateTime? dateOfBirth, DateSystem dateSystem, int? birthTimeMinutes, String birthPlace, Gender? gender, ZodiacSign? zodiacSign, String? avatarUrl
 });
 
 
@@ -64,7 +66,7 @@ class _$UserProfileDraftCopyWithImpl<$Res>
 
 /// Create a copy of UserProfileDraft
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? fullName = null,Object? email = null,Object? dateOfBirth = freezed,Object? dateSystem = null,Object? birthTimeMinutes = freezed,Object? birthPlace = null,Object? gender = freezed,Object? zodiacSign = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? fullName = null,Object? email = null,Object? dateOfBirth = freezed,Object? dateSystem = null,Object? birthTimeMinutes = freezed,Object? birthPlace = null,Object? gender = freezed,Object? zodiacSign = freezed,Object? avatarUrl = freezed,}) {
   return _then(_self.copyWith(
 fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -74,7 +76,8 @@ as DateSystem,birthTimeMinutes: freezed == birthTimeMinutes ? _self.birthTimeMin
 as int?,birthPlace: null == birthPlace ? _self.birthPlace : birthPlace // ignore: cast_nullable_to_non_nullable
 as String,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
 as Gender?,zodiacSign: freezed == zodiacSign ? _self.zodiacSign : zodiacSign // ignore: cast_nullable_to_non_nullable
-as ZodiacSign?,
+as ZodiacSign?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -86,7 +89,7 @@ as ZodiacSign?,
 
 
 class _UserProfileDraft extends UserProfileDraft {
-  const _UserProfileDraft({this.fullName = '', this.email = '', this.dateOfBirth, this.dateSystem = DateSystem.bs, this.birthTimeMinutes, this.birthPlace = '', this.gender, this.zodiacSign}): super._();
+  const _UserProfileDraft({this.fullName = '', this.email = '', this.dateOfBirth, this.dateSystem = DateSystem.bs, this.birthTimeMinutes, this.birthPlace = '', this.gender, this.zodiacSign, this.avatarUrl}): super._();
   
 
 @override@JsonKey() final  String fullName;
@@ -99,6 +102,9 @@ class _UserProfileDraft extends UserProfileDraft {
 @override@JsonKey() final  String birthPlace;
 @override final  Gender? gender;
 @override final  ZodiacSign? zodiacSign;
+/// Public URL of an uploaded profile photo. Optional — nobody should be
+/// stopped at the door of the app for not having a photo to hand.
+@override final  String? avatarUrl;
 
 /// Create a copy of UserProfileDraft
 /// with the given fields replaced by the non-null parameter values.
@@ -110,16 +116,16 @@ _$UserProfileDraftCopyWith<_UserProfileDraft> get copyWith => __$UserProfileDraf
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserProfileDraft&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.email, email) || other.email == email)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.dateSystem, dateSystem) || other.dateSystem == dateSystem)&&(identical(other.birthTimeMinutes, birthTimeMinutes) || other.birthTimeMinutes == birthTimeMinutes)&&(identical(other.birthPlace, birthPlace) || other.birthPlace == birthPlace)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.zodiacSign, zodiacSign) || other.zodiacSign == zodiacSign));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserProfileDraft&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.email, email) || other.email == email)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.dateSystem, dateSystem) || other.dateSystem == dateSystem)&&(identical(other.birthTimeMinutes, birthTimeMinutes) || other.birthTimeMinutes == birthTimeMinutes)&&(identical(other.birthPlace, birthPlace) || other.birthPlace == birthPlace)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.zodiacSign, zodiacSign) || other.zodiacSign == zodiacSign)&&(identical(other.avatarUrl, avatarUrl) || other.avatarUrl == avatarUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,fullName,email,dateOfBirth,dateSystem,birthTimeMinutes,birthPlace,gender,zodiacSign);
+int get hashCode => Object.hash(runtimeType,fullName,email,dateOfBirth,dateSystem,birthTimeMinutes,birthPlace,gender,zodiacSign,avatarUrl);
 
 @override
 String toString() {
-  return 'UserProfileDraft(fullName: $fullName, email: $email, dateOfBirth: $dateOfBirth, dateSystem: $dateSystem, birthTimeMinutes: $birthTimeMinutes, birthPlace: $birthPlace, gender: $gender, zodiacSign: $zodiacSign)';
+  return 'UserProfileDraft(fullName: $fullName, email: $email, dateOfBirth: $dateOfBirth, dateSystem: $dateSystem, birthTimeMinutes: $birthTimeMinutes, birthPlace: $birthPlace, gender: $gender, zodiacSign: $zodiacSign, avatarUrl: $avatarUrl)';
 }
 
 
@@ -130,7 +136,7 @@ abstract mixin class _$UserProfileDraftCopyWith<$Res> implements $UserProfileDra
   factory _$UserProfileDraftCopyWith(_UserProfileDraft value, $Res Function(_UserProfileDraft) _then) = __$UserProfileDraftCopyWithImpl;
 @override @useResult
 $Res call({
- String fullName, String email, DateTime? dateOfBirth, DateSystem dateSystem, int? birthTimeMinutes, String birthPlace, Gender? gender, ZodiacSign? zodiacSign
+ String fullName, String email, DateTime? dateOfBirth, DateSystem dateSystem, int? birthTimeMinutes, String birthPlace, Gender? gender, ZodiacSign? zodiacSign, String? avatarUrl
 });
 
 
@@ -147,7 +153,7 @@ class __$UserProfileDraftCopyWithImpl<$Res>
 
 /// Create a copy of UserProfileDraft
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? fullName = null,Object? email = null,Object? dateOfBirth = freezed,Object? dateSystem = null,Object? birthTimeMinutes = freezed,Object? birthPlace = null,Object? gender = freezed,Object? zodiacSign = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? fullName = null,Object? email = null,Object? dateOfBirth = freezed,Object? dateSystem = null,Object? birthTimeMinutes = freezed,Object? birthPlace = null,Object? gender = freezed,Object? zodiacSign = freezed,Object? avatarUrl = freezed,}) {
   return _then(_UserProfileDraft(
 fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -157,7 +163,8 @@ as DateSystem,birthTimeMinutes: freezed == birthTimeMinutes ? _self.birthTimeMin
 as int?,birthPlace: null == birthPlace ? _self.birthPlace : birthPlace // ignore: cast_nullable_to_non_nullable
 as String,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
 as Gender?,zodiacSign: freezed == zodiacSign ? _self.zodiacSign : zodiacSign // ignore: cast_nullable_to_non_nullable
-as ZodiacSign?,
+as ZodiacSign?,avatarUrl: freezed == avatarUrl ? _self.avatarUrl : avatarUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

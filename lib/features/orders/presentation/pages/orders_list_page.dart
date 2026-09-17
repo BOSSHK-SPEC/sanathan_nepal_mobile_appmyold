@@ -225,47 +225,48 @@ class _OrderCard extends StatelessWidget {
 
     // Owned by the sheet so they outlive its exit animation, and returned as
     // a value so nothing is read out of them after it has closed.
-    final shipping = await AppBottomSheet.show<({String courier, String tracking})>(
-      context,
-      builder: (sheetContext) => TextControllerScope(
-        count: 2,
-        builder: (scopeContext, controllers) => AppBottomSheet(
-          title: strings.shippingDetails,
-          actions: PrimaryButton(
-            label: strings.confirm,
-            height: 46,
-            // The courier is required, so the button waits for one rather than
-            // failing after the tap.
-            onPressed: controllers.first.text.trim().isEmpty
-                ? null
-                : () => Navigator.of(scopeContext).pop((
-                    courier: controllers.first.text.trim(),
-                    tracking: controllers[1].text.trim(),
-                  )),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppTextField(
-                controller: controllers.first,
-                label: strings.courier,
-                hint: strings.courierHint,
-                required: true,
+    final shipping =
+        await AppBottomSheet.show<({String courier, String tracking})>(
+          context,
+          builder: (sheetContext) => TextControllerScope(
+            count: 2,
+            builder: (scopeContext, controllers) => AppBottomSheet(
+              title: strings.shippingDetails,
+              actions: PrimaryButton(
+                label: strings.confirm,
+                height: 46,
+                // The courier is required, so the button waits for one rather than
+                // failing after the tap.
+                onPressed: controllers.first.text.trim().isEmpty
+                    ? null
+                    : () => Navigator.of(scopeContext).pop((
+                        courier: controllers.first.text.trim(),
+                        tracking: controllers[1].text.trim(),
+                      )),
               ),
-              const SizedBox(height: AppSpacing.md),
-              AppTextField(
-                controller: controllers[1],
-                label: strings.trackingNumber,
-                hint: strings.trackingHint,
-                inputFormatters: [
-                  FilteringTextInputFormatter.singleLineFormatter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppTextField(
+                    controller: controllers.first,
+                    label: strings.courier,
+                    hint: strings.courierHint,
+                    required: true,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AppTextField(
+                    controller: controllers[1],
+                    label: strings.trackingNumber,
+                    hint: strings.trackingHint,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.singleLineFormatter,
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        );
 
     if (shipping == null || !context.mounted) return;
     final courierName = shipping.courier;

@@ -17,10 +17,10 @@ class ActivityRepositoryImpl implements ActivityRepository {
   Future<Result<List<OrderSummary>>> getOrders() => guard(_source.getOrders);
 
   @override
-  Future<Result<OrderSummary>> updateOrderStatus(
-    String id,
-    OrderStatus status,
-  ) => guard(() => _source.updateOrderStatus(id, status));
+  Future<Result<OrderSummary>> applyOrderAction(
+    OrderSummary order,
+    OrderAction action,
+  ) => guard(() => _source.applyOrderAction(order, action));
 
   @override
   Future<Result<OrderSummary>> rateOrder(String id, int rating) =>

@@ -54,18 +54,20 @@ class _SplashPageState extends State<SplashPage> {
   void _next() {
     if (!mounted) return;
     final prefs = context.read<AppSettingsCubit>().state;
-    if (prefs.onboardingCompleted) {
-      context.go(AppRoutes.home);
-      return;
-    }
     final progress = widget.progress ?? sl<OnboardingProgressRepository>();
     final presence = widget.presence ?? sl<AuthPresence>();
+    final signedIn = presence.isSignedIn;
+    if (prefs.onboardingCompleted) {
+      // Finishing onboarding once does not mean signed in for good. After a
+      // sign-out this flag is still set, and it used to open Home for nobody.
+      // A returning user goes straight to sign-in; language and theme were
+      // chosen already.
+      context.go(signedIn ? AppRoutes.home : AppRoutes.login);
+      return;
+    }
     AuthFlowNavigation.openStep(
       context,
-      OnboardingStep.resume(
-        saved: progress.step,
-        signedIn: presence.isSignedIn,
-      ),
+      OnboardingStep.resume(saved: progress.step, signedIn: signedIn),
     );
   }
 

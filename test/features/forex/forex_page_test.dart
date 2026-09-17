@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_all.dart';
 import 'package:sanathan_nepal_mobile_app/core/storage/key_value_store.dart';
 import 'package:sanathan_nepal_mobile_app/core/theme/app_theme.dart';
+import 'package:sanathan_nepal_mobile_app/core/widgets/section_chevron_button.dart';
 import 'package:sanathan_nepal_mobile_app/features/forex/data/datasources/forex_local_data_source.dart';
 import 'package:sanathan_nepal_mobile_app/features/forex/data/datasources/mock_forex_data_source.dart';
 import 'package:sanathan_nepal_mobile_app/features/forex/data/repositories/forex_repository_impl.dart';
@@ -170,6 +171,40 @@ void main() {
     expect(find.text('More Currency Information'), findsOneWidget);
     await tester.tap(find.text('More Currency Information'));
     expect(tapped, isTrue);
+    expect(tester.takeException(), isNull);
+  });
+
+  // The header ended in an accent rule, so the full forex page behind the
+  // section went undiscovered. It now ends in the same `>` as Panchanga.
+  testWidgets('ForexSection header ends in a > that opens the forex page', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final cubit = _cubit();
+    var opened = 0;
+    await tester.pumpWidget(
+      _app(
+        Scaffold(
+          body: SingleChildScrollView(
+            child: ForexSection(
+              cubit: cubit..load(),
+              onMoreTap: () => opened++,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final chevron = find.byType(SectionChevronButton);
+    expect(chevron, findsOneWidget);
+    expect(find.byTooltip('See All'), findsOneWidget);
+    await tester.tap(chevron);
+    expect(opened, 1);
+    // Header rates still fit beside it.
+    expect(find.textContaining('USD '), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 }

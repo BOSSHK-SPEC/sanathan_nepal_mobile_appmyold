@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/media/media_bucket.dart';
+import '../../../../core/media/media_upload_action.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -129,6 +132,66 @@ class _BusinessProfileViewState extends State<BusinessProfileView> {
   /// Publishing goes through the marketplace's own form, so a listing added
   /// from the shop page is the same row the marketplace serves — one form,
   /// one validation, one catalogue.
+  /// Owner action behind the header's camera buttons: change the logo or
+  /// banner, or remove it. Saved on its own, so the listing keeps its approval
+  /// and nothing else on it is re-sent.
+  Future<void> _changeImage(
+    BuildContext context,
+    BusinessProfile b,
+    BusinessImageSlot slot,
+  ) async {
+    final s = ProfileStrings.of(context);
+    final cubit = context.read<BusinessProfileCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+    final isLogo = slot == BusinessImageSlot.logo;
+    final current = isLogo ? b.logoUrl : b.coverUrl;
+
+    var remove = false;
+    if (current != null) {
+      final choice = await showModalBottomSheet<bool>(
+        context: context,
+        showDragHandle: true,
+        builder: (sheet) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: Text(isLogo ? s.changeLogo : s.changeBanner),
+                onTap: () => Navigator.of(sheet).pop(false),
+              ),
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: sheet.colors.error),
+                title: Text(isLogo ? s.removeLogo : s.removeBanner),
+                onTap: () => Navigator.of(sheet).pop(true),
+              ),
+            ],
+          ),
+        ),
+      );
+      if (choice == null || !context.mounted) return;
+      remove = choice;
+    }
+
+    String? url;
+    if (!remove) {
+      final uploaded = await pickAndUploadMedia(
+        context,
+        bucket: MediaBucket.publicCatalog,
+        title: isLogo ? s.businessLogo : s.businessBanner,
+      );
+      if (uploaded == null) return;
+      url = uploaded.url;
+    }
+
+    final failure = await cubit.setImage(slot, url);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(failure?.message ?? s.imageUpdated)),
+      );
+  }
+
   Future<void> _addListing(BuildContext context) async {
     final listings = context.read<BusinessListingsCubit>();
     await context.push<Object?>(AppRoutes.productCreate);
@@ -156,7 +219,10 @@ class _BusinessProfileViewState extends State<BusinessProfileView> {
   ///
   /// Owner only: a reviewer looking at somebody else's approved shop must not
   /// pick up a merchant role from it.
-  void _claimSellerAccessIfDue(BuildContext context, BusinessProfileState state) {
+  void _claimSellerAccessIfDue(
+    BuildContext context,
+    BusinessProfileState state,
+  ) {
     if (_sellerAccessClaimed || !_isOwner) return;
 
     final business = state.business.dataOrNull;
@@ -214,6 +280,14 @@ class _BusinessProfileViewState extends State<BusinessProfileView> {
                   onMessage: () =>
                       context.push(AppRoutes.businessMessageThreadPath(b.id)),
                   onEdit: canEdit ? () => _edit(context, b) : null,
+                  // Pictures are the owner's: a reviewer approves or rejects
+                  // a listing, they do not redecorate it.
+                  onChangeCover: _isOwner
+                      ? () => _changeImage(context, b, BusinessImageSlot.cover)
+                      : null,
+                  onChangeLogo: _isOwner
+                      ? () => _changeImage(context, b, BusinessImageSlot.logo)
+                      : null,
                 ),
                 if (_isOwner) BusinessModerationCard.owner(business: b),
                 if (_isAdmin)

@@ -1,4 +1,5 @@
 import '../../../../core/auth/auth_session_manager.dart';
+import '../../../../core/session/session_refresher.dart';
 import '../../../../core/utils/repository_guard.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/favourite_product.dart';
@@ -25,10 +26,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required FavouritesDataSource favourites,
     ApiProfileDataSource? remote,
     AuthSessionManager? session,
+    SessionRefresher? sessionRefresher,
   }) : _local = local,
        _favourites = favourites,
        _remote = remote,
-       _session = session;
+       _session = session,
+       _sessionRefresher = sessionRefresher;
+
+  /// Reloads the session when a fetch changes who the user is or what they
+  /// may do. Null in tests that do not care.
+  final SessionRefresher? _sessionRefresher;
 
   final ProfileLocalDataSource _local;
   final FavouritesDataSource _favourites;
@@ -46,9 +53,17 @@ class ProfileRepositoryImpl implements ProfileRepository {
     if (remote == null) return _local.read().toEntity();
 
     try {
+      final before = _local.read().toEntity();
       final fresh = await remote.read();
       await _local.write(fresh);
-      return fresh.toEntity();
+      final after = fresh.toEntity();
+      // Roles decide which screens open, and the session keeps its own copy.
+      // When the server's answer differs from what the session was built from
+      // — an approval, a rejection, a different account — reload it, or the
+      // app goes on offering a console the server has just refused (or
+      // hiding one it has just granted).
+      if (_whoChanged(before, after)) await _sessionRefresher?.refresh();
+      return after;
     } on Object {
       // Offline, or the server is having a bad minute. A cached profile is
       // still this user's profile, so showing it beats an error screen — but
@@ -113,4 +128,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
     await _local.clearSession();
     await _session?.signOut(reason);
   }
+
+  static bool _whoChanged(UserProfile before, UserProfile after) =>
+      before.id != after.id ||
+      before.roles.length != after.roles.length ||
+      !before.roles.containsAll(after.roles);
 }

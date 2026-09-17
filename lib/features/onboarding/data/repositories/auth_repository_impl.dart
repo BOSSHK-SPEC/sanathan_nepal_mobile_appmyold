@@ -23,20 +23,6 @@ class AuthRepositoryImpl implements AuthRepository {
   bool get isLoggedIn => _local.isLoggedIn;
 
   @override
-  Future<Result<AuthSession>> signInWithGoogle() => guard(() async {
-    final session = await _remote.signInWithGoogle();
-    await _local.writeSession(session);
-    return session.toEntity();
-  });
-
-  @override
-  Future<Result<AuthSession>> signInWithApple() => guard(() async {
-    final session = await _remote.signInWithApple();
-    await _local.writeSession(session);
-    return session.toEntity();
-  });
-
-  @override
   Future<Result<OtpChallenge>> signInWithPhone(String phoneNumber) =>
       guard(() async => (await _remote.requestOtp(phoneNumber)).toEntity());
 

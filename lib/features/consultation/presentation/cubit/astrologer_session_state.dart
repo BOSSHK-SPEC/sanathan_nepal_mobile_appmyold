@@ -12,12 +12,18 @@ abstract class AstrologerSessionState with _$AstrologerSessionState {
     @Default(0) int tick,
     @Default('') String draft,
 
-    /// Local call controls. No media stack yet, so these only drive the UI;
-    /// they are here rather than in the widget so state survives a rebuild
-    /// and a rotation mid-call.
+    /// Call controls. Held here rather than in the widget so they survive a
+    /// rebuild or a rotation mid-call, and so the media stack and the icons
+    /// can never disagree about what is muted.
     @Default(false) bool muted,
     @Default(true) bool speakerOn,
     @Default(true) bool cameraOn,
+
+    /// Where the media connection is, separate from the session's status: a
+    /// consultation can be active — and billing — while the call is still
+    /// connecting or has dropped.
+    @Default(CallConnectionState.idle) CallConnectionState callState,
+    String? callError,
     @Default('') String notes,
     @Default(<Remedy>[]) List<Remedy> remedies,
   }) = _AstrologerSessionState;
@@ -42,14 +48,24 @@ abstract class AstrologerSessionState with _$AstrologerSessionState {
   /// accepted has no messages yet, and that is the normal starting state. Both
   /// screens used to render a spinner whenever the list was empty, so a fresh
   /// session sat loading forever until somebody happened to send something.
-  bool get isLoadingChat => chat.isEmpty && !messages.isLoaded && !messages.isFailed;
+  bool get isLoadingChat =>
+      chat.isEmpty && !messages.isLoaded && !messages.isFailed;
 
   /// Loaded, and there is nothing to show — invite the first message instead.
   bool get hasNoMessagesYet => chat.isEmpty && messages.isLoaded;
 
   /// The chat could not be fetched, and we have nothing cached to fall back on.
-  String? get chatError => chat.isEmpty ? messages.failureOrNull?.message : null;
+  String? get chatError =>
+      chat.isEmpty ? messages.failureOrNull?.message : null;
 
+  /// Connected, or briefly re-establishing — either way, do not join again.
+  bool get isCallLive =>
+      callState == CallConnectionState.connected ||
+      callState == CallConnectionState.reconnecting;
+
+  bool get isCallConnecting => callState == CallConnectionState.connecting;
+
+  bool get hasCallFailed => callState == CallConnectionState.failed;
 
   bool get isActive => consultation?.status == ConsultationStatus.active;
 

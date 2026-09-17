@@ -102,6 +102,16 @@ class _Ne extends ConsultationStrings {
   @override
   String get callEnded => 'कल सकियो';
   @override
+  String get connectingCall => 'जोड्दै…';
+  @override
+  String get callFailed => 'कल जोड्न सकिएन';
+  @override
+  String get retry => 'पुनः प्रयास';
+  @override
+  String get waitingForOther => 'जोडिन पर्खँदै…';
+  @override
+  String get cameraOff => 'क्यामेरा बन्द';
+  @override
   String get sessionSummary => 'परामर्श सारांश';
   @override
   String get duration => 'अवधि';
@@ -178,8 +188,7 @@ class _Ne extends ConsultationStrings {
   String get chatEmptyTitle => 'जोडियो';
 
   @override
-  String get chatEmptyBody =>
-      'सत्र सुरु भयो। पहिलो सन्देश पठाउनुहोस्।';
+  String get chatEmptyBody => 'सत्र सुरु भयो। पहिलो सन्देश पठाउनुहोस्।';
 
   @override
   String get sessionEnded => 'परामर्श सकियो';

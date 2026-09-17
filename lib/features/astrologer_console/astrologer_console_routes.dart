@@ -12,6 +12,8 @@ import 'presentation/pages/apply_intro_page.dart';
 import 'presentation/pages/compliance_page.dart';
 import 'presentation/pages/client_detail_page.dart';
 import 'presentation/pages/clients_page.dart';
+import 'presentation/pages/console_appointment_detail_page.dart';
+import 'presentation/pages/console_appointments_page.dart';
 import 'presentation/pages/console_dashboard_page.dart';
 import 'presentation/pages/earnings_page.dart';
 import 'presentation/pages/kyc_wizard_page.dart';
@@ -196,6 +198,23 @@ final List<RouteBase> astrologerRootRoutes = <RouteBase>[
       fallback: AppRoutes.astrologerApply,
     ),
     builder: (context, state) => const ConsoleBoostPage(),
+  ),
+  // Booked sittings. Outside the shell: a list the astrologer opens from the
+  // console home, with each appointment pushed over it.
+  GoRoute(
+    path: AppRoutes.astrologerAppointments,
+    name: 'astrologerAppointments',
+    redirect: consoleGuard,
+    builder: (context, state) => const ConsoleAppointmentsPage(),
+    routes: [
+      GoRoute(
+        path: ':id',
+        name: 'astrologerAppointment',
+        builder: (context, state) => ConsoleAppointmentDetailPage(
+          appointmentId: state.pathParameters['id'] ?? '',
+        ),
+      ),
+    ],
   ),
   GoRoute(
     path: AppRoutes.astrologerAnalytics,

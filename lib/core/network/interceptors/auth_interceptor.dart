@@ -33,7 +33,6 @@ class AuthInterceptor extends QueuedInterceptor {
 
   /// Paths that must never carry a bearer token or trigger a refresh.
   static const Set<String> _anonymousPaths = {
-    ApiEndpoints.authSocial,
     ApiEndpoints.authPhoneStart,
     ApiEndpoints.authPhoneVerify,
     ApiEndpoints.authRefresh,

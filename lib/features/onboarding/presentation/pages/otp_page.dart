@@ -144,6 +144,7 @@ class _OtpViewState extends State<_OtpView> {
                   OtpCodeInput(
                     length: challenge.codeLength,
                     enabled: !state.isLoading,
+                    hasError: _error != null,
                     onChanged: (v) => setState(() {
                       _code = v;
                       _error = null;

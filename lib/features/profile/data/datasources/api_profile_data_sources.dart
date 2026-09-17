@@ -16,6 +16,7 @@ import '../models/user_profile_model.dart';
 import 'mock_activity_data_source.dart';
 import 'mock_business_data_source.dart';
 import 'mock_favourites_data_source.dart';
+import 'profile_wire_format.dart';
 
 /// Shared JSON helpers for the profile family.
 Map<String, String> _localized(Object? raw) {
@@ -49,12 +50,17 @@ class ApiProfileDataSource {
             if (profile.email.isNotEmpty) 'email': profile.email,
             if (profile.phone.isNotEmpty) 'phone': profile.phone,
             'gender': ?profile.gender?.name,
-            'dobAd': ?profile.dobAd,
-            'birthTime': ?profile.birthTime,
+            'dobAd': ?ProfileWireFormat.dateToWire(profile.dobAd),
+            'birthTime': ?ProfileWireFormat.timeToWire(profile.birthTime),
             'birthPlace': ?profile.birthPlace,
             'address': ?profile.address,
             'bio': ?profile.bio,
+            // Sent even when empty, like the sign below: blank clears it.
+            'religion': profile.religion?.trim() ?? '',
             'avatarUrl': ?profile.avatarUrl,
+            // Sent even when null: null clears the sign, and leaving it out
+            // would make "remove my sign" silently do nothing.
+            'zodiacSign': profile.zodiacSign?.name,
           },
         );
         return _toProfile(asJsonMap(response));
@@ -73,14 +79,21 @@ class ApiProfileDataSource {
     phone: json['phone'] as String? ?? '',
     avatarUrl: json['avatarUrl'] as String?,
     gender: _gender(json['gender'] as String?),
-    dobAd: json['dobAd'] as String?,
-    birthTime: json['birthTime'] as String?,
+    dobAd: ProfileWireFormat.dateFromWire(json['dobAd'] as String?),
+    birthTime: ProfileWireFormat.timeFromWire(json['birthTime'] as String?),
     birthPlace: json['birthPlace'] as String?,
     address: json['address'] as String?,
     bio: json['bio'] as String?,
+    religion: json['religion'] as String?,
+    zodiacSign: _zodiac(json['zodiacSign'] as String?),
     verified: json['verified'] as bool? ?? false,
     roles: _roles(json['roles']),
   );
+
+  /// Same twelve names as the server's enum; anything unrecognised reads as
+  /// "not set" rather than failing the whole profile.
+  static ProfileZodiac? _zodiac(String? name) =>
+      ProfileZodiac.values.where((z) => z.name == name).firstOrNull;
 
   static Gender? _gender(String? name) => switch (name) {
     'female' => Gender.female,
@@ -155,16 +168,45 @@ class ApiActivityDataSource implements ActivityDataSource {
     return summaries;
   });
 
+  /// Applies a seller or buyer action to an order.
+  ///
+  /// Two endpoints, not one: a seller advances an order through the fulfilment
+  /// states, while a buyer may only cancel. This used to call `cancel` for
+  /// every action, so a seller pressing Accept hit the *buyer's* endpoint,
+  /// which looks the order up by `buyerId` — no match, 404, and a button that
+  /// appeared to do nothing.
   @override
-  Future<OrderSummary> updateOrderStatus(String id, OrderStatus status) =>
-      guardApi(() async {
-        // The only status change a buyer can make is cancelling.
-        final response = await _client.post<dynamic>(
-          ApiEndpoints.orderCancel(id),
-          data: {'reason': 'Cancelled from activity'},
-        );
-        return _toSummary(asJsonMap(response), OrderRole.buyer);
-      });
+  Future<OrderSummary> applyOrderAction(
+    OrderSummary order,
+    OrderAction action,
+  ) => guardApi(() async {
+    final isSellerAction = order.role == OrderRole.seller;
+    final response = isSellerAction
+        ? await _client.post<dynamic>(
+            ApiEndpoints.orderAdvance(order.id),
+            data: {'status': _advanceStatus(action)},
+          )
+        : await _client.post<dynamic>(
+            ApiEndpoints.orderCancel(order.id),
+            data: {'reason': 'Cancelled by the buyer'},
+          );
+
+    // Re-tagged with the role it came from: the response says nothing about
+    // which side asked, and stamping every update as a purchase moved sales
+    // into the buyer's list the moment they were touched.
+    return _toSummary(asJsonMap(response), order.role);
+  });
+
+  /// The server status each seller action moves the order to.
+  ///
+  /// These are exactly the moves `SELLER_TRANSITIONS` permits; anything else
+  /// comes back as `ORDER_TRANSITION_INVALID`.
+  static String _advanceStatus(OrderAction action) => switch (action) {
+    OrderAction.accept => 'processing',
+    OrderAction.ship => 'shipped',
+    OrderAction.deliver => 'delivered',
+    OrderAction.cancel => 'cancelled',
+  };
 
   @override
   Future<OrderSummary> rateOrder(String id, int rating) => guardApi(() async {
@@ -204,13 +246,24 @@ class ApiActivityDataSource implements ActivityDataSource {
     ].whereType<String>().where((part) => part.isNotEmpty).join(' ');
   }
 
+  /// The server's ten states, mapped one-for-one onto what the card shows.
+  ///
+  /// `confirmed`, `shipped` and `outForDelivery` used to collapse into
+  /// `placed`/`processing`, which is why a sales card could not tell an order
+  /// awaiting acceptance from one awaiting a courier — and drew the wrong
+  /// button for both.
   static OrderStatus _status(String? status) => switch (status) {
+    'confirmed' => OrderStatus.confirmed,
+    'processing' => OrderStatus.processing,
+    'shipped' => OrderStatus.shipped,
+    'outForDelivery' => OrderStatus.outForDelivery,
     'delivered' => OrderStatus.completed,
     'cancelled' ||
     'returnRequested' ||
     'returned' ||
     'refunded' => OrderStatus.cancelled,
-    'processing' || 'shipped' || 'outForDelivery' => OrderStatus.processing,
+    // `pendingPayment`, and anything a newer server adds: placed, with no
+    // action offered, which is the safe default for a state we do not know.
     _ => OrderStatus.placed,
   };
 }
@@ -295,6 +348,20 @@ class ApiBusinessDataSource implements BusinessDataSource {
   });
 
   @override
+  Future<BusinessProfileModel> setImage(
+    BusinessImageSlot slot,
+    String? url,
+  ) => guardApi(() async {
+    // Only the one picture, so a new banner never overwrites the rest of the
+    // listing with whatever this device last loaded.
+    final response = await _client.patch<dynamic>(
+      ApiEndpoints.businessMineBranding,
+      data: {slot == BusinessImageSlot.logo ? 'logoKey' : 'coverKey': url},
+    );
+    return _toBusiness(asJsonMap(response));
+  });
+
+  @override
   Future<BusinessProfileModel> upsert(BusinessProfileModel model) =>
       guardApi(() async {
         final response = await _client.post<dynamic>(
@@ -316,8 +383,10 @@ class ApiBusinessDataSource implements BusinessDataSource {
             'mapLink': model.mapLink,
             'workingHours': model.workingHours,
             'taxId': model.taxId,
-            'logoKey': ?model.logoUrl,
-            'coverKey': ?model.coverUrl,
+            // Sent even when null: null removes the picture, and leaving it
+            // out would make "remove" silently keep it.
+            'logoKey': model.logoUrl,
+            'coverKey': model.coverUrl,
             'documentIds': model.documents,
             // Sent whole. The owner edits the list as a list — adding one
             // item and losing another would be worse than a slow save.

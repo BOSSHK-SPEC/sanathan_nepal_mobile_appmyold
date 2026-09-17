@@ -91,7 +91,9 @@ void main() {
       // The router sends them away before this matters, but if that guard ever
       // regresses the shell must still render an empty rail, not the console.
       expect(
-        ConsoleDestination.permittedFor(sessionFor({AppRole.seeker}).permissions),
+        ConsoleDestination.permittedFor(
+          sessionFor({AppRole.seeker}).permissions,
+        ),
         isEmpty,
       );
     });

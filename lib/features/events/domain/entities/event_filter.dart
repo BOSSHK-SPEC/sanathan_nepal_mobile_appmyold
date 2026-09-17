@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/calendar/calendar.dart';
 import 'event.dart';
 import 'event_category.dart';
 
@@ -38,20 +39,36 @@ abstract class EventFilter with _$EventFilter {
     return EventFilter(group: group, from: d, to: d);
   }
 
-  bool matches(Event e, {DateTime? now}) {
+  /// Whether [e] belongs in this list.
+  ///
+  /// Dates are compared against the event's *next occurrence*, not the date it
+  /// was created on. A birthday entered as `2000-02-03` is not a past event —
+  /// comparing the stored date meant every recurring event a user ever created
+  /// was filtered out of every upcoming list, while still being returned
+  /// happily by the API.
+  ///
+  /// [calendar] lets a Bikram Sambat / Saka anniversary recur on its own
+  /// calendar; without one those fall back to the Gregorian date.
+  bool matches(Event e, {DateTime? now, TraditionalCalendar? calendar}) {
     if (group != null && e.group != group) return false;
     if (category != null && e.category != category) return false;
     if (onlyHolidays && !e.isHoliday) return false;
     if (onlyVrat && !e.isVrat) return false;
     if (onlyImportant && !e.isImportant) return false;
-    if (upcomingOnly) {
-      final ref = from ?? now ?? DateTime.now();
-      final today = DateTime(ref.year, ref.month, ref.day);
-      if (e.date.isBefore(today)) return false;
-    }
+
+    final ref = from ?? now ?? DateTime.now();
+    final today = DateTime(ref.year, ref.month, ref.day);
+    final occurrence = e.nextOccurrence(from: today, calendar: calendar);
+
+    if (upcomingOnly && occurrence.isBefore(today)) return false;
+
+    // A single-day query (`from == to`) asks "what falls on this day?", so a
+    // yearly event answers with the occurrence in that day's year.
+    if (from != null && occurrence.isBefore(today)) return false;
+
     final until = to;
     if (until != null &&
-        e.date.isAfter(DateTime(until.year, until.month, until.day))) {
+        occurrence.isAfter(DateTime(until.year, until.month, until.day))) {
       return false;
     }
     return true;

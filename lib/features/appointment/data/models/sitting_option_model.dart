@@ -24,16 +24,15 @@ abstract class SittingOptionModel with _$SittingOptionModel {
   factory SittingOptionModel.fromJson(Map<String, dynamic> json) =>
       _$SittingOptionModelFromJson(json);
 
-  factory SittingOptionModel.fromEntity(SittingOption e) =>
-      SittingOptionModel(
-        id: e.id,
-        channel: e.channel,
-        name: LocalizedTextModel.fromEntity(e.name),
-        price: e.price,
-        ratePerMinute: e.ratePerMinute,
-        description: LocalizedTextModel.fromEntity(e.description),
-        durationMinutes: e.durationMinutes,
-      );
+  factory SittingOptionModel.fromEntity(SittingOption e) => SittingOptionModel(
+    id: e.id,
+    channel: e.channel,
+    name: LocalizedTextModel.fromEntity(e.name),
+    price: e.price,
+    ratePerMinute: e.ratePerMinute,
+    description: LocalizedTextModel.fromEntity(e.description),
+    durationMinutes: e.durationMinutes,
+  );
 
   SittingOption toEntity() => SittingOption(
     id: id,

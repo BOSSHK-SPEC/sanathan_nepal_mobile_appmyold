@@ -592,6 +592,12 @@ abstract class AppLocalizations {
   /// **'Become an astrologer'**
   String get menuBecomeAstrologer;
 
+  /// No description provided for @menuAstrologerConsole.
+  ///
+  /// In en, this message translates to:
+  /// **'Astrologer console'**
+  String get menuAstrologerConsole;
+
   /// No description provided for @addAPhoto.
   ///
   /// In en, this message translates to:
@@ -645,6 +651,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove photo'**
   String get removePhoto;
+
+  /// Label of the year field in a date picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get year;
+
+  /// Label of the month field in a date picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get month;
+
+  /// Label of the day-of-month field in a date picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get day;
 }
 
 class _AppLocalizationsDelegate

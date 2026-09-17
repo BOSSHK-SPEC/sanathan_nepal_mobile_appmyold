@@ -71,7 +71,11 @@ class ProductImagePicker extends StatelessWidget {
             if (images.isNotEmpty && onRemoveAll != null)
               TextButton.icon(
                 onPressed: onRemoveAll,
-                icon: Icon(Icons.delete_sweep_outlined, size: 18, color: colors.error),
+                icon: Icon(
+                  Icons.delete_sweep_outlined,
+                  size: 18,
+                  color: colors.error,
+                ),
                 label: Text(
                   s.removeAllPhotos,
                   style: context.textTheme.labelMedium?.copyWith(
@@ -127,11 +131,7 @@ class _Thumbnail extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(
-              child: ProductPhoto(
-                source,
-                radius: AppRadius.md,
-                iconSize: 28,
-              ),
+              child: ProductPhoto(source, radius: AppRadius.md, iconSize: 28),
             ),
             Positioned(
               top: 0,
@@ -217,11 +217,7 @@ class _AddTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.add_a_photo_outlined,
-                size: 22,
-                color: colors.accent,
-              ),
+              Icon(Icons.add_a_photo_outlined, size: 22, color: colors.accent),
               const SizedBox(height: 4),
               Text(
                 s.addPhoto,

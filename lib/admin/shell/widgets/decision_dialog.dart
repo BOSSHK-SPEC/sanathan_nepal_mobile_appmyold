@@ -77,7 +77,9 @@ class _DecisionDialogState extends State<_DecisionDialog> {
       Decision(
         approve: widget.approve,
         note: note,
-        reference: _reference.text.trim().isEmpty ? null : _reference.text.trim(),
+        reference: _reference.text.trim().isEmpty
+            ? null
+            : _reference.text.trim(),
       ),
     );
   }

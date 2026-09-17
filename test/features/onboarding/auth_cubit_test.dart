@@ -12,8 +12,6 @@ import 'package:sanathan_nepal_mobile_app/features/onboarding/presentation/cubit
 import 'helpers/test_helpers.dart';
 
 void main() {
-  late MockSignInWithGoogle google;
-  late MockSignInWithApple apple;
   late MockSignInWithPhone phone;
   late MockVerifyOtp verifyUc;
 
@@ -34,18 +32,11 @@ void main() {
   });
 
   setUp(() {
-    google = MockSignInWithGoogle();
-    apple = MockSignInWithApple();
     phone = MockSignInWithPhone();
     verifyUc = MockVerifyOtp();
   });
 
-  AuthCubit build() => AuthCubit(
-    signInWithGoogle: google,
-    signInWithApple: apple,
-    signInWithPhone: phone,
-    verifyOtp: verifyUc,
-  );
+  AuthCubit build() => AuthCubit(signInWithPhone: phone, verifyOtp: verifyUc);
 
   group('AuthCubit', () {
     blocTest<AuthCubit, AuthState>(
@@ -103,33 +94,6 @@ void main() {
           const VerifyOtpParams(phoneNumber: '9841000002', code: '123456'),
         ),
       ).called(1),
-    );
-
-    blocTest<AuthCubit, AuthState>(
-      'signInWithGoogle emits authenticated',
-      build: () {
-        when(google.call).thenAnswer(
-          (_) async => const Result.success(
-            AuthSession(
-              userId: 'g',
-              provider: AuthProvider.google,
-              isNewUser: false,
-            ),
-          ),
-        );
-        return build();
-      },
-      act: (c) => c.signInWithGoogle(),
-      expect: () => [
-        const AuthState(session: LoadState.loading()),
-        isA<AuthState>()
-            .having((s) => s.session.isLoaded, 'authenticated', isTrue)
-            .having(
-              (s) => s.session.dataOrNull?.provider,
-              'provider',
-              AuthProvider.google,
-            ),
-      ],
     );
 
     blocTest<AuthCubit, AuthState>(

@@ -117,6 +117,7 @@
   "menuOffers": "Offers",
   "menuOrders": "My orders",
   "menuBecomeAstrologer": "Become an astrologer",
+  "menuAstrologerConsole": "Astrologer console",
   "addAPhoto": "Add a photo",
   "takeAPhoto": "Take a photo",
   "chooseFromGallery": "Choose from gallery",
@@ -134,5 +135,11 @@
   },
   "uploading": "Uploading…",
   "uploadFailed": "Upload failed",
-  "removePhoto": "Remove photo"
+  "removePhoto": "Remove photo",
+  "year": "Year",
+  "@year": {"description": "Label of the year field in a date picker."},
+  "month": "Month",
+  "@month": {"description": "Label of the month field in a date picker."},
+  "day": "Day",
+  "@day": {"description": "Label of the day-of-month field in a date picker."}
 }

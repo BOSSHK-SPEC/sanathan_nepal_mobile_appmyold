@@ -61,6 +61,13 @@ _PanchangaModel _$PanchangaModelFromJson(
           ?.map((e) => TimeWindowModel.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  source:
+      $enumDecodeNullable(
+        _$PanchangaSourceEnumMap,
+        json['source'],
+        unknownValue: PanchangaSource.approximate,
+      ) ??
+      PanchangaSource.approximate,
 );
 
 Map<String, dynamic> _$PanchangaModelToJson(_PanchangaModel instance) =>
@@ -91,4 +98,10 @@ Map<String, dynamic> _$PanchangaModelToJson(_PanchangaModel instance) =>
       'gulika_kaal': ?instance.gulikaKaal?.toJson(),
       'abhijit_muhurat': ?instance.abhijitMuhurat?.toJson(),
       'choghadiya': instance.choghadiya.map((e) => e.toJson()).toList(),
+      'source': _$PanchangaSourceEnumMap[instance.source]!,
     };
+
+const _$PanchangaSourceEnumMap = {
+  PanchangaSource.computed: 'computed',
+  PanchangaSource.approximate: 'approximate',
+};

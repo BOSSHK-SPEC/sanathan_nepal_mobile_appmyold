@@ -8,6 +8,7 @@ import '../../../../core/utils/localized_text.dart';
 import '../../../../core/utils/ulid.dart';
 import '../../../astrologers/domain/entities/consult_channel.dart';
 import '../../domain/entities/astrologer_session.dart';
+import '../../domain/entities/call_credentials.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/consult_intake.dart';
 import '../../domain/entities/consultation.dart';
@@ -144,6 +145,30 @@ class ApiConsultationDataSource implements ConsultationDataSource {
     final body = response.data;
     if (body == null) return SessionSummary(consultationId: consultationId);
     return _toSummary(asJsonMap(response), consultationId);
+  });
+
+  @override
+  Future<CallCredentials> callCredentials(String consultationId) =>
+      guardApi(() async {
+        final response = await _client.post<dynamic>(
+          ApiEndpoints.consultationCallToken(consultationId),
+        );
+        final json = asJsonMap(response);
+        return CallCredentials(
+          url: json['url'] as String? ?? '',
+          token: json['token'] as String? ?? '',
+          room: json['room'] as String? ?? '',
+          identity: json['identity'] as String? ?? '',
+          expiresAt: ApiTime.instant(json['expiresAt']),
+        );
+      });
+
+  @override
+  Future<bool> callsAvailable() => guardApi(() async {
+    final response = await _client.get<dynamic>(ApiEndpoints.callCapability);
+    // Absent means "no": a missing field must not light up a call button on a
+    // deployment with no media server.
+    return asJsonMap(response)['available'] as bool? ?? false;
   });
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../../calendar/presentation/utils/active_calendar_view_mode.dart';
 import '../../domain/entities/event.dart';
 import '../../domain/entities/event_category.dart';
 import '../l10n/events_strings.dart';
@@ -87,6 +88,8 @@ class FestivalTile extends StatelessWidget {
                           config: context.regionConfig,
                           languageCode: lang,
                           weekdays: s.weekdays,
+                          // Leads with the calendar the page's toggle shows.
+                          gregorianFirst: context.gregorianLeads,
                         ),
                         style: context.textTheme.labelSmall,
                       ),

@@ -76,10 +76,14 @@ abstract class ConsoleDashboardState with _$ConsoleDashboardState {
   ///
   /// Only `active` ones: a completed session belongs in history, and offering
   /// a way back into it would be a door onto a closed conversation.
-  List<Consultation> get liveSessions => [
-    for (final session in sessions.dataOrNull ?? const <Consultation>[])
-      if (session.status == ConsultationStatus.active) session,
-  ]..sort((a, b) => (b.startedAt ?? DateTime(0)).compareTo(a.startedAt ?? DateTime(0)));
+  List<Consultation> get liveSessions =>
+      [
+        for (final session in sessions.dataOrNull ?? const <Consultation>[])
+          if (session.status == ConsultationStatus.active) session,
+      ]..sort(
+        (a, b) =>
+            (b.startedAt ?? DateTime(0)).compareTo(a.startedAt ?? DateTime(0)),
+      );
 
   bool get hasLiveSessions => liveSessions.isNotEmpty;
 }

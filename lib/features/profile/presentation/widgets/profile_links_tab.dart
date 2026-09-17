@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/session/app_role.dart';
 import '../../../../core/session/permission.dart';
 import '../../../../core/session/session_scope.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../messaging/presentation/l10n/messaging_strings.dart';
+import '../../../session/presentation/cubit/session_cubit.dart';
 import '../l10n/profile_strings.dart';
 import 'profile_section_card.dart';
 
@@ -115,13 +118,18 @@ class ProfileLinksTab extends StatelessWidget {
             label: context.can(Permission.viewAstrologerConsole)
                 ? s.astrologerConsole
                 : s.becomeAstrologer,
-            onTap: () => context.push(
+            onTap: () {
               // An approved astrologer wants the console; everyone else
               // wants the application.
-              context.can(Permission.viewAstrologerConsole)
-                  ? AppRoutes.astrologerHome
-                  : AppRoutes.astrologerApply,
-            ),
+              if (!context.can(Permission.viewAstrologerConsole)) {
+                context.push(AppRoutes.astrologerApply);
+                return;
+              }
+              // Say which side of the app they are on, the way the Profile
+              // card used to before it became an invitation only.
+              context.read<SessionCubit>().switchRole(AppRole.astrologer);
+              context.go(AppRoutes.astrologerHome);
+            },
           ),
           if (isAdmin) ...[
             Divider(color: colors.divider),

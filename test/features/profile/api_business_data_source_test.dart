@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sanathan_nepal_mobile_app/core/error/exceptions.dart';
 import 'package:sanathan_nepal_mobile_app/core/network/api_client.dart';
 import 'package:sanathan_nepal_mobile_app/features/profile/data/datasources/api_profile_data_sources.dart';
+import 'package:sanathan_nepal_mobile_app/features/profile/data/models/business_profile_model.dart';
 import 'package:sanathan_nepal_mobile_app/features/profile/domain/entities/business_profile.dart';
 
 class _StubAdapter implements HttpClientAdapter {
@@ -67,19 +68,25 @@ void main() {
   }
 
   group('setStatus', () {
-    test('posts the decision to the admin endpoint, not to /business/mine', () async {
-      source = build((_) async => _json(_business(status: 'approved')));
+    test(
+      'posts the decision to the admin endpoint, not to /business/mine',
+      () async {
+        source = build((_) async => _json(_business(status: 'approved')));
 
-      await source.setStatus('01JBIZ0000000000000000001', BusinessStatus.approved);
+        await source.setStatus(
+          '01JBIZ0000000000000000001',
+          BusinessStatus.approved,
+        );
 
-      final request = adapter.requests.single;
-      expect(request.method, 'POST');
-      expect(
-        request.path,
-        '/admin/businesses/01JBIZ0000000000000000001/decision',
-      );
-      expect(request.path, isNot(contains('mine')));
-    });
+        final request = adapter.requests.single;
+        expect(request.method, 'POST');
+        expect(
+          request.path,
+          '/admin/businesses/01JBIZ0000000000000000001/decision',
+        );
+        expect(request.path, isNot(contains('mine')));
+      },
+    );
 
     test('sends the status the server names, with the note', () async {
       source = build((_) async => _json(_business(status: 'rejected')));
@@ -138,10 +145,7 @@ void main() {
 
       await source.listBusinesses(status: BusinessStatus.pending);
 
-      expect(
-        adapter.requests.single.queryParameters['status'],
-        'pending',
-      );
+      expect(adapter.requests.single.queryParameters['status'], 'pending');
     });
 
     test('sends no status parameter when the filter is "all"', () async {
@@ -149,7 +153,61 @@ void main() {
 
       await source.listBusinesses();
 
-      expect(adapter.requests.single.queryParameters.containsKey('status'), isFalse);
+      expect(
+        adapter.requests.single.queryParameters.containsKey('status'),
+        isFalse,
+      );
     });
+  });
+
+  group('branding', () {
+    const banner =
+        'https://sanatan-api.yashwanthhk.com/public-catalog/u1/banner.jpg';
+
+    test(
+      'a new banner goes to its own endpoint, carrying only the banner',
+      () async {
+        source = build((_) async => _json(_business(status: 'approved')));
+
+        await source.setImage(BusinessImageSlot.cover, banner);
+
+        final request = adapter.requests.single;
+        expect(request.method, 'PATCH');
+        expect(request.path, '/business/mine/branding');
+        // Not the whole listing: re-sending it could overwrite fresher items or
+        // documents with whatever this device last loaded.
+        expect(request.data, {'coverKey': banner});
+      },
+    );
+
+    test('removing the logo sends null for it', () async {
+      source = build((_) async => _json(_business()));
+
+      await source.setImage(BusinessImageSlot.logo, null);
+
+      expect(adapter.requests.single.data, {'logoKey': null});
+    });
+
+    test(
+      'the full save sends absent pictures as null, so a removal sticks',
+      () async {
+        source = build((_) async => _json(_business()));
+
+        await source.upsert(
+          BusinessProfileModel.fromEntity(
+            const BusinessProfile(
+              id: '01JBIZ0000000000000000001',
+              name: 'Store',
+              category: 'Puja items',
+            ),
+          ),
+        );
+
+        final body = adapter.requests.single.data! as Map<String, dynamic>;
+        expect(body.containsKey('logoKey'), isTrue);
+        expect(body['logoKey'], isNull);
+        expect(body.containsKey('coverKey'), isTrue);
+      },
+    );
   });
 }

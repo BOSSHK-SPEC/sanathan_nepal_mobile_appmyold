@@ -33,7 +33,10 @@ class AppointmentListCubit extends AppCubit<AppointmentListState> {
     final appointments = await _getAppointments();
     emit(
       state.copyWith(
-        astrologers: astrologers.fold(state.astrologers.toFailed, LoadState.loaded),
+        astrologers: astrologers.fold(
+          state.astrologers.toFailed,
+          LoadState.loaded,
+        ),
         appointments: appointments.fold(
           state.appointments.toFailed,
           LoadState.loaded,

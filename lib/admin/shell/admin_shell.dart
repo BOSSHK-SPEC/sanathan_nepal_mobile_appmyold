@@ -34,7 +34,9 @@ class AdminShell extends StatelessWidget {
         // builds; this is the belt to that braces, for the frame between a
         // sign-out and the redirect landing.
         if (session == null) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         final destinations = ConsoleDestination.permittedFor(
@@ -107,7 +109,9 @@ class AdminShell extends StatelessWidget {
                                 child: ConstrainedBox(
                                   // Tables become unreadable past this width —
                                   // the eye loses the row on the way back.
-                                  constraints: const BoxConstraints(maxWidth: 1340),
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 1340,
+                                  ),
                                   child: child,
                                 ),
                               ),
@@ -200,7 +204,11 @@ class _Wordmark extends StatelessWidget {
           ),
         ],
       ),
-      child: Icon(Icons.brightness_7_rounded, color: colors.onPrimary, size: 22),
+      child: Icon(
+        Icons.brightness_7_rounded,
+        color: colors.onPrimary,
+        size: 22,
+      ),
     );
 
     if (compact) return Center(child: mark);

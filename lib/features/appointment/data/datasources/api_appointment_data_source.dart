@@ -55,22 +55,22 @@ class ApiAppointmentDataSource implements AppointmentDataSource {
       guardApi(() => _fetchSlots(astrologerId));
 
   Future<List<AstrologerSlot>> _fetchSlots(String astrologerId) async {
-        final response = await _client.get<dynamic>(
-          ApiEndpoints.astrologerSlots(astrologerId),
-        );
-        return asJsonList(response)
-            .map(
-              (json) => AstrologerSlot(
-                id: json['id'] as String? ?? '',
-                startsAt: ApiTime.instantOr(json['startsAt'], DateTime.now()),
-                endsAt: ApiTime.instantOr(json['endsAt'], DateTime.now()),
-                available: json['available'] as bool? ?? false,
-              ),
-            )
-            // A slot someone else has taken is still returned by the server so
-            // the calendar shows a full day rather than a sparse one; the UI
-            // greys it out.
-            .toList(growable: false);
+    final response = await _client.get<dynamic>(
+      ApiEndpoints.astrologerSlots(astrologerId),
+    );
+    return asJsonList(response)
+        .map(
+          (json) => AstrologerSlot(
+            id: json['id'] as String? ?? '',
+            startsAt: ApiTime.instantOr(json['startsAt'], DateTime.now()),
+            endsAt: ApiTime.instantOr(json['endsAt'], DateTime.now()),
+            available: json['available'] as bool? ?? false,
+          ),
+        )
+        // A slot someone else has taken is still returned by the server so
+        // the calendar shows a full day rather than a sparse one; the UI
+        // greys it out.
+        .toList(growable: false);
   }
 
   @override
@@ -175,7 +175,6 @@ class ApiAppointmentDataSource implements AppointmentDataSource {
     return _toAppointment(asJsonMap(response));
   });
 
-
   // ---------------------------------------------------------------- mapping --
 
   /// Half-hour sittings, matching the server's slot length. The two constants
@@ -225,7 +224,6 @@ class ApiAppointmentDataSource implements AppointmentDataSource {
     options.sort((a, b) => a.price.compareTo(b.price));
     return List.unmodifiable(options);
   }
-
 
   AppointmentModel _toAppointment(Map<String, dynamic> json) {
     final startsAt = ApiTime.instantOr(json['startsAt'], DateTime.now());

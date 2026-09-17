@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../domain/entities/day_panchanga.dart';
 
 /// Feature-local strings for the Patro (calendar) screens.
 abstract class CalendarStrings {
@@ -31,7 +32,6 @@ abstract class CalendarStrings {
   String get karan;
   String get yog;
   String get subhaSait;
-  String get noSubhaSait;
   String get pleaseLogin;
   String get selectDate;
   String get selectMonth;
@@ -43,14 +43,61 @@ abstract class CalendarStrings {
   String get featureImage;
   String get eventDetails;
   String get loadFailed;
-  String get muhurtaPasni;
-  String get muhurtaWedding;
-  String get muhurtaHavan;
-  String get muhurtaTravel;
+
+  /// Shown beside panchanga values that are the on-device estimate.
+  String get approximateNote;
+
+  /// "until 07:22" — when the day's tithi ends.
+  String until(String time);
+  String get moonSign;
+  String get adhika;
+  String get addReminder;
+  String get share;
+
+  /// No panel has published an auspicious time for this day.
+  String get noSaitsForDay;
+  String get saitsUnavailable;
+  String get vratDays;
+  String get noVratDays;
+  String get filterAll;
+  String get legendEvent;
+
+  String vrat(VratKind kind);
 }
 
 class _Ne extends CalendarStrings {
   const _Ne();
+  @override
+  String get approximateNote =>
+      'अनुमानित मान — इन्टरनेटमा जोडिएपछि सटीक पञ्चाङ्ग देखिनेछ।';
+  @override
+  String until(String time) => '$time सम्म';
+  @override
+  String get moonSign => 'चन्द्रराशि';
+  @override
+  String get adhika => 'अधिक';
+  @override
+  String get addReminder => 'रिमाइन्डर थप्नुहोस्';
+  @override
+  String get share => 'सेयर';
+  @override
+  String get noSaitsForDay => 'यस दिनका लागि कुनै शुभ साइत प्रकाशित भएको छैन।';
+  @override
+  String get saitsUnavailable => 'शुभ साइत लोड गर्न सकिएन।';
+  @override
+  String get vratDays => 'व्रत';
+  @override
+  String get noVratDays => 'यो महिना कुनै व्रत छैन।';
+  @override
+  String get filterAll => 'सबै';
+  @override
+  String get legendEvent => 'कार्यक्रम भएको दिन';
+  @override
+  String vrat(VratKind kind) => switch (kind) {
+    VratKind.ekadashi => 'एकादशी',
+    VratKind.purnima => 'पूर्णिमा',
+    VratKind.amavasya => 'औंसी',
+  };
   @override
   String get title => 'पात्रो';
   @override
@@ -84,8 +131,6 @@ class _Ne extends CalendarStrings {
   @override
   String get subhaSait => 'शुभ साइत';
   @override
-  String get noSubhaSait => 'आज कुनै शुभ साइत तथा मुहूर्त फेला परेन |';
-  @override
   String get pleaseLogin => 'कृपया लग-इन गर्नुहोस्';
   @override
   String get selectDate => 'मिति छान्नुहोस्';
@@ -107,18 +152,41 @@ class _Ne extends CalendarStrings {
   String get eventDetails => 'कार्यक्रम विवरण';
   @override
   String get loadFailed => 'पात्रो लोड गर्न सकिएन';
-  @override
-  String get muhurtaPasni => 'पास्नी गर्ने साइत';
-  @override
-  String get muhurtaWedding => 'बिवाह गर्ने साइत';
-  @override
-  String get muhurtaHavan => 'होम गर्ने साइत';
-  @override
-  String get muhurtaTravel => 'यात्रा गर्ने साइत';
 }
 
 class _En extends CalendarStrings {
   const _En();
+  @override
+  String get approximateNote =>
+      'Approximate — connect to the internet for the exact panchanga.';
+  @override
+  String until(String time) => 'until $time';
+  @override
+  String get moonSign => 'Moon sign';
+  @override
+  String get adhika => 'Adhika';
+  @override
+  String get addReminder => 'Add reminder';
+  @override
+  String get share => 'Share';
+  @override
+  String get noSaitsForDay => 'No auspicious times published for this day.';
+  @override
+  String get saitsUnavailable => 'Could not load auspicious times.';
+  @override
+  String get vratDays => 'Vrat';
+  @override
+  String get noVratDays => 'No vrat days this month.';
+  @override
+  String get filterAll => 'All';
+  @override
+  String get legendEvent => 'Event day';
+  @override
+  String vrat(VratKind kind) => switch (kind) {
+    VratKind.ekadashi => 'Ekadashi',
+    VratKind.purnima => 'Purnima',
+    VratKind.amavasya => 'Amavasya',
+  };
   @override
   String get title => 'Patro';
   @override
@@ -152,8 +220,6 @@ class _En extends CalendarStrings {
   @override
   String get subhaSait => 'Auspicious times';
   @override
-  String get noSubhaSait => 'No auspicious time found for today.';
-  @override
   String get pleaseLogin => 'Please log in';
   @override
   String get selectDate => 'Select Date';
@@ -175,18 +241,41 @@ class _En extends CalendarStrings {
   String get eventDetails => 'Event details';
   @override
   String get loadFailed => 'Could not load the calendar';
-  @override
-  String get muhurtaPasni => 'Pasni (rice feeding)';
-  @override
-  String get muhurtaWedding => 'Wedding muhurta';
-  @override
-  String get muhurtaHavan => 'Havan / homa';
-  @override
-  String get muhurtaTravel => 'Travel muhurta';
 }
 
 class _Hi extends CalendarStrings {
   const _Hi();
+  @override
+  String get approximateNote =>
+      'अनुमानित मान — सटीक पंचांग के लिए इंटरनेट से जुड़ें।';
+  @override
+  String until(String time) => '$time तक';
+  @override
+  String get moonSign => 'चंद्र राशि';
+  @override
+  String get adhika => 'अधिक';
+  @override
+  String get addReminder => 'रिमाइंडर जोड़ें';
+  @override
+  String get share => 'साझा करें';
+  @override
+  String get noSaitsForDay => 'इस दिन के लिए कोई शुभ मुहूर्त प्रकाशित नहीं है।';
+  @override
+  String get saitsUnavailable => 'शुभ मुहूर्त लोड नहीं हो सके।';
+  @override
+  String get vratDays => 'व्रत';
+  @override
+  String get noVratDays => 'इस महीने कोई व्रत नहीं।';
+  @override
+  String get filterAll => 'सभी';
+  @override
+  String get legendEvent => 'कार्यक्रम वाला दिन';
+  @override
+  String vrat(VratKind kind) => switch (kind) {
+    VratKind.ekadashi => 'एकादशी',
+    VratKind.purnima => 'पूर्णिमा',
+    VratKind.amavasya => 'अमावस्या',
+  };
   @override
   String get title => 'पंचांग कैलेंडर';
   @override
@@ -220,8 +309,6 @@ class _Hi extends CalendarStrings {
   @override
   String get subhaSait => 'शुभ मुहूर्त';
   @override
-  String get noSubhaSait => 'आज कोई शुभ मुहूर्त नहीं मिला।';
-  @override
   String get pleaseLogin => 'कृपया लॉग-इन करें';
   @override
   String get selectDate => 'तिथि चुनें';
@@ -243,12 +330,4 @@ class _Hi extends CalendarStrings {
   String get eventDetails => 'कार्यक्रम विवरण';
   @override
   String get loadFailed => 'कैलेंडर लोड नहीं हो सका';
-  @override
-  String get muhurtaPasni => 'अन्नप्राशन मुहूर्त';
-  @override
-  String get muhurtaWedding => 'विवाह मुहूर्त';
-  @override
-  String get muhurtaHavan => 'हवन मुहूर्त';
-  @override
-  String get muhurtaTravel => 'यात्रा मुहूर्त';
 }

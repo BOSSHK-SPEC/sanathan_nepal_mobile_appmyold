@@ -101,49 +101,52 @@ void main() {
     });
   });
 
-  test('the booking names an astrologer and the channel it is held on', () async {
-    adapter = _StubAdapter(
-      (_) async => _json({
-        'id': '01JAPPT000000000000000001',
-        'astrologerId': '01JASTRO00000000000000001',
-        'astrologerName': {'en': 'Pandit Sharma'},
-        'slotId': '01JSLOT000000000000000001',
-        'status': 'confirmed',
-        'startsAt': '2026-09-14T04:05:00.000Z',
-        'priceMinor': '150000',
-        'quantity': 1,
-      }),
-    );
-    source = build(adapter);
+  test(
+    'the booking names an astrologer and the channel it is held on',
+    () async {
+      adapter = _StubAdapter(
+        (_) async => _json({
+          'id': '01JAPPT000000000000000001',
+          'astrologerId': '01JASTRO00000000000000001',
+          'astrologerName': {'en': 'Pandit Sharma'},
+          'slotId': '01JSLOT000000000000000001',
+          'status': 'confirmed',
+          'startsAt': '2026-09-14T04:05:00.000Z',
+          'priceMinor': '150000',
+          'quantity': 1,
+        }),
+      );
+      source = build(adapter);
 
-    final booked = await source.book(
-      BookingRequest(
-        astrologerId: '01JASTRO00000000000000001',
-        serviceId: 'video',
-        quantity: 1,
-        date: _aDay,
-        slotId: '01JSLOT000000000000000001',
-        customerName: 'Yash',
-        phone: '9686912639',
-        email: '',
-        country: 'Nepal',
-        paymentMethod: PaymentMethod.esewa,
-      ),
-    );
+      final booked = await source.book(
+        BookingRequest(
+          astrologerId: '01JASTRO00000000000000001',
+          serviceId: 'video',
+          quantity: 1,
+          date: _aDay,
+          slotId: '01JSLOT000000000000000001',
+          customerName: 'Yash',
+          phone: '9686912639',
+          email: '',
+          country: 'Nepal',
+          paymentMethod: PaymentMethod.esewa,
+        ),
+      );
 
-    final body = adapter.requests.last.data! as Map<String, dynamic>;
-    expect(body['astrologerId'], '01JASTRO00000000000000001');
-    // The centre is gone: there is no second owner to disagree about.
-    expect(body.containsKey('providerId'), isFalse);
-    // The channel decides the price, so it is what the server is told —
-    // a `serviceId` would name a catalogue row an astrologer does not have.
-    expect(body['channel'], 'video');
-    expect(body.containsKey('serviceId'), isFalse);
-    expect(body['quantity'], 1);
+      final body = adapter.requests.last.data! as Map<String, dynamic>;
+      expect(body['astrologerId'], '01JASTRO00000000000000001');
+      // The centre is gone: there is no second owner to disagree about.
+      expect(body.containsKey('providerId'), isFalse);
+      // The channel decides the price, so it is what the server is told —
+      // a `serviceId` would name a catalogue row an astrologer does not have.
+      expect(body['channel'], 'video');
+      expect(body.containsKey('serviceId'), isFalse);
+      expect(body['quantity'], 1);
 
-    expect(booked.astrologerId, '01JASTRO00000000000000001');
-    expect(booked.astrologerName.en, 'Pandit Sharma');
-  });
+      expect(booked.astrologerId, '01JASTRO00000000000000001');
+      expect(booked.astrologerName.en, 'Pandit Sharma');
+    },
+  );
 }
 
 final _aDay = DateTime.utc(2026, 9, 14);

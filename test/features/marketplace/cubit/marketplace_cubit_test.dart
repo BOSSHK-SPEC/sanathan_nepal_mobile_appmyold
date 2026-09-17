@@ -2,6 +2,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sanathan_nepal_mobile_app/core/error/failures.dart';
+import 'package:sanathan_nepal_mobile_app/core/session/app_session.dart';
+import 'package:sanathan_nepal_mobile_app/core/session/session_resolver.dart';
 import 'package:sanathan_nepal_mobile_app/core/state/load_state.dart';
 import 'package:sanathan_nepal_mobile_app/core/utils/result.dart';
 import 'package:sanathan_nepal_mobile_app/features/marketplace/domain/entities/category.dart';
@@ -116,6 +118,34 @@ void main() {
           recommended: const LoadState.failed(ServerFailure('boom')),
         ),
       ],
+    );
+
+    blocTest<MarketplaceCubit, MarketplaceState>(
+      'a buyer is never asked for listings of their own — that is a 403',
+      build: () => MarketplaceCubit(
+        getCategories: getCategories,
+        getBoosted: getBoosted,
+        getProducts: getProducts,
+        getMyProducts: getMyProducts,
+        toggleFavourite: toggleFavourite,
+        deleteProduct: deleteProduct,
+        // Signed in, but a plain seeker: no manageProducts.
+        session: const FixedSessionResolver(
+          AppSession(userId: 'u1', isAuthenticated: true),
+        ),
+      ),
+      act: (c) => c.load(),
+      skip: 1,
+      expect: () => [
+        MarketplaceState(
+          categories: const LoadState.loaded([cat]),
+          boosted: LoadState.loaded([p1]),
+          myProducts: const LoadState.loaded([]),
+          recent: LoadState.loaded([p1, p2]),
+          recommended: LoadState.loaded([p1, p2]),
+        ),
+      ],
+      verify: (_) => verifyNever(() => getMyProducts()),
     );
 
     blocTest<MarketplaceCubit, MarketplaceState>(

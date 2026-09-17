@@ -99,7 +99,10 @@ class PanelGrid extends StatelessWidget {
       builder: (context, constraints) {
         final available = constraints.maxWidth;
         // At least one per row, however narrow the viewport gets.
-        final columns = (available / (minTileWidth + spacing)).floor().clamp(1, 6);
+        final columns = (available / (minTileWidth + spacing)).floor().clamp(
+          1,
+          6,
+        );
         final tileWidth = (available - spacing * (columns - 1)) / columns;
 
         return Wrap(

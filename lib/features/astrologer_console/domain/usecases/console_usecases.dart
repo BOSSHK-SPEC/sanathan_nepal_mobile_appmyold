@@ -1,6 +1,7 @@
 import '../../../../core/usecase/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../../../astrologers/domain/entities/astrologer_review.dart';
+import '../entities/console_appointment.dart';
 import '../entities/application.dart';
 import '../entities/astrologer_client.dart';
 import '../entities/astrologer_profile.dart';
@@ -380,4 +381,67 @@ class AppealNotice implements UseCase<ComplianceNotice, AppealNoticeParams> {
   @override
   Future<Result<ComplianceNotice>> call(AppealNoticeParams params) =>
       _repo.appealNotice(params.noticeId, params.reason);
+}
+
+// --- Appointments ---------------------------------------------------------
+
+class GetConsoleAppointments
+    implements UseCase<List<ConsoleAppointment>, AppointmentScope> {
+  const GetConsoleAppointments(this._repo);
+  final AstrologerOpsRepository _repo;
+
+  @override
+  Future<Result<List<ConsoleAppointment>>> call(AppointmentScope params) =>
+      _repo.appointments(params);
+}
+
+class GetConsoleAppointment implements UseCase<ConsoleAppointment, String> {
+  const GetConsoleAppointment(this._repo);
+  final AstrologerOpsRepository _repo;
+
+  @override
+  Future<Result<ConsoleAppointment>> call(String params) =>
+      _repo.appointment(params);
+}
+
+class RecordAppointmentOutcomeParams {
+  const RecordAppointmentOutcomeParams({
+    required this.id,
+    required this.completed,
+  });
+  final String id;
+
+  /// True for "completed", false for "the client did not come".
+  final bool completed;
+}
+
+class RecordAppointmentOutcome
+    implements UseCase<ConsoleAppointment, RecordAppointmentOutcomeParams> {
+  const RecordAppointmentOutcome(this._repo);
+  final AstrologerOpsRepository _repo;
+
+  @override
+  Future<Result<ConsoleAppointment>> call(
+    RecordAppointmentOutcomeParams params,
+  ) => _repo.recordAppointmentOutcome(params.id, completed: params.completed);
+}
+
+class CancelConsoleAppointmentParams {
+  const CancelConsoleAppointmentParams({
+    required this.id,
+    required this.reason,
+  });
+  final String id;
+  final String reason;
+}
+
+class CancelConsoleAppointment
+    implements UseCase<ConsoleAppointment, CancelConsoleAppointmentParams> {
+  const CancelConsoleAppointment(this._repo);
+  final AstrologerOpsRepository _repo;
+
+  @override
+  Future<Result<ConsoleAppointment>> call(
+    CancelConsoleAppointmentParams params,
+  ) => _repo.cancelAppointment(params.id, reason: params.reason);
 }

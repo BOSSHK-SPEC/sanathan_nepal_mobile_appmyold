@@ -8,7 +8,7 @@ import 'dob_format.dart';
 import 'profile_section_card.dart';
 
 /// "Gender / Horoscope / DOB / Birth Time / Birth place / Current Address /
-/// Contact" card of the ABOUT tab. DOB shows the region's traditional date
+/// Religion / Contact" card of the ABOUT tab. DOB shows the region's traditional date
 /// (B.S. / Saka) alongside the Gregorian one.
 class ProfileInfoCard extends StatelessWidget {
   const ProfileInfoCard({required this.profile, super.key});
@@ -54,6 +54,8 @@ class ProfileInfoCard extends StatelessWidget {
           _Info(s.birthPlace, v(profile.birthPlace)),
           const SizedBox(height: AppSpacing.sm),
           _Info(s.currentAddress, v(profile.address)),
+          const SizedBox(height: AppSpacing.sm),
+          _Info(s.religion, v(profile.religion)),
           const SizedBox(height: AppSpacing.sm),
           _Info(s.contact, v(profile.phone)),
           if (profile.bio != null && profile.bio!.isNotEmpty) ...[

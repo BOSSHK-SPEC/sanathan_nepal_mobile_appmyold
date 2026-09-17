@@ -27,7 +27,10 @@ void main() {
         _app(
           SectionHeader(
             title: 'Horoscope',
-            trailing: TextButton(onPressed: () {}, child: const Text('See all')),
+            trailing: TextButton(
+              onPressed: () {},
+              child: const Text('See all'),
+            ),
           ),
         ),
       );
@@ -84,7 +87,10 @@ void main() {
         _app(
           SectionHeader(
             title: 'A section title far too long to fit beside its button',
-            trailing: TextButton(onPressed: () {}, child: const Text('See all')),
+            trailing: TextButton(
+              onPressed: () {},
+              child: const Text('See all'),
+            ),
           ),
         ),
       );

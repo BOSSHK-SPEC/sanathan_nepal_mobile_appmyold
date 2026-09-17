@@ -28,6 +28,7 @@ abstract class AstrologersStrings {
   String get busy;
   String get free;
   String get consultNow;
+
   /// Label when the astrologer is not online.
   ///
   /// Replaces the old "book later": astrologers have no bookable slots —

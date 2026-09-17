@@ -4,24 +4,34 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/session/app_role.dart';
+import '../../../../core/session/permission.dart';
+import '../../../../core/session/session_scope.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/ad_banner.dart';
 import '../../../app_settings/domain/entities/app_preferences.dart';
 import '../../../app_settings/presentation/cubit/app_settings_cubit.dart';
+import '../../../session/presentation/cubit/session_cubit.dart';
 import 'paged_tile_grid.dart';
+import 'patro_quick_card.dart';
 
 /// Quick-access menu opened from the centre button of the bottom bar
-/// (Figma "Home Bottom Bar Menu").
+/// (Figma "Home Bottom Bar Menu"). Opens on the Patro card: the calendar is
+/// the app's everyday screen, and the centre button is how people reach it.
 class QuickMenuSheet extends StatelessWidget {
-  const QuickMenuSheet({super.key});
+  const QuickMenuSheet({super.key, this.today});
 
-  static Future<void> show(BuildContext context) => showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    backgroundColor: Colors.transparent,
-    builder: (_) => const QuickMenuSheet(),
-  );
+  /// Injectable "today" for the Patro card (tests); defaults to now.
+  final DateTime? today;
+
+  static Future<void> show(BuildContext context, {DateTime? today}) =>
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => QuickMenuSheet(today: today),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +45,13 @@ class QuickMenuSheet extends StatelessWidget {
     }
 
     final primaryTiles = <_MenuTile>[
-      _MenuTile(Icons.home_outlined, l10n.menuPatro, () => go(AppRoutes.patro)),
+      // Patro has its own card at the top of the menu. Its tile here wore a
+      // house icon and read as "Home"; Panchanga takes the slot instead.
+      _MenuTile(
+        Icons.auto_awesome_outlined,
+        l10n.menuPanchanga,
+        () => go(AppRoutes.panchanga),
+      ),
       _MenuTile(
         Icons.shopping_cart_outlined,
         l10n.menuBazar,
@@ -68,8 +84,9 @@ class QuickMenuSheet extends StatelessWidget {
         l10n.menuHoroscope,
         () => go(AppRoutes.horoscope),
       ),
+      // Not a calendar icon: that one belongs to Patro.
       _MenuTile(
-        Icons.calendar_month_outlined,
+        Icons.event_note_outlined,
         l10n.menuEvents,
         () => go(AppRoutes.events),
       ),
@@ -82,11 +99,6 @@ class QuickMenuSheet extends StatelessWidget {
         Icons.wb_sunny_outlined,
         l10n.menuWeather,
         () => go(AppRoutes.weather),
-      ),
-      _MenuTile(
-        Icons.auto_awesome_outlined,
-        l10n.menuPanchanga,
-        () => go(AppRoutes.panchanga),
       ),
       _MenuTile(
         Icons.auto_awesome_motion_outlined,
@@ -158,11 +170,20 @@ class QuickMenuSheet extends StatelessWidget {
         l10n.menuSellerProfile,
         () => go(AppRoutes.myBusiness),
       ),
-      _MenuTile(
-        Icons.auto_awesome_outlined,
-        l10n.menuBecomeAstrologer,
-        () => go(AppRoutes.astrologerApply),
-      ),
+      // An approved astrologer is not a candidate: the same slot takes them
+      // to their console instead of inviting them to apply again.
+      if (context.can(Permission.viewAstrologerConsole))
+        _MenuTile(Icons.auto_awesome_outlined, l10n.menuAstrologerConsole, () {
+          // Switch first, so the console opens knowing which role is active.
+          context.read<SessionCubit>().switchRole(AppRole.astrologer);
+          go(AppRoutes.astrologerHome);
+        })
+      else
+        _MenuTile(
+          Icons.auto_awesome_outlined,
+          l10n.menuBecomeAstrologer,
+          () => go(AppRoutes.astrologerApply),
+        ),
     ];
 
     return DecoratedBox(
@@ -183,6 +204,11 @@ class QuickMenuSheet extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              PatroQuickCard(
+                today: today ?? DateTime.now(),
+                onTap: () => go(AppRoutes.patro),
+              ),
+              const SizedBox(height: AppSpacing.md),
               AdBanner(
                 label: l10n.settingTabAds,
                 margin: EdgeInsets.zero,

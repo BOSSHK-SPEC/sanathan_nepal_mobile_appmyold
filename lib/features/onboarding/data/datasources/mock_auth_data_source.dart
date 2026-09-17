@@ -14,7 +14,6 @@ import 'auth_remote_data_source.dart';
 ///   registered (OTP popup shows "Existing User" + a seeded name).
 /// * Odd last digit → new user → Details Input page after OTP.
 /// * Any 6-digit OTP is accepted except `000000` (simulates a wrong code).
-/// * Google / Apple sign-in return a registered session.
 /// * Seeded names and the E.164 user id follow the active region
 ///   ([RegionResolver] – read per call, never cached).
 class MockAuthDataSource implements AuthRemoteDataSource {
@@ -66,30 +65,6 @@ class MockAuthDataSource implements AuthRemoteDataSource {
   }
 
   Future<void> _wait() => Future<void>.delayed(delay);
-
-  @override
-  Future<AuthSessionModel> signInWithGoogle() async {
-    await _wait();
-    return const AuthSessionModel(
-      userId: 'google-1001',
-      provider: AuthProvider.google,
-      isNewUser: false,
-      displayName: 'Sanatan User',
-      email: 'user@gmail.com',
-    );
-  }
-
-  @override
-  Future<AuthSessionModel> signInWithApple() async {
-    await _wait();
-    return const AuthSessionModel(
-      userId: 'apple-1001',
-      provider: AuthProvider.apple,
-      isNewUser: false,
-      displayName: 'Sanatan User',
-      email: 'user@icloud.com',
-    );
-  }
 
   @override
   Future<OtpChallengeModel> requestOtp(String phoneNumber) async {

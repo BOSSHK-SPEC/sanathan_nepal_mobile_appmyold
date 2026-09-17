@@ -57,5 +57,18 @@
 	<string>Take a photo for your profile, a product listing or a verification document.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Choose a photo for your profile, a product listing or a verification document.</string>
+	<!-- Lets a notification arriving while the app is closed be handled before
+	     it is shown. Without it, iOS delivers data-only messages late or not
+	     at all. -->
+	<!-- Shown when a consultation call asks for the microphone. -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Talk to an astrologer during a voice or video consultation.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<!-- Keeps a call running when the screen locks or the user switches
+		     apps; without it iOS suspends the process and the call drops. -->
+		<string>audio</string>
+	</array>
 </dict>
 </plist>

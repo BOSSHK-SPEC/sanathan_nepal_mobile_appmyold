@@ -71,9 +71,7 @@ class MyBusinessView extends StatelessWidget {
           Loaded(:final data) => BlocProvider(
             key: ValueKey(data.id),
             create: (_) => sl<BusinessListingsCubit>(param1: data.id)..load(),
-            child: const BusinessProfileView(
-              mode: BusinessProfileMode.owner,
-            ),
+            child: const BusinessProfileView(mode: BusinessProfileMode.owner),
           ),
         };
       },

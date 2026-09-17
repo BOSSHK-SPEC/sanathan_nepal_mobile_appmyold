@@ -57,6 +57,30 @@ class _PanchangaTableState extends State<PanchangaTable> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           PanchangaSamvatHeader(panchanga: p),
+          // The on-device estimate can put the tithi a day out; say so rather
+          // than presenting it as the day's panchanga.
+          if (p.isApproximate)
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xs,
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, size: 12, color: colors.textMuted),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      s.approximateNote,
+                      style: context.textTheme.labelSmall?.copyWith(
+                        fontSize: 10,
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           PanchangaSunMoonCard(
             panchanga: p,
             expanded: _expanded.contains(_Row.day),

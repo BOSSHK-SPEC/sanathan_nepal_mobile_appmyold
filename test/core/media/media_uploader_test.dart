@@ -211,7 +211,8 @@ void main() {
       // that hung forever and showed nothing — a spinner that never resolves.
       final uploader = uploaderFor(
         apiBaseUrl: 'https://api.example.com',
-        uploadUrl: 'http://127.0.0.1:9000/public-catalog/a.jpg?X-Amz-Signature=x',
+        uploadUrl:
+            'http://127.0.0.1:9000/public-catalog/a.jpg?X-Amz-Signature=x',
       );
 
       await expectLater(
@@ -233,7 +234,8 @@ void main() {
       // rejection of loopback would break every developer's machine.
       final uploader = uploaderFor(
         apiBaseUrl: 'http://localhost:3100',
-        uploadUrl: 'http://localhost:9000/public-catalog/a.jpg?X-Amz-Signature=x',
+        uploadUrl:
+            'http://localhost:9000/public-catalog/a.jpg?X-Amz-Signature=x',
       );
 
       await uploader.upload(file: _image(), bucket: MediaBucket.publicCatalog);
@@ -244,7 +246,8 @@ void main() {
     test('a public storage host is always allowed', () async {
       final uploader = uploaderFor(
         apiBaseUrl: 'https://api.example.com',
-        uploadUrl: 'https://files.example.com/public-catalog/a.jpg?X-Amz-Signature=x',
+        uploadUrl:
+            'https://files.example.com/public-catalog/a.jpg?X-Amz-Signature=x',
       );
 
       await uploader.upload(file: _image(), bucket: MediaBucket.publicCatalog);
@@ -266,15 +269,18 @@ void main() {
     });
   });
 
-  test('the storage client has timeouts so a dead host cannot hang forever', () {
-    // A bare Dio() has none at all, which is what turned a misconfigured
-    // endpoint into an infinite spinner instead of an error.
-    final dio = MediaUploaderImpl(
-      client: ApiClient(baseUrl: 'http://localhost/api/v1'),
-    ).debugStorageOptions;
+  test(
+    'the storage client has timeouts so a dead host cannot hang forever',
+    () {
+      // A bare Dio() has none at all, which is what turned a misconfigured
+      // endpoint into an infinite spinner instead of an error.
+      final dio = MediaUploaderImpl(
+        client: ApiClient(baseUrl: 'http://localhost/api/v1'),
+      ).debugStorageOptions;
 
-    expect(dio.connectTimeout, isNotNull);
-    expect(dio.sendTimeout, isNotNull);
-    expect(dio.receiveTimeout, isNotNull);
-  });
+      expect(dio.connectTimeout, isNotNull);
+      expect(dio.sendTimeout, isNotNull);
+      expect(dio.receiveTimeout, isNotNull);
+    },
+  );
 }

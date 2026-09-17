@@ -1,3 +1,5 @@
+import '../../../../core/calendar/calendar.dart';
+import '../../../../core/region/region_resolver.dart';
 import '../../../../core/utils/repository_guard.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/event.dart';
@@ -8,25 +10,40 @@ import '../models/event_model.dart';
 
 /// [EventRepository] backed by an [EventsDataSource].
 class EventRepositoryImpl implements EventRepository {
-  EventRepositoryImpl(this._source, {DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  EventRepositoryImpl(
+    this._source, {
+    DateTime Function()? clock,
+    RegionResolver? resolver,
+  }) : _clock = clock ?? DateTime.now,
+       _resolver = resolver;
 
   final EventsDataSource _source;
   final DateTime Function() _clock;
+
+  /// Supplies the region's calendar, so a Bikram Sambat or Saka anniversary
+  /// recurs on its own calendar rather than on the Gregorian date.
+  final RegionResolver? _resolver;
+
+  TraditionalCalendar? get _calendar => _resolver?.config.calendar;
 
   @override
   Future<Result<List<Event>>> getEvents([
     EventFilter filter = EventFilter.all,
   ]) => guard(() async {
     final now = _clock();
-    final all = await _source.fetchAll();
+    final calendar = _calendar;
     final list =
-        all
+        (await _source.fetchAll())
             .map((m) => m.toEntity())
-            .where((e) => filter.matches(e, now: now))
+            .where((e) => filter.matches(e, now: now, calendar: calendar))
             .toList()
+          // Ordered by when each event actually happens next: sorting on the
+          // stored date buried every recurring event at the top of the list,
+          // years in the past.
           ..sort((a, b) {
-            final byDate = a.date.compareTo(b.date);
+            final byDate = a
+                .nextOccurrence(from: now, calendar: calendar)
+                .compareTo(b.nextOccurrence(from: now, calendar: calendar));
             return byDate != 0 ? byDate : a.id.compareTo(b.id);
           });
     final limit = filter.limit;

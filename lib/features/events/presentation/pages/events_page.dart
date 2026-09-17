@@ -9,6 +9,7 @@ import '../../../../core/state/load_state.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_bar_title.dart';
 import '../../../../core/widgets/state_widgets.dart';
+import '../../../calendar/presentation/cubit/calendar_cubit.dart';
 import '../../domain/entities/event.dart';
 import '../../domain/entities/event_category.dart';
 import '../cubit/events_list_cubit.dart';
@@ -30,8 +31,18 @@ class EventsPage extends StatelessWidget {
   final EventGroup initialGroup;
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-    create: (_) => sl<EventsListCubit>()..load(group: initialGroup),
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) => sl<EventsListCubit>()..load(group: initialGroup),
+      ),
+      // One calendar for the whole page: the header's grid, the today column
+      // beside it and every date in the list below read the same view mode,
+      // so the B.S./Saka ↔ A.D. toggle moves all of them together.
+      BlocProvider<CalendarCubit>(
+        create: (_) => sl<CalendarCubit>(param1: null)..load(),
+      ),
+    ],
     child: const _EventsView(),
   );
 }

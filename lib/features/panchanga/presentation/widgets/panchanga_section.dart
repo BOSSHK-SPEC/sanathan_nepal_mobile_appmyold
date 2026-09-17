@@ -6,6 +6,7 @@ import '../../../../app/di/injection.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/state/load_state.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/section_chevron_button.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/state_widgets.dart';
 import '../cubit/panchanga_cubit.dart';
@@ -73,11 +74,9 @@ class _Body extends StatelessWidget {
                   horizontal: padding.left,
                   vertical: AppSpacing.sm,
                 ),
-                trailing: IconButton(
+                trailing: SectionChevronButton(
                   onPressed:
                       onSeeAll ?? () => context.push(AppRoutes.panchanga),
-                  icon: const Icon(Icons.chevron_right),
-                  visualDensity: VisualDensity.compact,
                 ),
               ),
             Padding(

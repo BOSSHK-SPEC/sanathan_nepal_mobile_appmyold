@@ -28,6 +28,7 @@ import '../../features/profile/profile_routes.dart';
 import '../../features/shell/presentation/pages/main_shell_page.dart';
 import '../../features/wallet/wallet_routes.dart';
 import '../../features/weather/weather_routes.dart';
+import 'auth_gate.dart';
 
 /// Composes the app router from per-feature route lists (OCP: adding a
 /// feature means adding one import + one spread, nothing else changes).
@@ -35,10 +36,20 @@ abstract final class AppRouter {
   static final GlobalKey<NavigatorState> rootNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'root');
 
-  static GoRouter create({String initialLocation = '/'}) => GoRouter(
+  /// [gate] defaults to the live one; tests pass their own.
+  static GoRouter create({String initialLocation = '/', AuthGate? gate}) {
+    final auth = gate ?? AuthGate.live();
+    return _build(initialLocation, auth);
+  }
+
+  static GoRouter _build(String initialLocation, AuthGate gate) => GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: initialLocation,
     debugLogDiagnostics: false,
+    // Every navigation passes the sign-in gate, and a session that ends
+    // re-runs it for the screen already open.
+    redirect: gate.redirect,
+    refreshListenable: gate,
     routes: <RouteBase>[
       ...onboardingRoutes,
       // Seeker shell: Home · Marketplace · Horoscope · Profile.

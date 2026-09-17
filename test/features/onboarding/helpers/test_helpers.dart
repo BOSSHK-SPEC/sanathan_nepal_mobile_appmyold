@@ -16,8 +16,6 @@ import 'package:sanathan_nepal_mobile_app/features/app_settings/domain/usecases/
 import 'package:sanathan_nepal_mobile_app/features/app_settings/presentation/cubit/app_settings_cubit.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/domain/repositories/auth_repository.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/domain/repositories/notification_prefs_repository.dart';
-import 'package:sanathan_nepal_mobile_app/features/onboarding/domain/usecases/sign_in_with_apple.dart';
-import 'package:sanathan_nepal_mobile_app/features/onboarding/domain/usecases/sign_in_with_google.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/domain/usecases/sign_in_with_phone.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/domain/usecases/submit_profile.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/domain/usecases/verify_otp.dart';
@@ -27,10 +25,6 @@ class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockNotificationPrefsRepository extends Mock
     implements NotificationPrefsRepository {}
-
-class MockSignInWithGoogle extends Mock implements SignInWithGoogle {}
-
-class MockSignInWithApple extends Mock implements SignInWithApple {}
 
 class MockSignInWithPhone extends Mock implements SignInWithPhone {}
 

@@ -130,7 +130,14 @@ void main() {
       expect(p.rahuKaal!.start, p.sunrise.add(segment * 5));
       expect(p.yamaganda!.start, p.sunrise);
       expect(p.gulikaKaal!.start, p.sunrise.add(segment * 2));
-      expect(p.abhijitMuhurat!.duration, const Duration(minutes: 48));
+      // Abhijit is the 8th of the day's 15 muhurtas (it was solar noon ± 24
+      // minutes, which no published panchang uses; Drik Panchang matches the
+      // muhurta rule to the minute).
+      final muhurta = Duration(
+        seconds: p.sunset.difference(p.sunrise).inSeconds ~/ 15,
+      );
+      expect(p.abhijitMuhurat!.start, p.sunrise.add(muhurta * 7));
+      expect(p.abhijitMuhurat!.duration, muhurta);
       expect(p.choghadiya, hasLength(8));
       // Thursday's day Choghadiya starts with Shubh and ends with Shubh.
       expect(p.choghadiya.first.nameEn, 'Shubh');

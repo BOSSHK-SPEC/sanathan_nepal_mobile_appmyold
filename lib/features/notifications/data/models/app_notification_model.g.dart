@@ -52,4 +52,7 @@ const _$NotificationTypeEnumMap = {
   NotificationType.birthday: 'birthday',
   NotificationType.order: 'order',
   NotificationType.appointment: 'appointment',
+  NotificationType.message: 'message',
+  NotificationType.consultation: 'consultation',
+  NotificationType.wallet: 'wallet',
 };

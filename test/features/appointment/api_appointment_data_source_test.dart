@@ -138,45 +138,48 @@ void main() {
     expect(appointment.email, 'yash@example.com');
   });
 
-  test("the day's slots are filtered out of the astrologer's calendar", () async {
-    adapter = _StubAdapter(
-      (_) async => _json([
-        {
-          'id': 'slot-a',
-          'startsAt': '2026-09-08T03:30:00.000Z',
-          'endsAt': '2026-09-08T04:00:00.000Z',
-          'available': true,
-        },
-        {
-          'id': 'slot-b',
-          'startsAt': '2026-09-09T03:30:00.000Z',
-          'endsAt': '2026-09-09T04:00:00.000Z',
-          'available': true,
-        },
-      ]),
-    );
-    source = build(adapter);
+  test(
+    "the day's slots are filtered out of the astrologer's calendar",
+    () async {
+      adapter = _StubAdapter(
+        (_) async => _json([
+          {
+            'id': 'slot-a',
+            'startsAt': '2026-09-08T03:30:00.000Z',
+            'endsAt': '2026-09-08T04:00:00.000Z',
+            'available': true,
+          },
+          {
+            'id': 'slot-b',
+            'startsAt': '2026-09-09T03:30:00.000Z',
+            'endsAt': '2026-09-09T04:00:00.000Z',
+            'available': true,
+          },
+        ]),
+      );
+      source = build(adapter);
 
-    // Asked for in the reader's own day, which is what the calendar shows.
-    final firstSlotLocal = DateTime.utc(2026, 9, 8, 3, 30).toLocal();
-    final slots = await source.fetchTimeSlots(
-      '01JPROV000000000000000001',
-      firstSlotLocal,
-      serviceId: 'video',
-    );
+      // Asked for in the reader's own day, which is what the calendar shows.
+      final firstSlotLocal = DateTime.utc(2026, 9, 8, 3, 30).toLocal();
+      final slots = await source.fetchTimeSlots(
+        '01JPROV000000000000000001',
+        firstSlotLocal,
+        serviceId: 'video',
+      );
 
-    // One calendar, asked for once. The channel is deliberately not in the
-    // query: the same half hour cannot be free for chat and taken for video,
-    // and asking per channel would let it be sold three times.
-    expect(
-      adapter.requests.last.uri.path,
-      '/api/v1/appointments/astrologers/01JPROV000000000000000001/slots',
-    );
-    expect(adapter.requests.last.uri.queryParameters, isEmpty);
-    // Only the requested day survives the filter — the next day's slot is a
-    // day later in every time zone, so this holds wherever the test runs.
-    expect(slots.map((s) => s.id), ['slot-a']);
-    expect(slots.single.hour, firstSlotLocal.hour);
-    expect(slots.single.minute, firstSlotLocal.minute);
-  });
+      // One calendar, asked for once. The channel is deliberately not in the
+      // query: the same half hour cannot be free for chat and taken for video,
+      // and asking per channel would let it be sold three times.
+      expect(
+        adapter.requests.last.uri.path,
+        '/api/v1/appointments/astrologers/01JPROV000000000000000001/slots',
+      );
+      expect(adapter.requests.last.uri.queryParameters, isEmpty);
+      // Only the requested day survives the filter — the next day's slot is a
+      // day later in every time zone, so this holds wherever the test runs.
+      expect(slots.map((s) => s.id), ['slot-a']);
+      expect(slots.single.hour, firstSlotLocal.hour);
+      expect(slots.single.minute, firstSlotLocal.minute);
+    },
+  );
 }

@@ -71,6 +71,9 @@ abstract class PanchangaStrings {
   String get moreMuhurats;
   String get noMuhuratToday;
 
+  /// Shown on a day whose values are the on-device estimate.
+  String get approximateNote;
+
   /// Weekday names, index 0 = Sunday.
   List<String> get weekdays;
 
@@ -106,6 +109,9 @@ abstract class PanchangaStrings {
 
 class _Ne extends PanchangaStrings {
   const _Ne();
+  @override
+  String get approximateNote =>
+      'अनुमानित मान — इन्टरनेटमा जोडिएपछि सटीक पञ्चाङ्ग देखिनेछ।';
   @override
   String get pageTitle => 'पञ्चाङ्ग तथा शुभ साइत';
   @override
@@ -217,6 +223,9 @@ class _Ne extends PanchangaStrings {
 class _Hi extends PanchangaStrings {
   const _Hi();
   @override
+  String get approximateNote =>
+      'अनुमानित मान — सटीक पंचांग के लिए इंटरनेट से जुड़ें।';
+  @override
   String get pageTitle => 'पंचांग एवं शुभ मुहूर्त';
   @override
   String get panchanga => 'पंचांग';
@@ -326,6 +335,9 @@ class _Hi extends PanchangaStrings {
 
 class _En extends PanchangaStrings {
   const _En();
+  @override
+  String get approximateNote =>
+      'Approximate — connect to the internet for the exact panchanga.';
   @override
   String get pageTitle => 'Panchanga & Suva Sait';
   @override

@@ -359,8 +359,7 @@ class _Hi extends ConsoleStrings {
   @override
   String get setScheduleAction => 'समय तय करें';
   @override
-  String get availabilityUnavailable =>
-      'आपकी उपलब्धता जाँची नहीं जा सकी';
+  String get availabilityUnavailable => 'आपकी उपलब्धता जाँची नहीं जा सकी';
   @override
   String get onlineChangeFailed => 'आपकी स्थिति बदली नहीं जा सकी';
   @override
@@ -692,4 +691,136 @@ class _Hi extends ConsoleStrings {
   String stepCounter(String current, String total) => '$current / $total';
   @override
   String minutesLabel(String minutes) => '$minutes मिनट';
+
+  // --- Appointments ---
+  @override
+  String get apptTitle => 'अपॉइंटमेंट';
+  @override
+  String get apptUpcomingSection => 'आने वाले अपॉइंटमेंट';
+  @override
+  String get apptUpcomingTab => 'आने वाले';
+  @override
+  String get apptPastTab => 'पिछले';
+  @override
+  String get apptSeeAll => 'सभी देखें';
+  @override
+  String get apptNoUpcoming => 'कोई आने वाला अपॉइंटमेंट नहीं';
+  @override
+  String get apptNoUpcomingHint =>
+      'जब कोई आपके साथ सत्र बुक करेगा, वह उनकी जानकारी के साथ यहाँ दिखेगा।';
+  @override
+  String get apptNoPast => 'अभी तक कोई पिछला अपॉइंटमेंट नहीं';
+  @override
+  String get apptDetails => 'अपॉइंटमेंट';
+  @override
+  String get apptClient => 'ग्राहक';
+  @override
+  String get apptPhone => 'फ़ोन';
+  @override
+  String get apptEmail => 'ईमेल';
+  @override
+  String get apptCountry => 'देश';
+  @override
+  String get apptCall => 'कॉल करें';
+  @override
+  String get apptWhatsapp => 'व्हाट्सऐप';
+  @override
+  String get apptBirthDetails => 'जन्म विवरण';
+  @override
+  String get apptBirthDate => 'जन्म तिथि';
+  @override
+  String get apptBirthTime => 'जन्म समय';
+  @override
+  String get apptBirthPlace => 'जन्म स्थान';
+  @override
+  String get apptBirthMissing => 'ग्राहक ने जन्म विवरण नहीं दिया।';
+  @override
+  String get apptClientNote => 'ग्राहक का नोट';
+  @override
+  String get apptAttachments => 'संलग्न फ़ाइलें';
+  @override
+  String get apptBirthChart => 'जन्म कुंडली';
+  @override
+  String get apptReceipt => 'भुगतान रसीद';
+  @override
+  String get apptOpenFile => 'खोलें';
+  @override
+  String get apptFileUnavailable => 'यह फ़ाइल अब उपलब्ध नहीं है।';
+  @override
+  String get apptSitting => 'सत्र';
+  @override
+  String get apptType => 'प्रकार';
+  @override
+  String get apptAdvice => 'आपकी दी गई सलाह';
+  @override
+  String get apptFollowUp => 'फ़ॉलो-अप';
+  @override
+  String get apptWhen => 'कब';
+  @override
+  String get apptLength => 'अवधि';
+  @override
+  String get apptAmount => 'राशि';
+  @override
+  String get apptPayment => 'भुगतान';
+  @override
+  String get apptMarkCompleted => 'पूरा हुआ चिह्नित करें';
+  @override
+  String get apptMarkNoShow => 'ग्राहक नहीं आए';
+  @override
+  String get apptCancel => 'अपॉइंटमेंट रद्द करें';
+  @override
+  String get apptOutcomeAfterStart =>
+      'सत्र शुरू होने के बाद ही परिणाम चिह्नित किया जा सकता है।';
+  @override
+  String get apptCancelTitle => 'यह अपॉइंटमेंट रद्द करें?';
+  @override
+  String get apptCancelBody =>
+      'ग्राहक देखेंगे कि आपने कारण सहित रद्द किया, और यह समय फिर से आपके कैलेंडर में खुल जाएगा।';
+  @override
+  String get apptCancelReasonHint => 'ग्राहक के लिए कारण';
+  @override
+  String get apptCancelReasonTooShort => 'कुछ शब्दों में कारण बताएँ।';
+  @override
+  String get apptConfirmCancel => 'अपॉइंटमेंट रद्द करें';
+  @override
+  String get apptKeep => 'रहने दें';
+  @override
+  String get apptMarkedCompleted => 'पूरा हुआ चिह्नित किया गया।';
+  @override
+  String get apptMarkedNoShow => 'ग्राहक नहीं आए, चिह्नित किया गया।';
+  @override
+  String get apptCancelled => 'अपॉइंटमेंट रद्द किया गया।';
+  @override
+  String get apptCouldNotOpen => 'इस फ़ोन पर नहीं खुल सका।';
+  @override
+  String apptReference(String reference) => 'बुकिंग $reference';
+  @override
+  String apptSeats(String count) => '$count लोगों के लिए';
+  @override
+  String apptStatus(ConsoleAppointmentStatus status) => switch (status) {
+    ConsoleAppointmentStatus.pending => 'लंबित',
+    ConsoleAppointmentStatus.confirmed => 'पुष्ट',
+    ConsoleAppointmentStatus.completed => 'पूरा',
+    ConsoleAppointmentStatus.cancelled => 'रद्द',
+    ConsoleAppointmentStatus.noShow => 'ग्राहक नहीं आए',
+    ConsoleAppointmentStatus.rescheduled => 'समय बदला गया',
+    ConsoleAppointmentStatus.missed => 'छूट गया',
+    ConsoleAppointmentStatus.declined => 'अस्वीकार किया',
+  };
+  @override
+  String apptChannel(String? channel) => switch (channel) {
+    'chat' => 'चैट',
+    'voice' => 'वॉइस कॉल',
+    'video' => 'वीडियो कॉल',
+    _ => 'सत्र',
+  };
+  @override
+  String apptRemedyKind(RemedyKind kind) => switch (kind) {
+    RemedyKind.gemstone => 'रत्न',
+    RemedyKind.mantra => 'मंत्र',
+    RemedyKind.puja => 'पूजा',
+    RemedyKind.donation => 'दान',
+    RemedyKind.fasting => 'व्रत',
+    RemedyKind.practice => 'अभ्यास',
+  };
 }

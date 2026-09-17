@@ -82,6 +82,7 @@
   "menuOffers": "अफर",
   "menuOrders": "मेरा अर्डर",
   "menuBecomeAstrologer": "ज्योतिषी बन्नुहोस्",
+  "menuAstrologerConsole": "ज्योतिषी कन्सोल",
   "addAPhoto": "फोटो थप्नुहोस्",
   "takeAPhoto": "फोटो खिच्नुहोस्",
   "chooseFromGallery": "ग्यालरीबाट छान्नुहोस्",
@@ -90,5 +91,8 @@
   "maxFileSize": "अधिकतम {size}",
   "uploading": "अपलोड हुँदै…",
   "uploadFailed": "अपलोड असफल",
-  "removePhoto": "फोटो हटाउनुहोस्"
+  "removePhoto": "फोटो हटाउनुहोस्",
+  "year": "वर्ष",
+  "month": "महिना",
+  "day": "गते"
 }

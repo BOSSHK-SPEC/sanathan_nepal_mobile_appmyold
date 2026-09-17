@@ -71,6 +71,17 @@ abstract class ConsultationStrings {
   String get reconnecting;
   String get callEnded;
 
+  /// While the media connection is being established — the session is live
+  /// and billing, so the screen has to say why nothing is audible yet.
+  String get connectingCall;
+  String get callFailed;
+  String get retry;
+
+  /// Shown in the video frame while the other side has not joined yet, or has
+  /// turned their camera off — two different situations, so two strings.
+  String get waitingForOther;
+  String get cameraOff;
+
   // Summary
   String get sessionSummary;
   String get duration;
@@ -110,6 +121,7 @@ abstract class ConsultationStrings {
   String get noRemedies;
   String get addLabel;
   String get skipWriteUp;
+
   /// Shown on a live chat that has no messages yet — the normal state of a
   /// session that has only just been accepted.
   String get chatEmptyTitle;

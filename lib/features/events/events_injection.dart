@@ -32,7 +32,11 @@ void registerEventsFeature(GetIt sl) {
         ),
       ),
     )
-    ..registerLazySingleton<EventRepository>(() => EventRepositoryImpl(sl()))
+    ..registerLazySingleton<EventRepository>(
+      // The resolver carries the region's calendar, which is what lets a
+      // B.S. / Saka anniversary recur on its own date.
+      () => EventRepositoryImpl(sl(), resolver: sl<RegionResolver>()),
+    )
     ..registerLazySingleton(() => GetEvents(sl()))
     ..registerLazySingleton(() => GetEventById(sl()))
     ..registerLazySingleton(() => CreateEvent(sl()))

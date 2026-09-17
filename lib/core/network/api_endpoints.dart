@@ -7,7 +7,6 @@ abstract final class ApiEndpoints {
   const ApiEndpoints._();
 
   // --- identity ---
-  static const String authSocial = '/auth/social';
   static const String authPhoneStart = '/auth/phone/start';
   static const String authPhoneVerify = '/auth/phone/verify';
   static const String authRefresh = '/auth/refresh';
@@ -22,6 +21,7 @@ abstract final class ApiEndpoints {
   static const String profileFavourites = '/profile/favourites';
   static const String profileLogout = '/profile/logout';
   static const String businessMine = '/business/mine';
+  static const String businessMineBranding = '/business/mine/branding';
   static String business(String id) => '/business/$id';
   static String businessReview(String id) => '/business/$id/reviews';
   static const String adminBusinesses = '/admin/businesses';
@@ -65,6 +65,7 @@ abstract final class ApiEndpoints {
   static const String almanacFestivals = '/almanac/festivals';
   static String almanacFestival(String slug) => '/almanac/festivals/$slug';
   static const String almanacPanchanga = '/almanac/panchanga';
+  static const String almanacPanchangaRange = '/almanac/panchanga/range';
   static const String almanacSuvaSaits = '/almanac/suva-saits';
   static const String almanacHoroscope = '/almanac/horoscope';
   static String almanacHoroscopeSign(String sign) => '/almanac/horoscope/$sign';
@@ -152,6 +153,15 @@ abstract final class ApiEndpoints {
   static String consultationCancel(String id) => '/consultations/$id/cancel';
   static String consultationSummary(String id) => '/consultations/$id/summary';
 
+  /// A join token for this consultation's live call. Issued per join, per
+  /// person, and short-lived — never cached.
+  static String consultationCallToken(String id) =>
+      '/consultations/$id/call-token';
+
+  /// Whether this deployment can place calls at all. Its own prefix, because
+  /// `/consultations/<anything>` is read as a consultation id.
+  static const String callCapability = '/calls/capability';
+
   // --- astrologer console ---
   static const String consoleApplication = '/console/application';
   static const String consoleApplicationDocuments =
@@ -184,6 +194,14 @@ abstract final class ApiEndpoints {
   static const String consolePendingRequest = '/console/requests/pending';
   static String consoleRespondToRequest(String id) =>
       '/console/requests/$id/respond';
+  static const String consoleAppointments = '/console/appointments';
+  static String consoleAppointment(String id) => '/console/appointments/$id';
+  static String consoleAppointmentComplete(String id) =>
+      '/console/appointments/$id/complete';
+  static String consoleAppointmentNoShow(String id) =>
+      '/console/appointments/$id/no-show';
+  static String consoleAppointmentCancel(String id) =>
+      '/console/appointments/$id/cancel';
   static const String consoleReviews = '/console/reviews';
   static const String consoleBoosts = '/console/boosts';
   static const String consoleTaxDocuments = '/console/tax-documents';

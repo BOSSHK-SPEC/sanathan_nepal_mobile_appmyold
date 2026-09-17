@@ -59,7 +59,10 @@ class AppointmentDetailsCubit extends AppCubit<AppointmentDetailsState> {
         emit(
           state.copyWith(
             appointment: LoadState.loaded(appointment),
-            astrologer: astrologer.fold(state.astrologer.toFailed, LoadState.loaded),
+            astrologer: astrologer.fold(
+              state.astrologer.toFailed,
+              LoadState.loaded,
+            ),
           ),
         );
     }

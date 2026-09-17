@@ -78,7 +78,9 @@ class _TiltCardState extends State<TiltCard> {
 
     // Clamped so a pointer that leaves the box mid-drag cannot send the card
     // past its limit.
-    final tiltX = animate ? (-_pointer.dy).clamp(-1.0, 1.0) * widget.maxTilt : 0.0;
+    final tiltX = animate
+        ? (-_pointer.dy).clamp(-1.0, 1.0) * widget.maxTilt
+        : 0.0;
     final tiltY = animate ? _pointer.dx.clamp(-1.0, 1.0) * widget.maxTilt : 0.0;
     final lifted = animate && _hovering;
 
@@ -110,7 +112,9 @@ class _TiltCardState extends State<TiltCard> {
                 borderRadius: radius,
                 border: Border.all(
                   color: lifted
-                      ? (widget.borderColor ?? colors.primary).withValues(alpha: 0.45)
+                      ? (widget.borderColor ?? colors.primary).withValues(
+                          alpha: 0.45,
+                        )
                       : (widget.borderColor ?? colors.border),
                 ),
                 boxShadow: [
@@ -127,7 +131,12 @@ class _TiltCardState extends State<TiltCard> {
                 ],
               ),
               child: widget.glare && animate
-                  ? _Glare(pointer: _pointer, visible: _hovering, radius: radius, child: widget.child)
+                  ? _Glare(
+                      pointer: _pointer,
+                      visible: _hovering,
+                      radius: radius,
+                      child: widget.child,
+                    )
                   : widget.child,
             ),
           ),

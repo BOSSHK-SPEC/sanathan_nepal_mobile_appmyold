@@ -91,8 +91,8 @@ as String?,
 /// @nodoc
 
 
-class _OrderSummary implements OrderSummary {
-  const _OrderSummary({required this.id, required this.productName, required this.price, required this.counterpartyName, required this.counterpartyId, required this.role, required this.status, required this.updatedAt, this.sellingPrice, this.rating, this.imageUrl});
+class _OrderSummary extends OrderSummary {
+  const _OrderSummary({required this.id, required this.productName, required this.price, required this.counterpartyName, required this.counterpartyId, required this.role, required this.status, required this.updatedAt, this.sellingPrice, this.rating, this.imageUrl}): super._();
   
 
 @override final  String id;

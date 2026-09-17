@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/events/data_changes.dart';
 import '../../../../core/region/region.dart';
 import '../../../../core/region/region_resolver.dart';
 import '../../../../core/state/load_state.dart';
@@ -31,10 +32,12 @@ class BookAppointmentCubit extends AppCubit<BookAppointmentState> {
     BookingContactSource? contacts,
     String? initialServiceId,
     DateTime? initialDate,
+    DataChanges? changes,
   }) : _getTimeSlots = getTimeSlots,
        _getCalendar = getCalendar,
        _book = bookAppointment,
        _contacts = contacts,
+       _changes = changes,
        _region = regionResolver ?? const FixedRegionResolver(Region.nepal),
        super(
          BookAppointmentState(
@@ -61,6 +64,11 @@ class BookAppointmentCubit extends AppCubit<BookAppointmentState> {
   final RegionResolver _region;
   final BookingContactSource? _contacts;
 
+  /// Told when a booking goes through, so the screens listing appointments
+  /// reload — a booking made from an astrologer's page otherwise never
+  /// appeared under Profile › Activities.
+  final DataChanges? _changes;
+
   /// Payment methods offered in the active region (read at call time).
   List<PaymentMethod> get paymentMethods =>
       _region.config.paymentRails.map(PaymentMethod.fromRail).toList();
@@ -74,7 +82,10 @@ class BookAppointmentCubit extends AppCubit<BookAppointmentState> {
   /// stale link on a working screen instead of throwing while the page is
   /// being built. Callers guarantee the astrologer has at least one service —
   /// [BookAppointmentPage] refuses to open the wizard otherwise.
-  static String _resolveServiceId(BookableAstrologer astrologer, String? requested) {
+  static String _resolveServiceId(
+    BookableAstrologer astrologer,
+    String? requested,
+  ) {
     final services = astrologer.services;
     if (services.isEmpty) return '';
     return services.any((s) => s.id == requested)
@@ -260,5 +271,6 @@ class BookAppointmentCubit extends AppCubit<BookAppointmentState> {
         submission: result.fold(state.submission.toFailed, LoadState.loaded),
       ),
     );
+    if (result.isSuccess) _changes?.notify(DataTopic.appointments);
   }
 }

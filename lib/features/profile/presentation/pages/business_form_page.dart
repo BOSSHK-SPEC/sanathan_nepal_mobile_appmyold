@@ -2,6 +2,7 @@ import '../../../../core/media/media_bucket.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/media/media_upload_action.dart';
 import 'package:flutter/material.dart';
+import '../widgets/business_branding_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/di/injection.dart';
@@ -160,6 +161,26 @@ class _BusinessFormViewState extends State<BusinessFormView> {
     }
   }
 
+  /// Uploads a banner or logo into the draft; it is saved with the form.
+  Future<void> _pickImage(
+    BusinessFormCubit cubit,
+    BusinessImageSlot slot,
+  ) async {
+    final s = ProfileStrings.of(context);
+    final uploaded = await pickAndUploadMedia(
+      context,
+      bucket: MediaBucket.publicCatalog,
+      title: slot == BusinessImageSlot.logo ? s.businessLogo : s.businessBanner,
+    );
+    if (uploaded == null || !mounted) return;
+    final draft = cubit.state.draft;
+    cubit.updateDraft(
+      slot == BusinessImageSlot.logo
+          ? draft.copyWith(logoUrl: uploaded.url)
+          : draft.copyWith(coverUrl: uploaded.url),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = ProfileStrings.of(context);
@@ -215,6 +236,14 @@ class _BusinessFormViewState extends State<BusinessFormView> {
                           documents: state.draft.documents,
                           onAddDocument: cubit.addDocument,
                           onNext: () => _next(cubit),
+                          logoUrl: state.draft.logoUrl,
+                          coverUrl: state.draft.coverUrl,
+                          onPickImage: (slot) => _pickImage(cubit, slot),
+                          onRemoveImage: (slot) => cubit.updateDraft(
+                            slot == BusinessImageSlot.logo
+                                ? state.draft.copyWith(logoUrl: null)
+                                : state.draft.copyWith(coverUrl: null),
+                          ),
                         )
                       : BusinessItemsStep(
                           state: state,
@@ -249,7 +278,15 @@ class _DetailsStep extends StatelessWidget {
     required this.documents,
     required this.onAddDocument,
     required this.onNext,
+    required this.logoUrl,
+    required this.coverUrl,
+    required this.onPickImage,
+    required this.onRemoveImage,
   });
+  final String? logoUrl;
+  final String? coverUrl;
+  final ValueChanged<BusinessImageSlot> onPickImage;
+  final ValueChanged<BusinessImageSlot> onRemoveImage;
   final GlobalKey<FormState> formKey;
   final _BusinessFormViewState controllers;
   final List<String> documents;
@@ -279,6 +316,15 @@ class _DetailsStep extends StatelessWidget {
           AppSpacing.xxl,
         ),
         children: [
+          // The listing's face, first: a shop is recognised by its banner and
+          // logo before anyone reads its name.
+          BusinessBrandingPicker(
+            logoUrl: logoUrl,
+            coverUrl: coverUrl,
+            onPick: onPickImage,
+            onRemove: onRemoveImage,
+          ),
+          const SizedBox(height: AppSpacing.lg),
           AppTextField(
             controller: c._name,
             label: s.businessName,

@@ -82,3 +82,6 @@ abstract class BusinessProfile with _$BusinessProfile {
   List<BusinessItem> get products => items.where((i) => !i.isService).toList();
   List<BusinessItem> get services => items.where((i) => i.isService).toList();
 }
+
+/// The two pictures a business shows: the square logo and the wide banner.
+enum BusinessImageSlot { logo, cover }

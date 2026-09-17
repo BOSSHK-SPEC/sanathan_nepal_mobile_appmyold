@@ -3,11 +3,9 @@ import '../entities/auth_session.dart';
 import '../entities/otp_challenge.dart';
 import '../entities/user_profile_draft.dart';
 
-/// Authentication contract used by the onboarding / auth flow.
+/// Authentication contract used by the onboarding / auth flow: mobile number
+/// and one-time code.
 abstract interface class AuthRepository {
-  Future<Result<AuthSession>> signInWithGoogle();
-  Future<Result<AuthSession>> signInWithApple();
-
   /// Sends an OTP to [phoneNumber] and reports whether the number is already
   /// registered.
   Future<Result<OtpChallenge>> signInWithPhone(String phoneNumber);

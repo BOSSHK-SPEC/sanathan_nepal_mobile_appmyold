@@ -123,6 +123,16 @@ class _Ne extends ProfileStrings {
   @override
   String get complete => 'सम्पन्न';
   @override
+  String get markShipped => 'पठाइयो';
+  @override
+  String get markDelivered => 'पुर्‍याइयो';
+  @override
+  String get shipped => 'पठाइएको';
+  @override
+  String get outForDelivery => 'डेलिभरीमा';
+  @override
+  String get awaitingSeller => 'विक्रेताको पर्खाइमा';
+  @override
   String get call => 'कल';
   @override
   String get chat => 'च्याट';
@@ -233,6 +243,37 @@ class _Ne extends ProfileStrings {
 
   @override
   String get profilePhoto => 'प्रोफाइल फोटो';
+
+  @override
+  String get businessLogo => 'व्यवसायको लोगो';
+
+  @override
+  String get businessBanner => 'कभर ब्यानर';
+
+  @override
+  String get addLogo => 'लोगो थप्नुहोस्';
+
+  @override
+  String get addBanner => 'ब्यानर थप्नुहोस्';
+
+  @override
+  String get changeLogo => 'लोगो परिवर्तन गर्नुहोस्';
+
+  @override
+  String get changeBanner => 'ब्यानर परिवर्तन गर्नुहोस्';
+
+  @override
+  String get removeLogo => 'लोगो हटाउनुहोस्';
+
+  @override
+  String get removeBanner => 'ब्यानर हटाउनुहोस्';
+
+  @override
+  String get brandingHint =>
+      'ब्यानर: चौडा तस्बिर, करिब ३:१। लोगो: वर्गाकार। JPG, PNG वा WebP, ८ MB सम्म।';
+
+  @override
+  String get imageUpdated => 'तस्बिर अद्यावधिक भयो';
   @override
   String get noFileChosen => 'कुनै फाइल छानिएको छैन';
   @override
@@ -342,9 +383,9 @@ class _Ne extends ProfileStrings {
   String get noItems => 'अहिलेसम्म केही सूचीबद्ध छैन।';
 
   @override
-  String get itemsAreForReview =>
-      'तपाईं के बेच्नुहुन्छ समीक्षकलाई बताउनुहोस्। व्यवसाय स्वीकृत भएपछि '
-      'सार्वजनिक सूची मार्केटप्लेसबाट थपिन्छ।';
+  String get itemsPublishOnApproval =>
+      'तपाईं के बेच्नुहुन्छ वा कुन सेवा दिनुहुन्छ थप्नुहोस्। व्यवसाय स्वीकृत '
+      'भएपछि यी तपाईंको पसलका उत्पादन र सेवाका रूपमा प्रकाशित हुन्छन्।';
   @override
   String get noReviews => 'अहिलेसम्म कुनै समीक्षा छैन।';
 

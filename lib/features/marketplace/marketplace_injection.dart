@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 
+import '../../core/session/session_resolver.dart';
+import '../../core/events/data_changes.dart';
 import '../../core/region/region_all.dart';
 import '../../core/storage/key_value_store.dart';
 import '../../core/config/data_source_selector.dart';
@@ -130,6 +132,12 @@ void registerMarketplaceFeature(GetIt sl) {
         getMyProducts: sl(),
         toggleFavourite: sl(),
         deleteProduct: sl(),
+        // Registered by the session feature, after this one; resolved when a
+        // cubit is created, by which time it exists. Absent in tests that wire
+        // this feature on its own, which then behave as a seller.
+        session: sl.isRegistered<SessionResolver>()
+            ? sl<SessionResolver>()
+            : null,
       ),
     )
     ..registerFactory(
@@ -173,6 +181,8 @@ void registerMarketplaceFeature(GetIt sl) {
         placeOrder: sl(),
         clearCart: sl(),
         resolver: sl<RegionResolver>(),
+        // Absent in tests that wire this feature on its own.
+        changes: sl.isRegistered<DataChanges>() ? sl<DataChanges>() : null,
       ),
     )
     ..registerFactory(

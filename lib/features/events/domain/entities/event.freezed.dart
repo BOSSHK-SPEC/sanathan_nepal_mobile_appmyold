@@ -565,7 +565,13 @@ mixin _$Event {
  String get id; LocalizedText get title;/// Gregorian (AD) date at midnight – the source of truth. Use
 /// [traditionalDate] for the region's calendar (BS in Nepal, Saka in
 /// India).
- DateTime get date; EventCategory get category; LocalizedText get description; EventTime? get time; bool get isHoliday; bool get isVrat; bool get isImportant; String? get imagePath; LocalizedText get location; LocalizedText get tithi; LocalizedText get howToCelebrate; LocalizedText get attractionPlaces; String? get videoUrl; List<ChecklistItem> get checklist; EventReminder? get reminder; EventRepeat get repeat;
+ DateTime get date; EventCategory get category; LocalizedText get description; EventTime? get time; bool get isHoliday; bool get isVrat; bool get isImportant; String? get imagePath; LocalizedText get location; LocalizedText get tithi; LocalizedText get howToCelebrate; LocalizedText get attractionPlaces; String? get videoUrl; List<ChecklistItem> get checklist; EventReminder? get reminder; EventRepeat get repeat;/// Whether a yearly event recurs on its *traditional* date.
+///
+/// A birthday recorded in Bikram Sambat comes round on its B.S. date,
+/// which lands on a different Gregorian day each year. Stored by the
+/// server and, until now, dropped on the way back — so a B.S. birthday
+/// silently recurred on the Gregorian date instead.
+ bool get useTraditionalDate;
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -576,16 +582,16 @@ $EventCopyWith<Event> get copyWith => _$EventCopyWithImpl<Event>(this as Event, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.time, time) || other.time == time)&&(identical(other.isHoliday, isHoliday) || other.isHoliday == isHoliday)&&(identical(other.isVrat, isVrat) || other.isVrat == isVrat)&&(identical(other.isImportant, isImportant) || other.isImportant == isImportant)&&(identical(other.imagePath, imagePath) || other.imagePath == imagePath)&&(identical(other.location, location) || other.location == location)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.howToCelebrate, howToCelebrate) || other.howToCelebrate == howToCelebrate)&&(identical(other.attractionPlaces, attractionPlaces) || other.attractionPlaces == attractionPlaces)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&const DeepCollectionEquality().equals(other.checklist, checklist)&&(identical(other.reminder, reminder) || other.reminder == reminder)&&(identical(other.repeat, repeat) || other.repeat == repeat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.time, time) || other.time == time)&&(identical(other.isHoliday, isHoliday) || other.isHoliday == isHoliday)&&(identical(other.isVrat, isVrat) || other.isVrat == isVrat)&&(identical(other.isImportant, isImportant) || other.isImportant == isImportant)&&(identical(other.imagePath, imagePath) || other.imagePath == imagePath)&&(identical(other.location, location) || other.location == location)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.howToCelebrate, howToCelebrate) || other.howToCelebrate == howToCelebrate)&&(identical(other.attractionPlaces, attractionPlaces) || other.attractionPlaces == attractionPlaces)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&const DeepCollectionEquality().equals(other.checklist, checklist)&&(identical(other.reminder, reminder) || other.reminder == reminder)&&(identical(other.repeat, repeat) || other.repeat == repeat)&&(identical(other.useTraditionalDate, useTraditionalDate) || other.useTraditionalDate == useTraditionalDate));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,date,category,description,time,isHoliday,isVrat,isImportant,imagePath,location,tithi,howToCelebrate,attractionPlaces,videoUrl,const DeepCollectionEquality().hash(checklist),reminder,repeat);
+int get hashCode => Object.hashAll([runtimeType,id,title,date,category,description,time,isHoliday,isVrat,isImportant,imagePath,location,tithi,howToCelebrate,attractionPlaces,videoUrl,const DeepCollectionEquality().hash(checklist),reminder,repeat,useTraditionalDate]);
 
 @override
 String toString() {
-  return 'Event(id: $id, title: $title, date: $date, category: $category, description: $description, time: $time, isHoliday: $isHoliday, isVrat: $isVrat, isImportant: $isImportant, imagePath: $imagePath, location: $location, tithi: $tithi, howToCelebrate: $howToCelebrate, attractionPlaces: $attractionPlaces, videoUrl: $videoUrl, checklist: $checklist, reminder: $reminder, repeat: $repeat)';
+  return 'Event(id: $id, title: $title, date: $date, category: $category, description: $description, time: $time, isHoliday: $isHoliday, isVrat: $isVrat, isImportant: $isImportant, imagePath: $imagePath, location: $location, tithi: $tithi, howToCelebrate: $howToCelebrate, attractionPlaces: $attractionPlaces, videoUrl: $videoUrl, checklist: $checklist, reminder: $reminder, repeat: $repeat, useTraditionalDate: $useTraditionalDate)';
 }
 
 
@@ -596,7 +602,7 @@ abstract mixin class $EventCopyWith<$Res>  {
   factory $EventCopyWith(Event value, $Res Function(Event) _then) = _$EventCopyWithImpl;
 @useResult
 $Res call({
- String id, LocalizedText title, DateTime date, EventCategory category, LocalizedText description, EventTime? time, bool isHoliday, bool isVrat, bool isImportant, String? imagePath, LocalizedText location, LocalizedText tithi, LocalizedText howToCelebrate, LocalizedText attractionPlaces, String? videoUrl, List<ChecklistItem> checklist, EventReminder? reminder, EventRepeat repeat
+ String id, LocalizedText title, DateTime date, EventCategory category, LocalizedText description, EventTime? time, bool isHoliday, bool isVrat, bool isImportant, String? imagePath, LocalizedText location, LocalizedText tithi, LocalizedText howToCelebrate, LocalizedText attractionPlaces, String? videoUrl, List<ChecklistItem> checklist, EventReminder? reminder, EventRepeat repeat, bool useTraditionalDate
 });
 
 
@@ -613,7 +619,7 @@ class _$EventCopyWithImpl<$Res>
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? date = null,Object? category = null,Object? description = null,Object? time = freezed,Object? isHoliday = null,Object? isVrat = null,Object? isImportant = null,Object? imagePath = freezed,Object? location = null,Object? tithi = null,Object? howToCelebrate = null,Object? attractionPlaces = null,Object? videoUrl = freezed,Object? checklist = null,Object? reminder = freezed,Object? repeat = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? date = null,Object? category = null,Object? description = null,Object? time = freezed,Object? isHoliday = null,Object? isVrat = null,Object? isImportant = null,Object? imagePath = freezed,Object? location = null,Object? tithi = null,Object? howToCelebrate = null,Object? attractionPlaces = null,Object? videoUrl = freezed,Object? checklist = null,Object? reminder = freezed,Object? repeat = null,Object? useTraditionalDate = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -633,7 +639,8 @@ as LocalizedText,videoUrl: freezed == videoUrl ? _self.videoUrl : videoUrl // ig
 as String?,checklist: null == checklist ? _self.checklist : checklist // ignore: cast_nullable_to_non_nullable
 as List<ChecklistItem>,reminder: freezed == reminder ? _self.reminder : reminder // ignore: cast_nullable_to_non_nullable
 as EventReminder?,repeat: null == repeat ? _self.repeat : repeat // ignore: cast_nullable_to_non_nullable
-as EventRepeat,
+as EventRepeat,useTraditionalDate: null == useTraditionalDate ? _self.useTraditionalDate : useTraditionalDate // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of Event
@@ -723,7 +730,7 @@ $EventReminderCopyWith<$Res>? get reminder {
 
 
 class _Event extends Event {
-  const _Event({required this.id, required this.title, required this.date, required this.category, this.description = LocalizedText.empty, this.time, this.isHoliday = false, this.isVrat = false, this.isImportant = false, this.imagePath, this.location = LocalizedText.empty, this.tithi = LocalizedText.empty, this.howToCelebrate = LocalizedText.empty, this.attractionPlaces = LocalizedText.empty, this.videoUrl, final  List<ChecklistItem> checklist = const [], this.reminder, this.repeat = EventRepeat.none}): _checklist = checklist,super._();
+  const _Event({required this.id, required this.title, required this.date, required this.category, this.description = LocalizedText.empty, this.time, this.isHoliday = false, this.isVrat = false, this.isImportant = false, this.imagePath, this.location = LocalizedText.empty, this.tithi = LocalizedText.empty, this.howToCelebrate = LocalizedText.empty, this.attractionPlaces = LocalizedText.empty, this.videoUrl, final  List<ChecklistItem> checklist = const [], this.reminder, this.repeat = EventRepeat.none, this.useTraditionalDate = false}): _checklist = checklist,super._();
   
 
 @override final  String id;
@@ -753,6 +760,13 @@ class _Event extends Event {
 
 @override final  EventReminder? reminder;
 @override@JsonKey() final  EventRepeat repeat;
+/// Whether a yearly event recurs on its *traditional* date.
+///
+/// A birthday recorded in Bikram Sambat comes round on its B.S. date,
+/// which lands on a different Gregorian day each year. Stored by the
+/// server and, until now, dropped on the way back — so a B.S. birthday
+/// silently recurred on the Gregorian date instead.
+@override@JsonKey() final  bool useTraditionalDate;
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
@@ -764,16 +778,16 @@ _$EventCopyWith<_Event> get copyWith => __$EventCopyWithImpl<_Event>(this, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.time, time) || other.time == time)&&(identical(other.isHoliday, isHoliday) || other.isHoliday == isHoliday)&&(identical(other.isVrat, isVrat) || other.isVrat == isVrat)&&(identical(other.isImportant, isImportant) || other.isImportant == isImportant)&&(identical(other.imagePath, imagePath) || other.imagePath == imagePath)&&(identical(other.location, location) || other.location == location)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.howToCelebrate, howToCelebrate) || other.howToCelebrate == howToCelebrate)&&(identical(other.attractionPlaces, attractionPlaces) || other.attractionPlaces == attractionPlaces)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&const DeepCollectionEquality().equals(other._checklist, _checklist)&&(identical(other.reminder, reminder) || other.reminder == reminder)&&(identical(other.repeat, repeat) || other.repeat == repeat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Event&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.time, time) || other.time == time)&&(identical(other.isHoliday, isHoliday) || other.isHoliday == isHoliday)&&(identical(other.isVrat, isVrat) || other.isVrat == isVrat)&&(identical(other.isImportant, isImportant) || other.isImportant == isImportant)&&(identical(other.imagePath, imagePath) || other.imagePath == imagePath)&&(identical(other.location, location) || other.location == location)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.howToCelebrate, howToCelebrate) || other.howToCelebrate == howToCelebrate)&&(identical(other.attractionPlaces, attractionPlaces) || other.attractionPlaces == attractionPlaces)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&const DeepCollectionEquality().equals(other._checklist, _checklist)&&(identical(other.reminder, reminder) || other.reminder == reminder)&&(identical(other.repeat, repeat) || other.repeat == repeat)&&(identical(other.useTraditionalDate, useTraditionalDate) || other.useTraditionalDate == useTraditionalDate));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,date,category,description,time,isHoliday,isVrat,isImportant,imagePath,location,tithi,howToCelebrate,attractionPlaces,videoUrl,const DeepCollectionEquality().hash(_checklist),reminder,repeat);
+int get hashCode => Object.hashAll([runtimeType,id,title,date,category,description,time,isHoliday,isVrat,isImportant,imagePath,location,tithi,howToCelebrate,attractionPlaces,videoUrl,const DeepCollectionEquality().hash(_checklist),reminder,repeat,useTraditionalDate]);
 
 @override
 String toString() {
-  return 'Event(id: $id, title: $title, date: $date, category: $category, description: $description, time: $time, isHoliday: $isHoliday, isVrat: $isVrat, isImportant: $isImportant, imagePath: $imagePath, location: $location, tithi: $tithi, howToCelebrate: $howToCelebrate, attractionPlaces: $attractionPlaces, videoUrl: $videoUrl, checklist: $checklist, reminder: $reminder, repeat: $repeat)';
+  return 'Event(id: $id, title: $title, date: $date, category: $category, description: $description, time: $time, isHoliday: $isHoliday, isVrat: $isVrat, isImportant: $isImportant, imagePath: $imagePath, location: $location, tithi: $tithi, howToCelebrate: $howToCelebrate, attractionPlaces: $attractionPlaces, videoUrl: $videoUrl, checklist: $checklist, reminder: $reminder, repeat: $repeat, useTraditionalDate: $useTraditionalDate)';
 }
 
 
@@ -784,7 +798,7 @@ abstract mixin class _$EventCopyWith<$Res> implements $EventCopyWith<$Res> {
   factory _$EventCopyWith(_Event value, $Res Function(_Event) _then) = __$EventCopyWithImpl;
 @override @useResult
 $Res call({
- String id, LocalizedText title, DateTime date, EventCategory category, LocalizedText description, EventTime? time, bool isHoliday, bool isVrat, bool isImportant, String? imagePath, LocalizedText location, LocalizedText tithi, LocalizedText howToCelebrate, LocalizedText attractionPlaces, String? videoUrl, List<ChecklistItem> checklist, EventReminder? reminder, EventRepeat repeat
+ String id, LocalizedText title, DateTime date, EventCategory category, LocalizedText description, EventTime? time, bool isHoliday, bool isVrat, bool isImportant, String? imagePath, LocalizedText location, LocalizedText tithi, LocalizedText howToCelebrate, LocalizedText attractionPlaces, String? videoUrl, List<ChecklistItem> checklist, EventReminder? reminder, EventRepeat repeat, bool useTraditionalDate
 });
 
 
@@ -801,7 +815,7 @@ class __$EventCopyWithImpl<$Res>
 
 /// Create a copy of Event
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? date = null,Object? category = null,Object? description = null,Object? time = freezed,Object? isHoliday = null,Object? isVrat = null,Object? isImportant = null,Object? imagePath = freezed,Object? location = null,Object? tithi = null,Object? howToCelebrate = null,Object? attractionPlaces = null,Object? videoUrl = freezed,Object? checklist = null,Object? reminder = freezed,Object? repeat = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? date = null,Object? category = null,Object? description = null,Object? time = freezed,Object? isHoliday = null,Object? isVrat = null,Object? isImportant = null,Object? imagePath = freezed,Object? location = null,Object? tithi = null,Object? howToCelebrate = null,Object? attractionPlaces = null,Object? videoUrl = freezed,Object? checklist = null,Object? reminder = freezed,Object? repeat = null,Object? useTraditionalDate = null,}) {
   return _then(_Event(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -821,7 +835,8 @@ as LocalizedText,videoUrl: freezed == videoUrl ? _self.videoUrl : videoUrl // ig
 as String?,checklist: null == checklist ? _self._checklist : checklist // ignore: cast_nullable_to_non_nullable
 as List<ChecklistItem>,reminder: freezed == reminder ? _self.reminder : reminder // ignore: cast_nullable_to_non_nullable
 as EventReminder?,repeat: null == repeat ? _self.repeat : repeat // ignore: cast_nullable_to_non_nullable
-as EventRepeat,
+as EventRepeat,useTraditionalDate: null == useTraditionalDate ? _self.useTraditionalDate : useTraditionalDate // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:sanathan_nepal_mobile_app/core/widgets/section_chevron_button.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_resolver.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_scope.dart';
@@ -17,6 +18,8 @@ import 'package:sanathan_nepal_mobile_app/features/events/presentation/pages/eve
 import 'package:sanathan_nepal_mobile_app/features/events/presentation/pages/event_form_page.dart';
 import 'package:sanathan_nepal_mobile_app/features/events/presentation/pages/events_page.dart';
 import 'package:sanathan_nepal_mobile_app/features/events/presentation/widgets/event_chip_row.dart';
+import 'package:sanathan_nepal_mobile_app/features/events/presentation/widgets/event_date_column.dart';
+import 'package:sanathan_nepal_mobile_app/features/events/presentation/widgets/events_tab_strip.dart';
 import 'package:sanathan_nepal_mobile_app/features/events/presentation/widgets/upcoming_events_section.dart';
 import 'package:sanathan_nepal_mobile_app/features/panchanga/panchanga_injection.dart';
 import 'package:sanathan_nepal_mobile_app/l10n/generated/app_localizations.dart';
@@ -201,6 +204,36 @@ void main() {
     expect(find.text('Medicine Time'), findsWidgets);
   });
 
+  // The header ended in an accent rule that read as decoration, so nobody
+  // found the Events page behind it. It now ends in the Panchanga-style `>`.
+  testWidgets('UpcomingEventsSection header ends in a > that opens all events', (
+    tester,
+  ) async {
+    var opened = 0;
+    await pumpPhone(
+      tester,
+      _app(
+        Scaffold(
+          body: SingleChildScrollView(
+            child: UpcomingEventsSection(onSeeAll: () => opened++),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final chevron = find.byType(SectionChevronButton);
+    expect(chevron, findsOneWidget);
+    expect(
+      find.descendant(of: chevron, matching: find.byIcon(Icons.chevron_right)),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('See All'), findsOneWidget);
+
+    await tester.tap(chevron);
+    expect(opened, 1);
+  });
+
   testWidgets('EventsPage in India (English): chips, Gregorian-primary dates', (
     tester,
   ) async {
@@ -293,4 +326,55 @@ void main() {
     // Default mode is the traditional calendar → Saka ISO date of today.
     expect(find.textContaining('1948-'), findsOneWidget);
   });
+
+  // The header's B.S./A.D. toggle converted the grid and nothing else: the
+  // today column beside it and every date in the list below chose their
+  // leading calendar from the region, so they stayed in B.S. after a switch.
+  testWidgets(
+    'EventsPage: switching to A.D. moves the today column and list dates too',
+    (tester) async {
+      await pumpPhone(tester, _app(const EventsPage()));
+
+      // Festival line led by the A.D. date, with the B.S. date named after it.
+      final adLeadingLine = RegExp(
+        r'^\d{1,2} [A-Z][a-z]{2}, 20\d\d, [A-Z][a-z]+day - .+ B\.S\.$',
+      );
+      // Today column's secondary line once A.D. leads.
+      final bsSecondary = RegExp(r'^[A-Z][a-z]+ \d{1,2}, 20\d\d B\.S\.$');
+
+      // Nepal opens in B.S.
+      expect(find.textContaining(adLeadingLine), findsNothing);
+      expect(find.textContaining(bsSecondary), findsNothing);
+
+      await tester.tap(find.text('A.D.').first);
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining(adLeadingLine), findsWidgets);
+      expect(find.textContaining(bsSecondary), findsOneWidget);
+
+      // My Events rows follow the same toggle: A.D. above B.S.
+      await tester.tap(
+        find.descendant(
+          of: find.byType(EventsTabStrip),
+          matching: find.text('My Events'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final lines = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byType(EventDateColumn).first,
+              matching: find.byType(Text),
+            ),
+          )
+          .map((t) => t.data ?? '')
+          .toList();
+      final adIndex = lines.indexWhere(
+        (l) => RegExp(r'^[A-Z][a-z]{2} \d{1,2}, 20\d\d$').hasMatch(l),
+      );
+      final bsIndex = lines.indexWhere((l) => l.endsWith('B.S.'));
+      expect(adIndex, isNonNegative);
+      expect(bsIndex, greaterThan(adIndex));
+    },
+  );
 }

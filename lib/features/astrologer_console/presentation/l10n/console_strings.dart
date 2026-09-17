@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/extensions/string_extensions.dart';
+import '../../../consultation/domain/entities/session_summary.dart';
+import '../../domain/entities/console_appointment.dart';
 import '../../domain/entities/application.dart';
 import '../../domain/entities/boost.dart';
 import '../../domain/entities/compliance_notice.dart';
@@ -193,6 +195,7 @@ abstract class ConsoleStrings {
   String get responseTime;
   String get repeatRate;
   String get acceptanceWarning;
+
   /// Sessions already running — the way back into a chat or call the
   /// astrologer has navigated away from.
   String get ongoingSessions;
@@ -336,4 +339,63 @@ abstract class ConsoleStrings {
 
   /// "12 min"
   String minutesLabel(String minutes);
+
+  // --- Appointments ---
+  String get apptTitle;
+  String get apptUpcomingSection;
+  String get apptUpcomingTab;
+  String get apptPastTab;
+  String get apptSeeAll;
+  String get apptNoUpcoming;
+  String get apptNoUpcomingHint;
+  String get apptNoPast;
+  String get apptDetails;
+  String get apptClient;
+  String get apptPhone;
+  String get apptEmail;
+  String get apptCountry;
+  String get apptCall;
+  String get apptWhatsapp;
+  String get apptBirthDetails;
+  String get apptBirthDate;
+  String get apptBirthTime;
+  String get apptBirthPlace;
+  String get apptBirthMissing;
+  String get apptClientNote;
+  String get apptAttachments;
+  String get apptBirthChart;
+  String get apptReceipt;
+  String get apptOpenFile;
+  String get apptFileUnavailable;
+  String get apptSitting;
+  String get apptType;
+  String get apptAdvice;
+  String get apptFollowUp;
+  String get apptWhen;
+  String get apptLength;
+  String get apptAmount;
+  String get apptPayment;
+  String get apptMarkCompleted;
+  String get apptMarkNoShow;
+  String get apptCancel;
+  String get apptOutcomeAfterStart;
+  String get apptCancelTitle;
+  String get apptCancelBody;
+  String get apptCancelReasonHint;
+  String get apptCancelReasonTooShort;
+  String get apptConfirmCancel;
+  String get apptKeep;
+  String get apptMarkedCompleted;
+  String get apptMarkedNoShow;
+  String get apptCancelled;
+  String get apptCouldNotOpen;
+  String apptReference(String reference);
+  String apptSeats(String count);
+  String apptStatus(ConsoleAppointmentStatus status);
+
+  /// `chat` / `voice` / `video`, as the astrologer reads them.
+  String apptChannel(String? channel);
+
+  /// Gemstone, mantra, puja… as the astrologer reads them.
+  String apptRemedyKind(RemedyKind kind);
 }

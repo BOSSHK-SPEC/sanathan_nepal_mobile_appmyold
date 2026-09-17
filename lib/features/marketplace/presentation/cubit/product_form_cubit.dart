@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/region/region_all.dart';
 import '../../../../core/state/load_state.dart';
+import '../../../../core/utils/web_url.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_draft.dart';
@@ -202,6 +203,12 @@ class ProductFormCubit extends AppCubit<ProductFormState> {
     final digits = d.phone.replaceAll(RegExp(r'\D'), '');
     if (digits.length < 10) {
       errors[ProductFormField.phone] = ProductFormError.invalidPhone;
+    }
+    // Optional — but something typed here has to be an address the app can
+    // open. The server enforces the same rule, and used to do it *after* the
+    // whole form was submitted, rejecting the listing without naming a field.
+    if (!WebUrl.isAcceptable(d.websiteLink)) {
+      errors[ProductFormField.website] = ProductFormError.invalidWebsite;
     }
     return errors;
   }

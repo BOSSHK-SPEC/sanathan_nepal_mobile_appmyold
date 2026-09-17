@@ -156,7 +156,10 @@ class LoadStateView<T> extends StatelessWidget {
     return switch (state) {
       Idle<T>() => const LoadingView(height: 260),
       Loading<T>() when data == null => const LoadingView(height: 260),
-      Loading<T>() => Opacity(opacity: 0.55, child: builder(context, data as T)),
+      Loading<T>() => Opacity(
+        opacity: 0.55,
+        child: builder(context, data as T),
+      ),
       Failed<T>(:final failure) when data == null => ErrorView(
         message: failure.message,
         onRetry: onRetry,

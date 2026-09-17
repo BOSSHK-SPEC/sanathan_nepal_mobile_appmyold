@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sanathan_nepal_mobile_app/core/session/session_resolver.dart';
+import 'package:sanathan_nepal_mobile_app/core/events/data_changes.dart';
 import 'package:sanathan_nepal_mobile_app/app/di/injection.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_scope.dart';
@@ -32,6 +34,15 @@ void main() {
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({});
     await configureDependencies();
+  });
+
+  test('the real app wires the change signal and the session', () {
+    // Screens take both as optional, so a feature can be tested on its own.
+    // Without them the app still runs — silently: orders placed elsewhere
+    // stop appearing under Profile › Activities, and buyers get a 403 from
+    // the marketplace. This is where their absence fails loudly instead.
+    expect(sl.isRegistered<DataChanges>(), isTrue);
+    expect(sl.isRegistered<SessionResolver>(), isTrue);
   });
 
   testWidgets('HomePage renders header + all sections without overflow', (
@@ -86,6 +97,42 @@ void main() {
     );
     expect(toggle.mode.name, 'gregorian');
     expect(find.text('Saka'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('switching the calendar converts the dates beside it too', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1125, 2436);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await sl<AppSettingsCubit>().setRegion(Region.india);
+    addTearDown(() => sl<AppSettingsCubit>().setRegion(Region.nepal));
+    await tester.pumpWidget(
+      _app(region: Region.india, locale: const Locale('en')),
+    );
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 2));
+
+    final now = DateTime.now();
+    TodaySummaryColumn column() =>
+        tester.widget<TodaySummaryColumn>(find.byType(TodaySummaryColumn));
+
+    // India opens Gregorian-first: today's Gregorian day leads the column and
+    // the Saka date sits underneath it.
+    expect(column().mode.name, 'gregorian');
+    expect(find.text('${now.day}'), findsWidgets);
+
+    // Switch to Saka — the same control that converts the grid.
+    await tester.tap(find.text('Saka').first);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    // The column followed. It used to read the *region's* default rather than
+    // the live mode, so the grid converted and these dates did not — the two
+    // halves of one header disagreeing about today.
+    expect(column().mode.name, 'traditional');
     expect(tester.takeException(), isNull);
   });
 }

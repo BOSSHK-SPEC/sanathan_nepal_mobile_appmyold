@@ -26,6 +26,9 @@ class NotificationCard extends StatelessWidget {
     NotificationType.birthday => Icons.cake_outlined,
     NotificationType.order => Icons.shopping_bag_outlined,
     NotificationType.appointment => Icons.calendar_month_outlined,
+    NotificationType.message => Icons.chat_bubble_outline,
+    NotificationType.consultation => Icons.support_agent_outlined,
+    NotificationType.wallet => Icons.account_balance_wallet_outlined,
     NotificationType.general => Icons.notifications_none,
   };
 

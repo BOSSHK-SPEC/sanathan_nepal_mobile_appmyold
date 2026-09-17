@@ -108,7 +108,11 @@ class LandingHero extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.brightness_7_rounded, size: 14, color: colors.primary),
+                  Icon(
+                    Icons.brightness_7_rounded,
+                    size: 14,
+                    color: colors.primary,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Sanatan Nepal',
@@ -129,14 +133,15 @@ class LandingHero extends StatelessWidget {
               child: Text(
                 'The Hindu calendar, astrology and marketplace — in one app.',
                 textAlign: TextAlign.center,
-                style: (wide
-                        ? context.textTheme.displaySmall
-                        : context.textTheme.headlineMedium)
-                    ?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1.12,
-                      letterSpacing: -1,
-                    ),
+                style:
+                    (wide
+                            ? context.textTheme.displaySmall
+                            : context.textTheme.headlineMedium)
+                        ?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          height: 1.12,
+                          letterSpacing: -1,
+                        ),
               ),
             ),
           ),

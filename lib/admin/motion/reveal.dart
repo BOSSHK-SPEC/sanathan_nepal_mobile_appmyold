@@ -64,8 +64,7 @@ class _RevealState extends State<Reveal> with SingleTickerProviderStateMixin {
   }
 
   /// Eased scale for progress [t], from `scaleFrom` to 1.
-  double _scale(double t) =>
-      widget.scaleFrom + (1 - widget.scaleFrom) * t;
+  double _scale(double t) => widget.scaleFrom + (1 - widget.scaleFrom) * t;
 
   @override
   Widget build(BuildContext context) {
@@ -85,12 +84,7 @@ class _RevealState extends State<Reveal> with SingleTickerProviderStateMixin {
             transform: Matrix4.identity()
               ..setEntry(3, 2, Motion.perspective)
               ..translateByDouble(0, (1 - t) * widget.offset, 0, 1)
-              ..scaleByDouble(
-                _scale(t),
-                _scale(t),
-                1,
-                1,
-              ),
+              ..scaleByDouble(_scale(t), _scale(t), 1, 1),
             child: child,
           ),
         );
@@ -131,7 +125,10 @@ class RevealGroup extends StatelessWidget {
     ];
 
     return axis == Axis.vertical
-        ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: revealed)
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: revealed,
+          )
         : Row(children: revealed);
   }
 }

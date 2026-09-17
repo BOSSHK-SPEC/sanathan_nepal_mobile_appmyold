@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:sanathan_nepal_mobile_app/core/events/data_changes.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_all.dart';
 import 'package:sanathan_nepal_mobile_app/core/session/app_role.dart';
 import 'package:sanathan_nepal_mobile_app/core/session/app_session.dart';
@@ -161,11 +162,12 @@ class MarketplaceTestStack {
     clearCart: ClearCart(cart),
   );
 
-  CheckoutCubit checkoutCubit() => CheckoutCubit(
+  CheckoutCubit checkoutCubit({DataChanges? changes}) => CheckoutCubit(
     getCart: GetCart(cart),
     placeOrder: PlaceOrder(orders),
     clearCart: ClearCart(cart),
     resolver: resolver,
+    changes: changes,
   );
 
   BoostCubit boostCubit() => BoostCubit(

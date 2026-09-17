@@ -37,14 +37,12 @@ class BusinessItemsStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // This list is application information, not the shop's public
-              // catalogue — those are marketplace listings, added after
-              // approval. Saying so here is what stops a seller filling this
-              // in and then hunting for their products in the marketplace.
+              // The server publishes these as the shop's listings when the
+              // business is approved; until then only the reviewer sees them.
               Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                 child: Text(
-                  s.itemsAreForReview,
+                  s.itemsPublishOnApproval,
                   style: context.textTheme.labelSmall?.copyWith(
                     color: colors.textMuted,
                   ),

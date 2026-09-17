@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/call/call_session.dart';
 import '../../../../core/state/load_state.dart';
+import '../../../astrologers/domain/entities/consult_channel.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/consultation.dart';
 import '../../domain/usecases/consultation_usecases.dart';
@@ -30,6 +32,8 @@ class LiveSessionCubit extends AppCubit<LiveSessionState> {
     required EndConsultation endConsultation,
     required CancelConsultation cancelConsultation,
     required GetSpendableBalance getBalance,
+    required GetCallCredentials getCallCredentials,
+    required CallSession callSession,
   }) : _id = consultationId,
        _get = getConsultation,
        _refresh = refreshConsultation,
@@ -38,7 +42,13 @@ class LiveSessionCubit extends AppCubit<LiveSessionState> {
        _end = endConsultation,
        _cancel = cancelConsultation,
        _getBalance = getBalance,
-       super(const LiveSessionState());
+       _getCallCredentials = getCallCredentials,
+       _call = callSession,
+       super(const LiveSessionState()) {
+    _callStates = _call.onState.listen((connection) {
+      if (!isClosed) emit(state.copyWith(callState: connection));
+    });
+  }
 
   final String _id;
   final GetConsultation _get;
@@ -48,6 +58,14 @@ class LiveSessionCubit extends AppCubit<LiveSessionState> {
   final EndConsultation _end;
   final CancelConsultation _cancel;
   final GetSpendableBalance _getBalance;
+  final GetCallCredentials _getCallCredentials;
+  final CallSession _call;
+
+  StreamSubscription<CallConnectionState>? _callStates;
+
+  /// True once a join has been attempted for this session, so a poll landing
+  /// mid-connect does not start a second one.
+  bool _joining = false;
 
   static const Duration tickInterval = Duration(seconds: 1);
   static const Duration pollInterval = Duration(seconds: 3);
@@ -108,8 +126,91 @@ class LiveSessionCubit extends AppCubit<LiveSessionState> {
       return;
     }
     if (state.consultation?.status == ConsultationStatus.active) {
+      await _joinCallIfNeeded();
       await _loadMessages();
     }
+  }
+
+  // --- The call itself ---------------------------------------------------
+
+  /// Joins the media room once the session is live.
+  ///
+  /// Driven by the session's own status rather than by opening the call
+  /// screen: the astrologer accepts, and only then is there a room to join —
+  /// and only then is anyone being charged.
+  Future<void> _joinCallIfNeeded() async {
+    final session = state.consultation;
+    if (session == null || session.channel == ConsultChannel.chat) return;
+    if (_joining || state.isCallLive) return;
+
+    _joining = true;
+    emit(
+      state.copyWith(
+        callState: CallConnectionState.connecting,
+        callError: null,
+      ),
+    );
+
+    final result = await _getCallCredentials(_id);
+    if (isClosed) {
+      _joining = false;
+      return;
+    }
+
+    await result.fold(
+      (failure) async {
+        emit(
+          state.copyWith(
+            callState: CallConnectionState.failed,
+            callError: failure.message,
+          ),
+        );
+      },
+      (credentials) async {
+        try {
+          await _call.connect(
+            url: credentials.url,
+            token: credentials.token,
+            video: session.channel == ConsultChannel.video,
+          );
+          if (isClosed) return;
+          // Whatever the controls were set to before the room existed — a mute
+          // tapped while connecting — is applied now that there is a room.
+          await _call.setMuted(state.muted);
+          if (session.channel == ConsultChannel.video) {
+            await _call.setCameraEnabled(state.cameraOn);
+          }
+        } on CallException catch (error) {
+          if (!isClosed) {
+            emit(
+              state.copyWith(
+                callState: CallConnectionState.failed,
+                callError: error.message,
+              ),
+            );
+          }
+        }
+      },
+    );
+    _joining = false;
+  }
+
+  /// The live media room, for the video view to attach renderers to.
+  ///
+  /// Untyped on the way through: the cubit has no business knowing which SDK
+  /// carries the call, and the one widget that draws video does.
+  Object? get mediaRoom => _call.mediaRoom;
+
+  /// Retries a join that failed — a refused permission that was then granted,
+  /// or a network that came back.
+  Future<void> retryCall() async {
+    if (state.isCallLive) return;
+    await _joinCallIfNeeded();
+  }
+
+  Future<void> _leaveCall() async {
+    _joining = false;
+    await _call.disconnect();
   }
 
   Future<void> _loadMessages() async {
@@ -120,7 +221,8 @@ class LiveSessionCubit extends AppCubit<LiveSessionState> {
       // screen spinning with nothing to explain it — the worst of both, since
       // the poller would have recovered on its own had anyone been told.
       // `toFailed` keeps whatever was already on screen.
-      (failure) => emit(state.copyWith(messages: state.messages.toFailed(failure))),
+      (failure) =>
+          emit(state.copyWith(messages: state.messages.toFailed(failure))),
       (messages) => emit(state.copyWith(messages: LoadState.loaded(messages))),
     );
   }
@@ -187,13 +289,29 @@ class LiveSessionCubit extends AppCubit<LiveSessionState> {
     );
   }
 
-  // --- Call controls (local UI state; no media stack yet) ---------------
+  // --- Call controls -----------------------------------------------------
+  //
+  // The state is emitted first so the button responds immediately, then the
+  // media stack is told. A toggle that waits for the microphone to actually
+  // stop feels broken on a slow device.
 
-  void toggleMute() => emit(state.copyWith(muted: !state.muted));
+  Future<void> toggleMute() async {
+    final muted = !state.muted;
+    emit(state.copyWith(muted: muted));
+    await _call.setMuted(muted);
+  }
 
-  void toggleSpeaker() => emit(state.copyWith(speakerOn: !state.speakerOn));
+  Future<void> toggleSpeaker() async {
+    final speakerOn = !state.speakerOn;
+    emit(state.copyWith(speakerOn: speakerOn));
+    await _call.setSpeakerOn(speakerOn);
+  }
 
-  void toggleCamera() => emit(state.copyWith(cameraOn: !state.cameraOn));
+  Future<void> toggleCamera() async {
+    final cameraOn = !state.cameraOn;
+    emit(state.copyWith(cameraOn: cameraOn));
+    await _call.setCameraEnabled(cameraOn);
+  }
 
   Future<Consultation?> end() async {
     emit(state.copyWith(ending: state.ending.toLoading()));
@@ -205,6 +323,10 @@ class LiveSessionCubit extends AppCubit<LiveSessionState> {
       },
       (session) {
         _stop();
+        // Leave the room before anything else: the session is settled, and a
+        // microphone still open on a finished call is both a privacy problem
+        // and the reason the other side hears a room nobody is paying for.
+        unawaited(_leaveCall());
         emit(
           state.copyWith(
             ending: LoadState.loaded(session),
@@ -220,14 +342,19 @@ class LiveSessionCubit extends AppCubit<LiveSessionState> {
     final result = await _cancel(_id);
     return result.fold((_) => null, (session) {
       _stop();
+      unawaited(_leaveCall());
       emit(state.copyWith(session: LoadState.loaded(session)));
       return session;
     });
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     _stop();
+    await _callStates?.cancel();
+    // Leaving the screen must release the microphone and camera, whether the
+    // session ended properly or the user simply navigated away.
+    await _leaveCall();
     return super.close();
   }
 }

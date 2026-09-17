@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sanathan_nepal_mobile_app/core/events/data_changes.dart';
 import 'package:sanathan_nepal_mobile_app/features/marketplace/domain/entities/order.dart';
 import 'package:sanathan_nepal_mobile_app/features/marketplace/presentation/cubit/checkout_cubit.dart';
 
@@ -63,5 +64,47 @@ void main() {
         expect((await stack.cart.getCart()).valueOrNull!.isEmpty, isTrue);
       },
     );
+
+    group('tells the order lists', () {
+      // Profile › Activities stays alive in the bottom bar and loaded before
+      // this order existed; without the signal the order never appeared there.
+      late DataChanges changes;
+      late List<DataTopic> announced;
+      setUp(() {
+        changes = DataChanges();
+        announced = [];
+        changes.stream.listen(announced.add);
+      });
+      tearDown(() => changes.dispose());
+
+      blocTest<CheckoutCubit, CheckoutState>(
+        'when an order is placed',
+        build: () => stack.checkoutCubit(changes: changes),
+        act: (c) async {
+          await c.load();
+          c.toggleAddressConfirmed(true);
+          await c.placeOrder(address: address);
+        },
+        wait: const Duration(milliseconds: 600),
+        verify: (c) {
+          expect(c.state.order.isLoaded, isTrue);
+          expect(announced, [DataTopic.orders]);
+        },
+      );
+
+      blocTest<CheckoutCubit, CheckoutState>(
+        'and says nothing when no order was placed',
+        build: () => stack.checkoutCubit(changes: changes),
+        act: (c) async {
+          await c.load();
+          // Address not confirmed: the order is never sent.
+          await c.placeOrder(address: address);
+        },
+        verify: (c) {
+          expect(c.state.order.isIdle, isTrue);
+          expect(announced, isEmpty);
+        },
+      );
+    });
   });
 }

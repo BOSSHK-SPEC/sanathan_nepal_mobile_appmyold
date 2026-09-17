@@ -58,9 +58,7 @@ void main() {
             count: 2,
             initialValues: const ['first'],
             builder: (context, controllers) => Column(
-              children: [
-                for (final c in controllers) TextField(controller: c),
-              ],
+              children: [for (final c in controllers) TextField(controller: c)],
             ),
           ),
         ),

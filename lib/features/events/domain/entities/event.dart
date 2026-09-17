@@ -104,6 +104,14 @@ abstract class Event with _$Event {
     @Default([]) List<ChecklistItem> checklist,
     EventReminder? reminder,
     @Default(EventRepeat.none) EventRepeat repeat,
+
+    /// Whether a yearly event recurs on its *traditional* date.
+    ///
+    /// A birthday recorded in Bikram Sambat comes round on its B.S. date,
+    /// which lands on a different Gregorian day each year. Stored by the
+    /// server and, until now, dropped on the way back — so a B.S. birthday
+    /// silently recurred on the Gregorian date instead.
+    @Default(false) bool useTraditionalDate,
   }) = _Event;
 
   EventGroup get group => category.group;
@@ -116,10 +124,66 @@ abstract class Event with _$Event {
   TraditionalDate traditionalDate(TraditionalCalendar calendar) =>
       calendar.fromGregorian(date);
 
-  /// Whole days between [from] (defaults to today) and the event date.
-  int daysLeft([DateTime? from]) {
+  /// When this event next happens, on or after [from].
+  ///
+  /// For a one-off this is simply [date]. For a yearly event it is this
+  /// year's occurrence, or next year's once today has passed — which is the
+  /// whole point: a birthday stored as `2000-02-03` is not an event in the
+  /// past, it is an event every February. Without this the upcoming filter
+  /// dropped every recurring event ever created, and `daysLeft` reported
+  /// thousands of days ago.
+  ///
+  /// [calendar] is required only for [useTraditionalDate] events; without it
+  /// they fall back to recurring on the Gregorian date, which is wrong by a
+  /// few days rather than wrong by decades.
+  DateTime nextOccurrence({DateTime? from, TraditionalCalendar? calendar}) {
     final now = from ?? DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    return DateTime(date.year, date.month, date.day).difference(today).inDays;
+    final start = DateTime(date.year, date.month, date.day);
+    if (repeat != EventRepeat.yearly || !start.isBefore(today)) return start;
+
+    if (useTraditionalDate && calendar != null) {
+      return _nextTraditional(calendar, today);
+    }
+    return _nextGregorian(today);
+  }
+
+  /// The anniversary in this calendar's own year, clamped to a month that may
+  /// be shorter — Bikram Sambat months vary in length between years, so the
+  /// 32nd of a month can simply not exist next year.
+  DateTime _nextTraditional(TraditionalCalendar calendar, DateTime today) {
+    final anniversary = calendar.fromGregorian(date);
+    var year = calendar.fromGregorian(today).year;
+
+    DateTime at(int y) {
+      final maxDay = calendar.daysInMonth(y, anniversary.month);
+      final day = anniversary.day > maxDay ? maxDay : anniversary.day;
+      return calendar.toGregorian(TraditionalDate(y, anniversary.month, day));
+    }
+
+    final thisYear = at(year);
+    return thisYear.isBefore(today) ? at(++year) : thisYear;
+  }
+
+  /// The same, in Gregorian years. The clamp matters here too: a 29 February
+  /// birthday has no date at all in three years out of four.
+  DateTime _nextGregorian(DateTime today) {
+    DateTime at(int year) {
+      final lastDay = DateTime(year, date.month + 1, 0).day;
+      return DateTime(year, date.month, date.day > lastDay ? lastDay : date.day);
+    }
+
+    final thisYear = at(today.year);
+    return thisYear.isBefore(today) ? at(today.year + 1) : thisYear;
+  }
+
+  /// Whole days between [from] (defaults to today) and the next occurrence.
+  int daysLeft([DateTime? from, TraditionalCalendar? calendar]) {
+    final now = from ?? DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return nextOccurrence(
+      from: today,
+      calendar: calendar,
+    ).difference(today).inDays;
   }
 }

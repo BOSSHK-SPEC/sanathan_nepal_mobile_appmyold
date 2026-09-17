@@ -265,6 +265,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuBecomeAstrologer => 'Become an astrologer';
 
   @override
+  String get menuAstrologerConsole => 'Astrologer console';
+
+  @override
   String get addAPhoto => 'Add a photo';
 
   @override
@@ -292,4 +295,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removePhoto => 'Remove photo';
+
+  @override
+  String get year => 'Year';
+
+  @override
+  String get month => 'Month';
+
+  @override
+  String get day => 'Day';
 }

@@ -9,8 +9,7 @@ import '../repositories/appointment_repository.dart';
 /// The wizard needs it as well as the per-date grid: opening on "tomorrow"
 /// lands on a day the astrologer does not work roughly two days in seven, and
 /// an empty grid on arrival reads as "nobody can book this person".
-class GetAstrologerCalendar
-    implements UseCase<List<AstrologerSlot>, String> {
+class GetAstrologerCalendar implements UseCase<List<AstrologerSlot>, String> {
   const GetAstrologerCalendar(this._repository);
 
   final AppointmentRepository _repository;

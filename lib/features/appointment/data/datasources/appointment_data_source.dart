@@ -34,7 +34,6 @@ abstract interface class AppointmentDataSource {
   Future<AppointmentModel> book(BookingRequest request);
   Future<AppointmentModel> cancel(String id);
   Future<AppointmentModel> reschedule(String id, DateTime date, String slotId);
-
 }
 
 /// Deterministic in-memory implementation. Seed appointments are created
@@ -199,7 +198,8 @@ class MockAppointmentDataSource implements AppointmentDataSource {
   ];
 
   @override
-  Future<List<BookableAstrologer>> fetchAstrologers() async => astrologersFor(_config);
+  Future<List<BookableAstrologer>> fetchAstrologers() async =>
+      astrologersFor(_config);
 
   @override
   Future<BookableAstrologer> fetchAstrologer(String id) async {
@@ -220,14 +220,20 @@ class MockAppointmentDataSource implements AppointmentDataSource {
     // injected clock, not the wall clock, so a test with a fixed `now` sees
     // the same fortnight the rest of the source does.
     final now = _now();
-    final start = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).add(const Duration(days: 1));
     return [
       for (var day = 0; day < 14; day += 1)
         if (start.add(Duration(days: day)).weekday <= 5)
           for (var slot = 0; slot < 6; slot += 1)
             AstrologerSlot(
               id: 'mock-slot-$astrologerId-$day-$slot',
-              startsAt: start.add(Duration(days: day, hours: 9, minutes: 35 * slot)),
+              startsAt: start.add(
+                Duration(days: day, hours: 9, minutes: 35 * slot),
+              ),
               endsAt: start.add(
                 Duration(days: day, hours: 9, minutes: 35 * slot + 30),
               ),
@@ -364,5 +370,4 @@ class MockAppointmentDataSource implements AppointmentDataSource {
     _appointments[index] = updated;
     return AppointmentModel.fromEntity(updated);
   }
-
 }

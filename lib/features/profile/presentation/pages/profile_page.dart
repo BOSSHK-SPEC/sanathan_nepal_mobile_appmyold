@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../session/presentation/cubit/session_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -48,6 +49,13 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   late int _tab = widget.initialTab;
 
+  Future<void> _refresh(BuildContext context) async {
+    await Future.wait([
+      context.read<ProfileCubit>().refresh(),
+      context.read<ActivityCubit>().load(),
+    ]);
+  }
+
   Future<void> _confirmLogout(BuildContext context) async {
     final s = ProfileStrings.of(context);
     final cubit = context.read<ProfileCubit>();
@@ -81,6 +89,9 @@ class _ProfileViewState extends State<ProfileView> {
       listener: (context, state) {
         switch (state.signOut) {
           case Loaded():
+            // The session still holds the account that just left — its name,
+            // its roles. Clear it before anything reads it, then go to sign-in.
+            context.read<SessionCubit>().clear();
             context.go(AppRoutes.login);
           case Failed(:final failure):
             ScaffoldMessenger.of(
@@ -104,62 +115,68 @@ class _ProfileViewState extends State<ProfileView> {
                 _ => const LoadingView(),
               };
             }
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  ProfileHeader(
-                    profile: profile,
-                    onEdit: () async {
-                      await context.push(AppRoutes.editProfile);
-                      if (context.mounted) {
-                        await context.read<ProfileCubit>().refresh();
-                      }
-                    },
-                    onLogout: () => _confirmLogout(context),
-                    onNotifications: () => setState(() => _tab = 2),
-                  ),
-                  // Only renders for accounts that hold the astrologer role.
-                  const RoleSwitchBanner(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.md,
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.all(AppSpacing.xs),
-                      decoration: BoxDecoration(
-                        color: context.isDark
-                            ? colors.surfaceVariant
-                            : colors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                      ),
-                      child: PillTabs(
-                        labels: [
-                          s.about,
-                          s.activities,
-                          s.notifications,
-                          s.links,
-                        ],
-                        selectedIndex: _tab,
-                        scrollable: true,
-                        onChanged: (i) => setState(() => _tab = i),
-                      ),
-                    ),
-                  ),
-                  switch (_tab) {
-                    0 => ProfileAboutTab(
+            // Pull to refresh: the Profile tab stays alive, so what it shows
+            // can be older than the account — a manual way to catch up.
+            return RefreshIndicator(
+              onRefresh: () => _refresh(context),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    ProfileHeader(
                       profile: profile,
-                      favourites: state.favourites.dataOrNull ?? const [],
+                      onEdit: () async {
+                        await context.push(AppRoutes.editProfile);
+                        if (context.mounted) {
+                          await context.read<ProfileCubit>().refresh();
+                        }
+                      },
+                      onLogout: () => _confirmLogout(context),
+                      onNotifications: () => setState(() => _tab = 2),
                     ),
-                    1 => const ProfileActivitiesTab(),
-                    2 => const ProfileNotificationsTab(),
-                    _ => ProfileLinksTab(
-                      isAdmin: profile.isAdmin,
-                      onDeleteAccount: () => _confirmDelete(context),
+                    // Only renders for accounts that hold the astrologer role.
+                    const RoleSwitchBanner(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.md,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(AppSpacing.xs),
+                        decoration: BoxDecoration(
+                          color: context.isDark
+                              ? colors.surfaceVariant
+                              : colors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                        ),
+                        child: PillTabs(
+                          labels: [
+                            s.about,
+                            s.activities,
+                            s.notifications,
+                            s.links,
+                          ],
+                          selectedIndex: _tab,
+                          scrollable: true,
+                          onChanged: (i) => setState(() => _tab = i),
+                        ),
+                      ),
                     ),
-                  },
-                  const SizedBox(height: AppSpacing.xxl),
-                ],
+                    switch (_tab) {
+                      0 => ProfileAboutTab(
+                        profile: profile,
+                        favourites: state.favourites.dataOrNull ?? const [],
+                      ),
+                      1 => const ProfileActivitiesTab(),
+                      2 => const ProfileNotificationsTab(),
+                      _ => ProfileLinksTab(
+                        isAdmin: profile.isAdmin,
+                        onDeleteAccount: () => _confirmDelete(context),
+                      ),
+                    },
+                    const SizedBox(height: AppSpacing.xxl),
+                  ],
+                ),
               ),
             );
           },

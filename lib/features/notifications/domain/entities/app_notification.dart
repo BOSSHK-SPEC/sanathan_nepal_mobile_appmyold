@@ -10,7 +10,16 @@ enum NotificationType {
   festival,
   birthday,
   order,
-  appointment;
+  appointment,
+
+  /// A chat message from a shop or an astrologer.
+  message,
+
+  /// A consultation: requested, accepted, or starting now.
+  consultation,
+
+  /// Wallet credit, a refund, or a payout.
+  wallet;
 
   static NotificationType fromName(String? name) => values.firstWhere(
     (t) => t.name == name,

@@ -34,8 +34,9 @@ class CartRepositoryImpl implements CartRepository {
   );
 
   @override
-  Future<Result<Cart>> updateQuantity(String productId, int quantity) =>
-      guard(() async => (await _source.setQuantity(productId, quantity)).toEntity());
+  Future<Result<Cart>> updateQuantity(String productId, int quantity) => guard(
+    () async => (await _source.setQuantity(productId, quantity)).toEntity(),
+  );
 
   @override
   Future<Result<Cart>> removeItem(String productId) =>

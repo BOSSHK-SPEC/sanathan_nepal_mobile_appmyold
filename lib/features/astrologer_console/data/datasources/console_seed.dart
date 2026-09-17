@@ -2,8 +2,11 @@ import 'dart:math';
 
 import '../../../astrologers/domain/entities/astrologer_review.dart';
 import '../../../astrologers/domain/entities/consult_channel.dart';
+import '../../../../core/utils/localized_text.dart';
+import '../../../consultation/domain/entities/session_summary.dart';
 import '../../domain/entities/astrologer_client.dart';
 import '../../domain/entities/availability.dart';
+import '../../domain/entities/console_appointment.dart';
 import '../../domain/entities/console_pricing.dart';
 import '../../domain/entities/earnings.dart';
 import '../../domain/entities/payout.dart';
@@ -247,6 +250,126 @@ abstract final class ConsoleSeed {
         createdAt: now.subtract(const Duration(days: 12)),
         reply: 'Thank you Gita. Always good to speak with you.',
         repliedAt: now.subtract(const Duration(days: 11)),
+      ),
+    ];
+  }
+
+  /// The diary: two sittings coming up, two already over.
+  static List<ConsoleAppointment> appointments({
+    double scale = 1,
+    String currency = 'NPR',
+    DateTime? now,
+  }) {
+    final today = now ?? DateTime.now();
+    DateTime at(int days, int hour, [int minute = 0]) =>
+        DateTime(today.year, today.month, today.day + days, hour, minute);
+    return [
+      ConsoleAppointment(
+        id: 'ap-1',
+        reference: 'AP-X6KBDJ8DT',
+        status: ConsoleAppointmentStatus.confirmed,
+        startsAt: at(1, 10),
+        endsAt: at(1, 10, 30),
+        price: 1500 * scale,
+        currency: currency,
+        paymentMethod: 'esewa',
+        clientId: 'c1',
+        clientName: 'Sabina K.',
+        clientPhone: '9841000001',
+        clientEmail: 'sabina@example.com',
+        country: 'Nepal',
+        birthDate: '1994-03-12',
+        birthTime: '06:20',
+        birthPlace: 'Kathmandu',
+        note: 'Career questions — a job offer abroad.',
+        hasBirthChart: true,
+      ),
+      ConsoleAppointment(
+        id: 'ap-2',
+        reference: 'AP-X7MQ2C4LB',
+        status: ConsoleAppointmentStatus.confirmed,
+        startsAt: at(3, 17),
+        endsAt: at(3, 17, 30),
+        price: 3000 * scale,
+        currency: currency,
+        quantity: 2,
+        paymentMethod: 'cashOnDelivery',
+        clientId: 'c2',
+        clientName: 'Rajan M.',
+        clientPhone: '9851000002',
+        country: 'Nepal',
+      ),
+      ConsoleAppointment(
+        id: 'ap-3',
+        reference: 'AP-X5ORK4GEA',
+        status: ConsoleAppointmentStatus.completed,
+        startsAt: at(-2, 11),
+        endsAt: at(-2, 11, 30),
+        price: 1500 * scale,
+        currency: currency,
+        clientId: 'c3',
+        clientName: 'Gita P.',
+        country: 'Nepal',
+        birthDate: '1979-11-19',
+        birthPlace: 'Butwal',
+      ),
+      ConsoleAppointment(
+        id: 'cs-1',
+        reference: '',
+        kind: ConsoleAppointmentKind.consultation,
+        channel: 'chat',
+        status: ConsoleAppointmentStatus.completed,
+        startsAt: at(0, 9),
+        endsAt: at(0, 9, 18),
+        price: 540 * scale,
+        currency: currency,
+        paymentMethod: 'wallet',
+        clientId: 'c6',
+        clientName: 'Bina R.',
+        note: 'Will the move work out?',
+        birthPlace: 'Kathmandu',
+        adviceNotes:
+            'Saturn transit until Magh — steady work, no big moves. '
+            'Revisit the move after the follow-up.',
+        remedies: [
+          Remedy(
+            kind: RemedyKind.gemstone,
+            title: LocalizedText.same('Blue sapphire'),
+            description: LocalizedText.same('Wear on a Saturday morning.'),
+          ),
+          Remedy(
+            kind: RemedyKind.mantra,
+            title: LocalizedText.same('Shani mantra, 108 times'),
+            description: LocalizedText.same('Every Saturday, facing west.'),
+          ),
+        ],
+        followUpAt: at(21, 9),
+      ),
+      ConsoleAppointment(
+        id: 'cs-2',
+        reference: '',
+        kind: ConsoleAppointmentKind.consultation,
+        channel: 'video',
+        status: ConsoleAppointmentStatus.missed,
+        startsAt: at(-1, 20),
+        endsAt: at(-1, 20),
+        price: 0,
+        currency: currency,
+        clientId: 'c5',
+        clientName: 'Nabin T.',
+      ),
+      ConsoleAppointment(
+        id: 'ap-4',
+        reference: 'AP-X4NQ8HD2A',
+        status: ConsoleAppointmentStatus.cancelled,
+        startsAt: at(-5, 15),
+        endsAt: at(-5, 15, 30),
+        price: 1500 * scale,
+        currency: currency,
+        clientId: 'c4',
+        clientName: 'Amrit S.',
+        country: 'Nepal',
+        cancelReason: 'Changed plans',
       ),
     ];
   }

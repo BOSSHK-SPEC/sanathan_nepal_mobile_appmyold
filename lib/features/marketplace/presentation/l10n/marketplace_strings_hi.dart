@@ -247,6 +247,8 @@ class _Hi extends MarketplaceStrings {
   @override
   String get invalidPhone => 'मान्य फ़ोन नंबर दर्ज करें';
   @override
+  String get invalidWebsite => 'वेब पता दर्ज करें, जैसे example.com';
+  @override
   String get productDetails => 'उत्पाद विवरण';
   @override
   String get description => 'विवरण';
@@ -464,7 +466,8 @@ class _Hi extends MarketplaceStrings {
   String get addPhoto => 'फ़ोटो जोड़ें';
 
   @override
-  String get photosOptional => 'वैकल्पिक — बिना फ़ोटो वाली लिस्टिंग पर श्रेणी आइकन दिखेगा';
+  String get photosOptional =>
+      'वैकल्पिक — बिना फ़ोटो वाली लिस्टिंग पर श्रेणी आइकन दिखेगा';
 
   @override
   String get removeAllPhotos => 'सभी हटाएँ';

@@ -16,10 +16,7 @@ void main() {
         sampleProduct(id: 'b', price: 250),
         selectedOptions: const {'Size': 'M'},
       );
-      expect(
-        store.getString(CartLocalDataSource.storageKey),
-        contains('"a"'),
-      );
+      expect(store.getString(CartLocalDataSource.storageKey), contains('"a"'));
 
       // Fresh repository over the same store → data survives.
       final reloaded = await CartRepositoryImpl(

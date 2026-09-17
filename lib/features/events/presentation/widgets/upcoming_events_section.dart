@@ -7,6 +7,7 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../../../core/widgets/section_chevron_button.dart';
 import '../../domain/entities/event.dart';
 import '../cubit/upcoming_events_cubit.dart';
 import '../l10n/events_strings.dart';
@@ -94,8 +95,9 @@ class _SectionBody extends StatelessWidget {
                   onChanged: (i) => cubit.selectScope(UpcomingScope.values[i]),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Container(width: 16, height: 2, color: colors.accent),
+              // A `>` rather than the accent rule, matching Panchanga: the rule
+              // read as decoration, so nobody found the Events page behind it.
+              SectionChevronButton(onPressed: onSeeAll),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),

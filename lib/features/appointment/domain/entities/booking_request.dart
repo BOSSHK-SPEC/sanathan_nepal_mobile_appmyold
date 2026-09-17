@@ -14,6 +14,7 @@ abstract class BookingRequest with _$BookingRequest {
     /// astrologer who is offline can still be booked for later — which is what
     /// the profile now offers instead of a button that led to a 404.
     @Default('') String astrologerId,
+
     /// Which channel the sitting is held on (`chat` / `voice` / `video`) —
     /// the id of the chosen [SittingOption]. It decides the price, so an empty
     /// one lets the server fall back to the astrologer's chat rate.

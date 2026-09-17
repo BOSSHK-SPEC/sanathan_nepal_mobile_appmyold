@@ -78,6 +78,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(DateDetailSheet), findsOneWidget);
     expect(find.text('पञ्चाङ्ग'), findsOneWidget);
+    // Mock mode has only the on-device estimate: the popup says so, and it
+    // never makes up auspicious times from the tithi.
+    expect(find.textContaining('अनुमानित मान'), findsOneWidget);
+    expect(find.text('पास्नी गर्ने साइत'), findsNothing);
+    expect(find.text('बिवाह गर्ने साइत'), findsNothing);
   });
 
   testWidgets('MonthCalendarView compact embeds standalone (English)', (

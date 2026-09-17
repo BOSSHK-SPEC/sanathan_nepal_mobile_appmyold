@@ -6,6 +6,7 @@ import '../../domain/entities/compliance_notice.dart';
 import '../../domain/entities/work_preferences.dart';
 import '../../domain/entities/boost.dart';
 import '../../domain/entities/availability.dart';
+import '../../domain/entities/console_appointment.dart';
 import '../../domain/entities/console_pricing.dart';
 import '../../domain/entities/console_stats.dart';
 import '../../domain/entities/earnings.dart';
@@ -43,6 +44,20 @@ abstract interface class ConsoleDataSource {
   Future<AstrologerClient> saveClientNotes({
     required String clientId,
     required String notes,
+  });
+
+  /// Sittings seekers booked with this astrologer.
+  Future<List<ConsoleAppointment>> appointments(AppointmentScope scope);
+
+  /// One appointment, with links to what the client attached.
+  Future<ConsoleAppointment> appointment(String id);
+  Future<ConsoleAppointment> recordAppointmentOutcome(
+    String id, {
+    required bool completed,
+  });
+  Future<ConsoleAppointment> cancelAppointment(
+    String id, {
+    required String reason,
   });
 
   Future<EarningsSummary> earnings(EarningsRange range);

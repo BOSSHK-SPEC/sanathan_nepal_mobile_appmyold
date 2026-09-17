@@ -587,7 +587,12 @@ as bool,
 /// @nodoc
 mixin _$EventModel {
 
- String get id; LocalizedTextModel get title; DateTime get date;@JsonKey(unknownEnumValue: EventCategory.personal) EventCategory get category; LocalizedTextModel get description; EventTimeModel? get time; bool get isHoliday; bool get isVrat; bool get isImportant; String? get imagePath; LocalizedTextModel get location; LocalizedTextModel get tithi; LocalizedTextModel get howToCelebrate; LocalizedTextModel get attractionPlaces; String? get videoUrl; List<ChecklistItemModel> get checklist; EventReminderModel? get reminder;@JsonKey(unknownEnumValue: EventRepeat.none) EventRepeat get repeat;
+ String get id; LocalizedTextModel get title; DateTime get date;@JsonKey(unknownEnumValue: EventCategory.personal) EventCategory get category; LocalizedTextModel get description; EventTimeModel? get time; bool get isHoliday; bool get isVrat; bool get isImportant; String? get imagePath; LocalizedTextModel get location; LocalizedTextModel get tithi; LocalizedTextModel get howToCelebrate; LocalizedTextModel get attractionPlaces; String? get videoUrl; List<ChecklistItemModel> get checklist; EventReminderModel? get reminder;@JsonKey(unknownEnumValue: EventRepeat.none) EventRepeat get repeat;/// Whether a yearly event recurs on its traditional (B.S. / Saka) date.
+///
+/// The server has always stored this; the app sent it and then dropped it
+/// on the way back, so a birthday entered in Bikram Sambat came home
+/// recurring on the Gregorian date instead.
+ bool get useTraditionalDate;
 /// Create a copy of EventModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -600,16 +605,16 @@ $EventModelCopyWith<EventModel> get copyWith => _$EventModelCopyWithImpl<EventMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.time, time) || other.time == time)&&(identical(other.isHoliday, isHoliday) || other.isHoliday == isHoliday)&&(identical(other.isVrat, isVrat) || other.isVrat == isVrat)&&(identical(other.isImportant, isImportant) || other.isImportant == isImportant)&&(identical(other.imagePath, imagePath) || other.imagePath == imagePath)&&(identical(other.location, location) || other.location == location)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.howToCelebrate, howToCelebrate) || other.howToCelebrate == howToCelebrate)&&(identical(other.attractionPlaces, attractionPlaces) || other.attractionPlaces == attractionPlaces)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&const DeepCollectionEquality().equals(other.checklist, checklist)&&(identical(other.reminder, reminder) || other.reminder == reminder)&&(identical(other.repeat, repeat) || other.repeat == repeat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.time, time) || other.time == time)&&(identical(other.isHoliday, isHoliday) || other.isHoliday == isHoliday)&&(identical(other.isVrat, isVrat) || other.isVrat == isVrat)&&(identical(other.isImportant, isImportant) || other.isImportant == isImportant)&&(identical(other.imagePath, imagePath) || other.imagePath == imagePath)&&(identical(other.location, location) || other.location == location)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.howToCelebrate, howToCelebrate) || other.howToCelebrate == howToCelebrate)&&(identical(other.attractionPlaces, attractionPlaces) || other.attractionPlaces == attractionPlaces)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&const DeepCollectionEquality().equals(other.checklist, checklist)&&(identical(other.reminder, reminder) || other.reminder == reminder)&&(identical(other.repeat, repeat) || other.repeat == repeat)&&(identical(other.useTraditionalDate, useTraditionalDate) || other.useTraditionalDate == useTraditionalDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,date,category,description,time,isHoliday,isVrat,isImportant,imagePath,location,tithi,howToCelebrate,attractionPlaces,videoUrl,const DeepCollectionEquality().hash(checklist),reminder,repeat);
+int get hashCode => Object.hashAll([runtimeType,id,title,date,category,description,time,isHoliday,isVrat,isImportant,imagePath,location,tithi,howToCelebrate,attractionPlaces,videoUrl,const DeepCollectionEquality().hash(checklist),reminder,repeat,useTraditionalDate]);
 
 @override
 String toString() {
-  return 'EventModel(id: $id, title: $title, date: $date, category: $category, description: $description, time: $time, isHoliday: $isHoliday, isVrat: $isVrat, isImportant: $isImportant, imagePath: $imagePath, location: $location, tithi: $tithi, howToCelebrate: $howToCelebrate, attractionPlaces: $attractionPlaces, videoUrl: $videoUrl, checklist: $checklist, reminder: $reminder, repeat: $repeat)';
+  return 'EventModel(id: $id, title: $title, date: $date, category: $category, description: $description, time: $time, isHoliday: $isHoliday, isVrat: $isVrat, isImportant: $isImportant, imagePath: $imagePath, location: $location, tithi: $tithi, howToCelebrate: $howToCelebrate, attractionPlaces: $attractionPlaces, videoUrl: $videoUrl, checklist: $checklist, reminder: $reminder, repeat: $repeat, useTraditionalDate: $useTraditionalDate)';
 }
 
 
@@ -620,7 +625,7 @@ abstract mixin class $EventModelCopyWith<$Res>  {
   factory $EventModelCopyWith(EventModel value, $Res Function(EventModel) _then) = _$EventModelCopyWithImpl;
 @useResult
 $Res call({
- String id, LocalizedTextModel title, DateTime date,@JsonKey(unknownEnumValue: EventCategory.personal) EventCategory category, LocalizedTextModel description, EventTimeModel? time, bool isHoliday, bool isVrat, bool isImportant, String? imagePath, LocalizedTextModel location, LocalizedTextModel tithi, LocalizedTextModel howToCelebrate, LocalizedTextModel attractionPlaces, String? videoUrl, List<ChecklistItemModel> checklist, EventReminderModel? reminder,@JsonKey(unknownEnumValue: EventRepeat.none) EventRepeat repeat
+ String id, LocalizedTextModel title, DateTime date,@JsonKey(unknownEnumValue: EventCategory.personal) EventCategory category, LocalizedTextModel description, EventTimeModel? time, bool isHoliday, bool isVrat, bool isImportant, String? imagePath, LocalizedTextModel location, LocalizedTextModel tithi, LocalizedTextModel howToCelebrate, LocalizedTextModel attractionPlaces, String? videoUrl, List<ChecklistItemModel> checklist, EventReminderModel? reminder,@JsonKey(unknownEnumValue: EventRepeat.none) EventRepeat repeat, bool useTraditionalDate
 });
 
 
@@ -637,7 +642,7 @@ class _$EventModelCopyWithImpl<$Res>
 
 /// Create a copy of EventModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? date = null,Object? category = null,Object? description = null,Object? time = freezed,Object? isHoliday = null,Object? isVrat = null,Object? isImportant = null,Object? imagePath = freezed,Object? location = null,Object? tithi = null,Object? howToCelebrate = null,Object? attractionPlaces = null,Object? videoUrl = freezed,Object? checklist = null,Object? reminder = freezed,Object? repeat = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? date = null,Object? category = null,Object? description = null,Object? time = freezed,Object? isHoliday = null,Object? isVrat = null,Object? isImportant = null,Object? imagePath = freezed,Object? location = null,Object? tithi = null,Object? howToCelebrate = null,Object? attractionPlaces = null,Object? videoUrl = freezed,Object? checklist = null,Object? reminder = freezed,Object? repeat = null,Object? useTraditionalDate = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -657,7 +662,8 @@ as LocalizedTextModel,videoUrl: freezed == videoUrl ? _self.videoUrl : videoUrl 
 as String?,checklist: null == checklist ? _self.checklist : checklist // ignore: cast_nullable_to_non_nullable
 as List<ChecklistItemModel>,reminder: freezed == reminder ? _self.reminder : reminder // ignore: cast_nullable_to_non_nullable
 as EventReminderModel?,repeat: null == repeat ? _self.repeat : repeat // ignore: cast_nullable_to_non_nullable
-as EventRepeat,
+as EventRepeat,useTraditionalDate: null == useTraditionalDate ? _self.useTraditionalDate : useTraditionalDate // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of EventModel
@@ -747,7 +753,7 @@ $EventReminderModelCopyWith<$Res>? get reminder {
 @JsonSerializable()
 
 class _EventModel extends EventModel {
-  const _EventModel({required this.id, required this.title, required this.date, @JsonKey(unknownEnumValue: EventCategory.personal) required this.category, this.description = const LocalizedTextModel(), this.time, this.isHoliday = false, this.isVrat = false, this.isImportant = false, this.imagePath, this.location = const LocalizedTextModel(), this.tithi = const LocalizedTextModel(), this.howToCelebrate = const LocalizedTextModel(), this.attractionPlaces = const LocalizedTextModel(), this.videoUrl, final  List<ChecklistItemModel> checklist = const [], this.reminder, @JsonKey(unknownEnumValue: EventRepeat.none) this.repeat = EventRepeat.none}): _checklist = checklist,super._();
+  const _EventModel({required this.id, required this.title, required this.date, @JsonKey(unknownEnumValue: EventCategory.personal) required this.category, this.description = const LocalizedTextModel(), this.time, this.isHoliday = false, this.isVrat = false, this.isImportant = false, this.imagePath, this.location = const LocalizedTextModel(), this.tithi = const LocalizedTextModel(), this.howToCelebrate = const LocalizedTextModel(), this.attractionPlaces = const LocalizedTextModel(), this.videoUrl, final  List<ChecklistItemModel> checklist = const [], this.reminder, @JsonKey(unknownEnumValue: EventRepeat.none) this.repeat = EventRepeat.none, this.useTraditionalDate = false}): _checklist = checklist,super._();
   factory _EventModel.fromJson(Map<String, dynamic> json) => _$EventModelFromJson(json);
 
 @override final  String id;
@@ -774,6 +780,12 @@ class _EventModel extends EventModel {
 
 @override final  EventReminderModel? reminder;
 @override@JsonKey(unknownEnumValue: EventRepeat.none) final  EventRepeat repeat;
+/// Whether a yearly event recurs on its traditional (B.S. / Saka) date.
+///
+/// The server has always stored this; the app sent it and then dropped it
+/// on the way back, so a birthday entered in Bikram Sambat came home
+/// recurring on the Gregorian date instead.
+@override@JsonKey() final  bool useTraditionalDate;
 
 /// Create a copy of EventModel
 /// with the given fields replaced by the non-null parameter values.
@@ -788,16 +800,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.time, time) || other.time == time)&&(identical(other.isHoliday, isHoliday) || other.isHoliday == isHoliday)&&(identical(other.isVrat, isVrat) || other.isVrat == isVrat)&&(identical(other.isImportant, isImportant) || other.isImportant == isImportant)&&(identical(other.imagePath, imagePath) || other.imagePath == imagePath)&&(identical(other.location, location) || other.location == location)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.howToCelebrate, howToCelebrate) || other.howToCelebrate == howToCelebrate)&&(identical(other.attractionPlaces, attractionPlaces) || other.attractionPlaces == attractionPlaces)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&const DeepCollectionEquality().equals(other._checklist, _checklist)&&(identical(other.reminder, reminder) || other.reminder == reminder)&&(identical(other.repeat, repeat) || other.repeat == repeat));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.date, date) || other.date == date)&&(identical(other.category, category) || other.category == category)&&(identical(other.description, description) || other.description == description)&&(identical(other.time, time) || other.time == time)&&(identical(other.isHoliday, isHoliday) || other.isHoliday == isHoliday)&&(identical(other.isVrat, isVrat) || other.isVrat == isVrat)&&(identical(other.isImportant, isImportant) || other.isImportant == isImportant)&&(identical(other.imagePath, imagePath) || other.imagePath == imagePath)&&(identical(other.location, location) || other.location == location)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.howToCelebrate, howToCelebrate) || other.howToCelebrate == howToCelebrate)&&(identical(other.attractionPlaces, attractionPlaces) || other.attractionPlaces == attractionPlaces)&&(identical(other.videoUrl, videoUrl) || other.videoUrl == videoUrl)&&const DeepCollectionEquality().equals(other._checklist, _checklist)&&(identical(other.reminder, reminder) || other.reminder == reminder)&&(identical(other.repeat, repeat) || other.repeat == repeat)&&(identical(other.useTraditionalDate, useTraditionalDate) || other.useTraditionalDate == useTraditionalDate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,date,category,description,time,isHoliday,isVrat,isImportant,imagePath,location,tithi,howToCelebrate,attractionPlaces,videoUrl,const DeepCollectionEquality().hash(_checklist),reminder,repeat);
+int get hashCode => Object.hashAll([runtimeType,id,title,date,category,description,time,isHoliday,isVrat,isImportant,imagePath,location,tithi,howToCelebrate,attractionPlaces,videoUrl,const DeepCollectionEquality().hash(_checklist),reminder,repeat,useTraditionalDate]);
 
 @override
 String toString() {
-  return 'EventModel(id: $id, title: $title, date: $date, category: $category, description: $description, time: $time, isHoliday: $isHoliday, isVrat: $isVrat, isImportant: $isImportant, imagePath: $imagePath, location: $location, tithi: $tithi, howToCelebrate: $howToCelebrate, attractionPlaces: $attractionPlaces, videoUrl: $videoUrl, checklist: $checklist, reminder: $reminder, repeat: $repeat)';
+  return 'EventModel(id: $id, title: $title, date: $date, category: $category, description: $description, time: $time, isHoliday: $isHoliday, isVrat: $isVrat, isImportant: $isImportant, imagePath: $imagePath, location: $location, tithi: $tithi, howToCelebrate: $howToCelebrate, attractionPlaces: $attractionPlaces, videoUrl: $videoUrl, checklist: $checklist, reminder: $reminder, repeat: $repeat, useTraditionalDate: $useTraditionalDate)';
 }
 
 
@@ -808,7 +820,7 @@ abstract mixin class _$EventModelCopyWith<$Res> implements $EventModelCopyWith<$
   factory _$EventModelCopyWith(_EventModel value, $Res Function(_EventModel) _then) = __$EventModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, LocalizedTextModel title, DateTime date,@JsonKey(unknownEnumValue: EventCategory.personal) EventCategory category, LocalizedTextModel description, EventTimeModel? time, bool isHoliday, bool isVrat, bool isImportant, String? imagePath, LocalizedTextModel location, LocalizedTextModel tithi, LocalizedTextModel howToCelebrate, LocalizedTextModel attractionPlaces, String? videoUrl, List<ChecklistItemModel> checklist, EventReminderModel? reminder,@JsonKey(unknownEnumValue: EventRepeat.none) EventRepeat repeat
+ String id, LocalizedTextModel title, DateTime date,@JsonKey(unknownEnumValue: EventCategory.personal) EventCategory category, LocalizedTextModel description, EventTimeModel? time, bool isHoliday, bool isVrat, bool isImportant, String? imagePath, LocalizedTextModel location, LocalizedTextModel tithi, LocalizedTextModel howToCelebrate, LocalizedTextModel attractionPlaces, String? videoUrl, List<ChecklistItemModel> checklist, EventReminderModel? reminder,@JsonKey(unknownEnumValue: EventRepeat.none) EventRepeat repeat, bool useTraditionalDate
 });
 
 
@@ -825,7 +837,7 @@ class __$EventModelCopyWithImpl<$Res>
 
 /// Create a copy of EventModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? date = null,Object? category = null,Object? description = null,Object? time = freezed,Object? isHoliday = null,Object? isVrat = null,Object? isImportant = null,Object? imagePath = freezed,Object? location = null,Object? tithi = null,Object? howToCelebrate = null,Object? attractionPlaces = null,Object? videoUrl = freezed,Object? checklist = null,Object? reminder = freezed,Object? repeat = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? date = null,Object? category = null,Object? description = null,Object? time = freezed,Object? isHoliday = null,Object? isVrat = null,Object? isImportant = null,Object? imagePath = freezed,Object? location = null,Object? tithi = null,Object? howToCelebrate = null,Object? attractionPlaces = null,Object? videoUrl = freezed,Object? checklist = null,Object? reminder = freezed,Object? repeat = null,Object? useTraditionalDate = null,}) {
   return _then(_EventModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -845,7 +857,8 @@ as LocalizedTextModel,videoUrl: freezed == videoUrl ? _self.videoUrl : videoUrl 
 as String?,checklist: null == checklist ? _self._checklist : checklist // ignore: cast_nullable_to_non_nullable
 as List<ChecklistItemModel>,reminder: freezed == reminder ? _self.reminder : reminder // ignore: cast_nullable_to_non_nullable
 as EventReminderModel?,repeat: null == repeat ? _self.repeat : repeat // ignore: cast_nullable_to_non_nullable
-as EventRepeat,
+as EventRepeat,useTraditionalDate: null == useTraditionalDate ? _self.useTraditionalDate : useTraditionalDate // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -113,19 +113,22 @@ void main() {
     expect(categories.single.id, isNot('poojaSamagri'));
   });
 
-  test('the repository reads categories from its source, not a constant', () async {
-    final repo = ProductRepositoryImpl(source);
+  test(
+    'the repository reads categories from its source, not a constant',
+    () async {
+      final repo = ProductRepositoryImpl(source);
 
-    final result = await repo.getCategories();
+      final result = await repo.getCategories();
 
-    expect(result.valueOrNull?.single.id, '01M1RFR5GRB0SB48F866ASY6ZG');
-    // Proves the call actually went out — the old implementation returned a
-    // hardcoded list and never touched the data source at all.
-    expect(
-      adapter.requests.map((r) => r.path),
-      contains(contains('categories')),
-    );
-  });
+      expect(result.valueOrNull?.single.id, '01M1RFR5GRB0SB48F866ASY6ZG');
+      // Proves the call actually went out — the old implementation returned a
+      // hardcoded list and never touched the data source at all.
+      expect(
+        adapter.requests.map((r) => r.path),
+        contains(contains('categories')),
+      );
+    },
+  );
 
   test('the mock source still serves the bundled catalogue offline', () async {
     final repo = ProductRepositoryImpl(

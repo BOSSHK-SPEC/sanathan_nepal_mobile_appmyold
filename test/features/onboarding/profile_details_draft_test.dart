@@ -32,7 +32,10 @@ void main() {
     await progress.saveDetailsDraft(
       const UserProfileDraft(fullName: 'Sita', gender: Gender.female),
     );
-    final cubit = ProfileDetailsCubit(submitProfile: submit, progress: progress);
+    final cubit = ProfileDetailsCubit(
+      submitProfile: submit,
+      progress: progress,
+    );
     expect(cubit.state.draft.fullName, 'Sita');
     expect(cubit.state.draft.gender, Gender.female);
     await cubit.close();
@@ -57,7 +60,9 @@ void main() {
   });
 
   test('an accepted profile forgets the draft', () async {
-    when(() => submit(any())).thenAnswer((_) async => const Result.success(null));
+    when(
+      () => submit(any()),
+    ).thenAnswer((_) async => const Result.success(null));
     await progress.saveDetailsDraft(
       UserProfileDraft(
         fullName: 'Sita',
@@ -65,17 +70,24 @@ void main() {
         gender: Gender.female,
       ),
     );
-    final cubit = ProfileDetailsCubit(submitProfile: submit, progress: progress);
+    final cubit = ProfileDetailsCubit(
+      submitProfile: submit,
+      progress: progress,
+    );
     await cubit.submit();
     expect(progress.detailsDraft, isNull);
     await cubit.close();
-    expect(progress.detailsDraft, isNull, reason: 'close must not resurrect it');
+    expect(
+      progress.detailsDraft,
+      isNull,
+      reason: 'close must not resurrect it',
+    );
   });
 
   test('a rejected profile keeps the draft for the retry', () async {
-    when(() => submit(any())).thenAnswer(
-      (_) async => const Result.failure(NetworkFailure('offline')),
-    );
+    when(
+      () => submit(any()),
+    ).thenAnswer((_) async => const Result.failure(NetworkFailure('offline')));
     final cubit = ProfileDetailsCubit(submitProfile: submit, progress: progress)
       ..setFullName('Sita');
     await cubit.submit();
@@ -85,9 +97,9 @@ void main() {
   });
 
   test('surrounding spaces never reach the server', () async {
-    when(() => submit(any())).thenAnswer(
-      (_) async => const Result.failure(NetworkFailure('offline')),
-    );
+    when(
+      () => submit(any()),
+    ).thenAnswer((_) async => const Result.failure(NetworkFailure('offline')));
     final cubit = ProfileDetailsCubit(submitProfile: submit)
       ..setFullName('  Sita Sharma ')
       ..setEmail('   ')

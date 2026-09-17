@@ -18,7 +18,10 @@ class UpdateUserProfile implements UseCase<UserProfile, UserProfile> {
         const Result.failure(ValidationFailure('Name is required')),
       );
     }
-    if (!_email.hasMatch(params.email.trim())) {
+    // Email is optional — phone-first accounts have none — but one that was
+    // entered must be a real address.
+    final email = params.email.trim();
+    if (email.isNotEmpty && !_email.hasMatch(email)) {
       return Future.value(
         const Result.failure(ValidationFailure('Enter a valid email')),
       );

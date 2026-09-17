@@ -6,22 +6,28 @@ import '../../domain/entities/calendar_day.dart';
 import '../../domain/entities/calendar_event.dart';
 import '../../domain/entities/calendar_month.dart';
 import '../../domain/entities/calendar_view_mode.dart';
+import '../../domain/entities/day_panchanga.dart';
 import '../../domain/repositories/calendar_repository.dart';
 import '../../domain/services/lunar_calculator.dart';
 import '../datasources/calendar_events_data_source.dart';
+import '../datasources/panchanga_days_data_source.dart';
 
 /// Builds month grids with the active region's traditional calendar
 /// (`RegionResolver.config.calendar`) and decorates them with events from a
-/// [CalendarEventsDataSource].
+/// [CalendarEventsDataSource] and per-day panchanga from a
+/// [PanchangaDaysDataSource].
 class CalendarRepositoryImpl implements CalendarRepository {
   CalendarRepositoryImpl(
     this._events,
     this._resolver, {
+    PanchangaDaysDataSource? panchanga,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+  }) : _panchanga = panchanga,
+       _now = now ?? DateTime.now;
 
   final CalendarEventsDataSource _events;
   final RegionResolver _resolver;
+  final PanchangaDaysDataSource? _panchanga;
   final DateTime Function() _now;
 
   static const int _cells = 42;
@@ -53,10 +59,14 @@ class CalendarRepositoryImpl implements CalendarRepository {
     final leading = firstDate.weekday % 7; // Sunday → 0
     final gridStart = firstDate.subtract(Duration(days: leading));
     final gridEnd = gridStart.add(const Duration(days: _cells - 1));
+
+    // Both requests at once: a month is one round trip each, not in series.
+    final panchangaFuture = _loadPanchanga(gridStart, gridEnd);
     final events = (await _events.fetchEvents(
       from: gridStart,
       to: gridEnd,
     )).map((m) => m.toEntity()).toList(growable: false);
+    final panchanga = await panchangaFuture;
 
     final today = _now();
     final todayKey = _key(today);
@@ -74,6 +84,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
         isWeekend: weekend.contains(ad.weekday % 7),
         lunarDay: LunarCalculator.forDate(ad),
         events: events.where((e) => e.isOn(ad)).toList(growable: false),
+        panchanga: panchanga[_key(ad)],
       );
     });
 
@@ -89,6 +100,23 @@ class CalendarRepositoryImpl implements CalendarRepository {
       events: monthEvents,
     );
   });
+
+  /// Panchanga by day key. Never fails the month: the grid and its events
+  /// are the page, the panchanga decorates it, and the day popup has its own
+  /// labelled estimate for a day that has none.
+  Future<Map<int, DayPanchanga>> _loadPanchanga(
+    DateTime from,
+    DateTime to,
+  ) async {
+    final source = _panchanga;
+    if (source == null) return const {};
+    try {
+      final days = await source.fetchRange(from: from, to: to);
+      return {for (final day in days) _key(day.date): day.toEntity()};
+    } catch (_) {
+      return const {};
+    }
+  }
 
   static int _key(DateTime d) => d.year * 10000 + d.month * 100 + d.day;
 }

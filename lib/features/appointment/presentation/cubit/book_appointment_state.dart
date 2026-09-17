@@ -17,6 +17,7 @@ abstract class BookAppointmentState with _$BookAppointmentState {
     required String serviceId,
     required DateTime date,
     @Default(BookingStep.basicInfo) BookingStep step,
+
     /// Always one. A sitting is a single half hour in one diary: booking it
     /// twice is not a bigger booking, it is the same slot claimed twice, which
     /// the server refuses. Kept in state because the request carries it.

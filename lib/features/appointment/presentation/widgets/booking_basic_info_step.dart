@@ -216,4 +216,3 @@ class BookingBasicInfoStep extends StatelessWidget {
     );
   }
 }
-

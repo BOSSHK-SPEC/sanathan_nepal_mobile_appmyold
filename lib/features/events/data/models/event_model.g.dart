@@ -106,6 +106,7 @@ _EventModel _$EventModelFromJson(Map<String, dynamic> json) => _EventModel(
         unknownValue: EventRepeat.none,
       ) ??
       EventRepeat.none,
+  useTraditionalDate: json['use_traditional_date'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$EventModelToJson(_EventModel instance) =>
@@ -128,6 +129,7 @@ Map<String, dynamic> _$EventModelToJson(_EventModel instance) =>
       'checklist': instance.checklist.map((e) => e.toJson()).toList(),
       'reminder': ?instance.reminder?.toJson(),
       'repeat': _$EventRepeatEnumMap[instance.repeat]!,
+      'use_traditional_date': instance.useTraditionalDate,
     };
 
 const _$EventCategoryEnumMap = {

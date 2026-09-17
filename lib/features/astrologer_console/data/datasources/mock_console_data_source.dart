@@ -16,6 +16,7 @@ import '../../domain/entities/compliance_notice.dart';
 import '../../domain/entities/work_preferences.dart';
 import '../../domain/entities/boost.dart';
 import '../../domain/entities/availability.dart';
+import '../../domain/entities/console_appointment.dart';
 import '../../domain/entities/console_pricing.dart';
 import '../../domain/entities/console_stats.dart';
 import '../../domain/entities/earnings.dart';
@@ -1199,4 +1200,101 @@ class MockConsoleDataSource implements ConsoleDataSource {
         },
     ]),
   );
+
+  // --- Appointments -----------------------------------------------------
+
+  /// The same rules as the server: only open sittings can be closed, the
+  /// outcome only once the sitting has started, cancelling only before it
+  /// ends — and a cancellation always carries a reason for the client.
+  late List<ConsoleAppointment> _appointments = ConsoleSeed.appointments(
+    scale: _scale,
+    currency: _regions.region == Region.nepal ? 'NPR' : 'INR',
+  );
+
+  @override
+  Future<List<ConsoleAppointment>> appointments(AppointmentScope scope) async {
+    await Future<void>.delayed(_latency);
+    final now = DateTime.now();
+    bool upcoming(ConsoleAppointment a) =>
+        a.status.isOpen && a.endsAt.isAfter(now);
+    final wantUpcoming = scope == AppointmentScope.upcoming;
+    return _appointments.where((a) => upcoming(a) == wantUpcoming).toList()
+      ..sort(
+        (a, b) => wantUpcoming
+            ? a.startsAt.compareTo(b.startsAt)
+            : b.startsAt.compareTo(a.startsAt),
+      );
+  }
+
+  @override
+  Future<ConsoleAppointment> appointment(String id) async {
+    await Future<void>.delayed(_latency);
+    return _findAppointment(id);
+  }
+
+  @override
+  Future<ConsoleAppointment> recordAppointmentOutcome(
+    String id, {
+    required bool completed,
+  }) async {
+    await Future<void>.delayed(_latency);
+    final current = _findAppointment(id);
+    if (!current.status.isOpen) {
+      throw const ValidationException('This appointment is already closed');
+    }
+    if (current.startsAt.isAfter(DateTime.now())) {
+      throw const ValidationException(
+        'You can mark this once the sitting has started',
+      );
+    }
+    return _replaceAppointment(
+      current.copyWith(
+        status: completed
+            ? ConsoleAppointmentStatus.completed
+            : ConsoleAppointmentStatus.noShow,
+      ),
+    );
+  }
+
+  @override
+  Future<ConsoleAppointment> cancelAppointment(
+    String id, {
+    required String reason,
+  }) async {
+    await Future<void>.delayed(_latency);
+    final current = _findAppointment(id);
+    final why = reason.trim();
+    if (why.length < 3) {
+      throw const ValidationException(
+        'Tell the client why, in a few words.',
+        'reason',
+      );
+    }
+    if (!current.status.isOpen) {
+      throw const ValidationException('This appointment is already closed');
+    }
+    if (!current.endsAt.isAfter(DateTime.now())) {
+      throw const ValidationException(
+        'This sitting is over — mark how it went instead',
+      );
+    }
+    return _replaceAppointment(
+      current.copyWith(
+        status: ConsoleAppointmentStatus.cancelled,
+        cancelReason: 'Cancelled by the astrologer: $why',
+      ),
+    );
+  }
+
+  ConsoleAppointment _findAppointment(String id) => _appointments.firstWhere(
+    (a) => a.id == id,
+    orElse: () => throw NotFoundException('Appointment $id not found'),
+  );
+
+  ConsoleAppointment _replaceAppointment(ConsoleAppointment updated) {
+    _appointments = [
+      for (final a in _appointments) a.id == updated.id ? updated : a,
+    ];
+    return updated;
+  }
 }

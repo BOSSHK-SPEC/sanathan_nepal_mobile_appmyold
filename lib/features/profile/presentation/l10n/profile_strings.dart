@@ -87,6 +87,17 @@ abstract class ProfileStrings {
   String get accept;
   String get cancel;
   String get complete;
+
+  /// Seller hands the order to a courier.
+  String get markShipped;
+
+  /// Seller confirms it reached the buyer.
+  String get markDelivered;
+  String get shipped;
+  String get outForDelivery;
+
+  /// Paid, waiting for the seller to accept.
+  String get awaitingSeller;
   String get call;
   String get chat;
   String get rateThisProduct;
@@ -135,6 +146,18 @@ abstract class ProfileStrings {
 
   // Edit profile
   String get profilePhoto;
+
+  // Business logo & banner
+  String get businessLogo;
+  String get businessBanner;
+  String get addLogo;
+  String get addBanner;
+  String get changeLogo;
+  String get changeBanner;
+  String get removeLogo;
+  String get removeBanner;
+  String get brandingHint;
+  String get imageUpdated;
   String get noFileChosen;
   String get chooseFile;
   String get fullName;
@@ -199,7 +222,9 @@ abstract class ProfileStrings {
 
   /// Explains that the registration form's item list is what the reviewer
   /// reads, not the shop's public catalogue.
-  String get itemsAreForReview;
+  /// Under the business form's items step: these become the shop's listings
+  /// once the business is approved.
+  String get itemsPublishOnApproval;
   String get noReviews;
 
   // Business form

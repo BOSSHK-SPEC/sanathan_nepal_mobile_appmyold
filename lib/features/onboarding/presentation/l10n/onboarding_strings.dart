@@ -27,9 +27,22 @@ abstract class OnboardingStrings {
   // Login
   String get loginWelcome;
   String get loginTitle;
-  String get continueWithGoogle;
-  String get continueWithApple;
+
+  /// One line under the title explaining how sign-in works.
+  String get loginSubtitle;
   String get continueWithNumber;
+
+  /// Reassurance under the sign-in button.
+  String get loginSecureNote;
+
+  /// "By continuing, you agree to our" · [termsLink] · [legalAnd] ·
+  /// [privacyLink] · [legalSuffix] — split so only the two document names are
+  /// links. [legalSuffix] carries the verb in languages that end on it.
+  String get legalPrefix;
+  String get termsLink;
+  String get legalAnd;
+  String get privacyLink;
+  String get legalSuffix => '';
 
   // Phone sheet
   String get signupWithNumber;
@@ -81,6 +94,12 @@ abstract class OnboardingStrings {
   String get female;
   String get other;
   String get horoscopeSign;
+
+  /// Optional profile photo on the details form.
+  String get profilePhoto;
+  String get addPhoto;
+  String get changePhoto;
+  String get optionalField;
   String get selectSign;
   String get requiredField;
   String get invalidEmail;
@@ -129,11 +148,21 @@ class _En extends OnboardingStrings {
   @override
   String get loginTitle => 'Log In';
   @override
-  String get continueWithGoogle => 'Continue with Google';
-  @override
-  String get continueWithApple => 'Continue with Apple';
+  String get loginSubtitle =>
+      'Use your mobile number to sign in or create an account.';
   @override
   String get continueWithNumber => 'Continue with Number';
+  @override
+  String get loginSecureNote =>
+      "We'll send a one-time code by SMS. No password to remember.";
+  @override
+  String get legalPrefix => 'By continuing, you agree to our';
+  @override
+  String get termsLink => 'Terms';
+  @override
+  String get legalAnd => 'and';
+  @override
+  String get privacyLink => 'Privacy Policy';
 
   @override
   String get signupWithNumber => 'SIGNUP WITH NUMBER';
@@ -210,6 +239,18 @@ class _En extends OnboardingStrings {
   String get other => 'Other';
   @override
   String get horoscopeSign => 'Horoscope Sign';
+
+  @override
+  String get profilePhoto => 'Profile photo';
+
+  @override
+  String get addPhoto => 'Add photo';
+
+  @override
+  String get changePhoto => 'Change photo';
+
+  @override
+  String get optionalField => 'Optional';
   @override
   String get selectSign => 'Select sign';
   @override
@@ -291,11 +332,23 @@ class _Ne extends OnboardingStrings {
   @override
   String get loginTitle => 'लग-इन गर्नुहोस्';
   @override
-  String get continueWithGoogle => 'Continue with Google';
+  String get loginSubtitle =>
+      'लग-इन गर्न वा नयाँ खाता बनाउन आफ्नो मोबाइल नम्बर प्रयोग गर्नुहोस्।';
   @override
-  String get continueWithApple => 'Continue with Apple';
+  String get continueWithNumber => 'मोबाइल नम्बरबाट जारी राख्नुहोस्';
   @override
-  String get continueWithNumber => 'Continue with Number';
+  String get loginSecureNote =>
+      'हामी SMS मार्फत एक पटकको कोड पठाउनेछौं। पासवर्ड सम्झनु पर्दैन।';
+  @override
+  String get legalPrefix => 'जारी राखेर, तपाईं हाम्रा';
+  @override
+  String get termsLink => 'नियम तथा सर्तहरू';
+  @override
+  String get legalAnd => 'र';
+  @override
+  String get privacyLink => 'गोपनीयता नीति';
+  @override
+  String get legalSuffix => 'प्रति सहमति जनाउनुहुन्छ।';
 
   @override
   String get signupWithNumber => 'नम्बरबाट साइन-अप गर्नुहोस्';
@@ -371,6 +424,18 @@ class _Ne extends OnboardingStrings {
   String get other => 'अन्य';
   @override
   String get horoscopeSign => 'राशि';
+
+  @override
+  String get profilePhoto => 'प्रोफाइल फोटो';
+
+  @override
+  String get addPhoto => 'फोटो थप्नुहोस्';
+
+  @override
+  String get changePhoto => 'फोटो बदल्नुहोस्';
+
+  @override
+  String get optionalField => 'वैकल्पिक';
   @override
   String get selectSign => 'राशि छान्नुहोस्';
   @override
@@ -452,11 +517,23 @@ class _Hi extends OnboardingStrings {
   @override
   String get loginTitle => 'लॉग इन करें';
   @override
-  String get continueWithGoogle => 'Google से जारी रखें';
-  @override
-  String get continueWithApple => 'Apple से जारी रखें';
+  String get loginSubtitle =>
+      'साइन इन करने या नया खाता बनाने के लिए अपना मोबाइल नंबर इस्तेमाल करें।';
   @override
   String get continueWithNumber => 'मोबाइल नंबर से जारी रखें';
+  @override
+  String get loginSecureNote =>
+      'हम SMS से एक बार का कोड भेजेंगे। पासवर्ड याद रखने की ज़रूरत नहीं।';
+  @override
+  String get legalPrefix => 'जारी रखकर, आप हमारी';
+  @override
+  String get termsLink => 'शर्तों';
+  @override
+  String get legalAnd => 'और';
+  @override
+  String get privacyLink => 'गोपनीयता नीति';
+  @override
+  String get legalSuffix => 'से सहमत हैं।';
 
   @override
   String get signupWithNumber => 'नंबर से साइन-अप करें';
@@ -532,6 +609,18 @@ class _Hi extends OnboardingStrings {
   String get other => 'अन्य';
   @override
   String get horoscopeSign => 'राशि';
+
+  @override
+  String get profilePhoto => 'प्रोफ़ाइल फ़ोटो';
+
+  @override
+  String get addPhoto => 'फ़ोटो जोड़ें';
+
+  @override
+  String get changePhoto => 'फ़ोटो बदलें';
+
+  @override
+  String get optionalField => 'वैकल्पिक';
   @override
   String get selectSign => 'राशि चुनें';
   @override

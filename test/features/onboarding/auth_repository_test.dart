@@ -67,12 +67,6 @@ void main() {
       expect(repo.isLoggedIn, isFalse);
     });
 
-    test('social sign-in returns a registered session', () async {
-      final result = await repo.signInWithGoogle();
-      expect(result.valueOrNull!.isNewUser, isFalse);
-      expect(repo.isLoggedIn, isTrue);
-    });
-
     test('submitProfile stores the draft locally', () async {
       final draft = UserProfileDraft(
         fullName: 'Kritika Paudel',

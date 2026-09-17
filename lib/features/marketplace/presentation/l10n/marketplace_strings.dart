@@ -112,6 +112,7 @@ abstract class MarketplaceStrings {
   String get selectAtLeastOne;
   String get requiredField;
   String get invalidPhone;
+  String get invalidWebsite;
   // Details
   String get productDetails;
   String get description;

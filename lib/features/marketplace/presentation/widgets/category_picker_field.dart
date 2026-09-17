@@ -64,7 +64,10 @@ class CategoryPickerField extends StatelessWidget {
               prefixIcon: selected == null
                   ? null
                   : Icon(
-                      CategoryIcons.forCategory(selected.id, iconName: selected.iconName),
+                      CategoryIcons.forCategory(
+                        selected.id,
+                        iconName: selected.iconName,
+                      ),
                       color: colors.accent,
                       size: 18,
                     ),

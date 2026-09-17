@@ -247,6 +247,8 @@ class _En extends MarketplaceStrings {
   @override
   String get invalidPhone => 'Enter a valid phone number';
   @override
+  String get invalidWebsite => 'Enter a web address, e.g. example.com';
+  @override
   String get productDetails => 'Product Details';
   @override
   String get description => 'Description';
@@ -464,7 +466,8 @@ class _En extends MarketplaceStrings {
   String get addPhoto => 'Add photo';
 
   @override
-  String get photosOptional => 'Optional — a listing without photos shows a category icon';
+  String get photosOptional =>
+      'Optional — a listing without photos shows a category icon';
 
   @override
   String get removeAllPhotos => 'Remove all';

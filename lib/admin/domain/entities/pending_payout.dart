@@ -23,8 +23,6 @@ abstract class PendingPayout with _$PendingPayout {
 /// reviewers working at once cannot leave one of them looking at a stale row.
 @freezed
 abstract class DecisionOutcome with _$DecisionOutcome {
-  const factory DecisionOutcome({
-    required String id,
-    required String status,
-  }) = _DecisionOutcome;
+  const factory DecisionOutcome({required String id, required String status}) =
+      _DecisionOutcome;
 }

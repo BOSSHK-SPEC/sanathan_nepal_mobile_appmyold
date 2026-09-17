@@ -17,7 +17,11 @@ mixin _$LiveSessionState {
  LoadState<Consultation> get session; LoadState<List<ChatMessage>> get messages; LoadState<Consultation> get ending;/// Spendable wallet balance, refreshed when the session loads.
  double get balance;/// Incremented once a second while active, purely to drive the meter's
 /// rebuild — the elapsed time itself is derived from timestamps.
- int get tick; String get draft; bool get muted; bool get speakerOn; bool get cameraOn;
+ int get tick; String get draft; bool get muted; bool get speakerOn; bool get cameraOn;/// Where the media connection is. Separate from the session's own status:
+/// a consultation can be `active` — and billing — while the call is still
+/// connecting or has dropped, and the screen has to say which.
+ CallConnectionState get callState;/// Why the call could not be joined, in a sentence the user can act on.
+ String? get callError;
 /// Create a copy of LiveSessionState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +32,16 @@ $LiveSessionStateCopyWith<LiveSessionState> get copyWith => _$LiveSessionStateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LiveSessionState&&(identical(other.session, session) || other.session == session)&&(identical(other.messages, messages) || other.messages == messages)&&(identical(other.ending, ending) || other.ending == ending)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.tick, tick) || other.tick == tick)&&(identical(other.draft, draft) || other.draft == draft)&&(identical(other.muted, muted) || other.muted == muted)&&(identical(other.speakerOn, speakerOn) || other.speakerOn == speakerOn)&&(identical(other.cameraOn, cameraOn) || other.cameraOn == cameraOn));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LiveSessionState&&(identical(other.session, session) || other.session == session)&&(identical(other.messages, messages) || other.messages == messages)&&(identical(other.ending, ending) || other.ending == ending)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.tick, tick) || other.tick == tick)&&(identical(other.draft, draft) || other.draft == draft)&&(identical(other.muted, muted) || other.muted == muted)&&(identical(other.speakerOn, speakerOn) || other.speakerOn == speakerOn)&&(identical(other.cameraOn, cameraOn) || other.cameraOn == cameraOn)&&(identical(other.callState, callState) || other.callState == callState)&&(identical(other.callError, callError) || other.callError == callError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,session,messages,ending,balance,tick,draft,muted,speakerOn,cameraOn);
+int get hashCode => Object.hash(runtimeType,session,messages,ending,balance,tick,draft,muted,speakerOn,cameraOn,callState,callError);
 
 @override
 String toString() {
-  return 'LiveSessionState(session: $session, messages: $messages, ending: $ending, balance: $balance, tick: $tick, draft: $draft, muted: $muted, speakerOn: $speakerOn, cameraOn: $cameraOn)';
+  return 'LiveSessionState(session: $session, messages: $messages, ending: $ending, balance: $balance, tick: $tick, draft: $draft, muted: $muted, speakerOn: $speakerOn, cameraOn: $cameraOn, callState: $callState, callError: $callError)';
 }
 
 
@@ -48,7 +52,7 @@ abstract mixin class $LiveSessionStateCopyWith<$Res>  {
   factory $LiveSessionStateCopyWith(LiveSessionState value, $Res Function(LiveSessionState) _then) = _$LiveSessionStateCopyWithImpl;
 @useResult
 $Res call({
- LoadState<Consultation> session, LoadState<List<ChatMessage>> messages, LoadState<Consultation> ending, double balance, int tick, String draft, bool muted, bool speakerOn, bool cameraOn
+ LoadState<Consultation> session, LoadState<List<ChatMessage>> messages, LoadState<Consultation> ending, double balance, int tick, String draft, bool muted, bool speakerOn, bool cameraOn, CallConnectionState callState, String? callError
 });
 
 
@@ -65,7 +69,7 @@ class _$LiveSessionStateCopyWithImpl<$Res>
 
 /// Create a copy of LiveSessionState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? session = null,Object? messages = null,Object? ending = null,Object? balance = null,Object? tick = null,Object? draft = null,Object? muted = null,Object? speakerOn = null,Object? cameraOn = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? session = null,Object? messages = null,Object? ending = null,Object? balance = null,Object? tick = null,Object? draft = null,Object? muted = null,Object? speakerOn = null,Object? cameraOn = null,Object? callState = null,Object? callError = freezed,}) {
   return _then(_self.copyWith(
 session: null == session ? _self.session : session // ignore: cast_nullable_to_non_nullable
 as LoadState<Consultation>,messages: null == messages ? _self.messages : messages // ignore: cast_nullable_to_non_nullable
@@ -76,7 +80,9 @@ as int,draft: null == draft ? _self.draft : draft // ignore: cast_nullable_to_no
 as String,muted: null == muted ? _self.muted : muted // ignore: cast_nullable_to_non_nullable
 as bool,speakerOn: null == speakerOn ? _self.speakerOn : speakerOn // ignore: cast_nullable_to_non_nullable
 as bool,cameraOn: null == cameraOn ? _self.cameraOn : cameraOn // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,callState: null == callState ? _self.callState : callState // ignore: cast_nullable_to_non_nullable
+as CallConnectionState,callError: freezed == callError ? _self.callError : callError // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of LiveSessionState
@@ -115,7 +121,7 @@ $LoadStateCopyWith<Consultation, $Res> get ending {
 
 
 class _LiveSessionState extends LiveSessionState {
-  const _LiveSessionState({this.session = const LoadState.idle(), this.messages = const LoadState.idle(), this.ending = const LoadState.idle(), this.balance = 0, this.tick = 0, this.draft = '', this.muted = false, this.speakerOn = true, this.cameraOn = true}): super._();
+  const _LiveSessionState({this.session = const LoadState.idle(), this.messages = const LoadState.idle(), this.ending = const LoadState.idle(), this.balance = 0, this.tick = 0, this.draft = '', this.muted = false, this.speakerOn = true, this.cameraOn = true, this.callState = CallConnectionState.idle, this.callError}): super._();
   
 
 @override@JsonKey() final  LoadState<Consultation> session;
@@ -130,6 +136,12 @@ class _LiveSessionState extends LiveSessionState {
 @override@JsonKey() final  bool muted;
 @override@JsonKey() final  bool speakerOn;
 @override@JsonKey() final  bool cameraOn;
+/// Where the media connection is. Separate from the session's own status:
+/// a consultation can be `active` — and billing — while the call is still
+/// connecting or has dropped, and the screen has to say which.
+@override@JsonKey() final  CallConnectionState callState;
+/// Why the call could not be joined, in a sentence the user can act on.
+@override final  String? callError;
 
 /// Create a copy of LiveSessionState
 /// with the given fields replaced by the non-null parameter values.
@@ -141,16 +153,16 @@ _$LiveSessionStateCopyWith<_LiveSessionState> get copyWith => __$LiveSessionStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LiveSessionState&&(identical(other.session, session) || other.session == session)&&(identical(other.messages, messages) || other.messages == messages)&&(identical(other.ending, ending) || other.ending == ending)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.tick, tick) || other.tick == tick)&&(identical(other.draft, draft) || other.draft == draft)&&(identical(other.muted, muted) || other.muted == muted)&&(identical(other.speakerOn, speakerOn) || other.speakerOn == speakerOn)&&(identical(other.cameraOn, cameraOn) || other.cameraOn == cameraOn));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LiveSessionState&&(identical(other.session, session) || other.session == session)&&(identical(other.messages, messages) || other.messages == messages)&&(identical(other.ending, ending) || other.ending == ending)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.tick, tick) || other.tick == tick)&&(identical(other.draft, draft) || other.draft == draft)&&(identical(other.muted, muted) || other.muted == muted)&&(identical(other.speakerOn, speakerOn) || other.speakerOn == speakerOn)&&(identical(other.cameraOn, cameraOn) || other.cameraOn == cameraOn)&&(identical(other.callState, callState) || other.callState == callState)&&(identical(other.callError, callError) || other.callError == callError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,session,messages,ending,balance,tick,draft,muted,speakerOn,cameraOn);
+int get hashCode => Object.hash(runtimeType,session,messages,ending,balance,tick,draft,muted,speakerOn,cameraOn,callState,callError);
 
 @override
 String toString() {
-  return 'LiveSessionState(session: $session, messages: $messages, ending: $ending, balance: $balance, tick: $tick, draft: $draft, muted: $muted, speakerOn: $speakerOn, cameraOn: $cameraOn)';
+  return 'LiveSessionState(session: $session, messages: $messages, ending: $ending, balance: $balance, tick: $tick, draft: $draft, muted: $muted, speakerOn: $speakerOn, cameraOn: $cameraOn, callState: $callState, callError: $callError)';
 }
 
 
@@ -161,7 +173,7 @@ abstract mixin class _$LiveSessionStateCopyWith<$Res> implements $LiveSessionSta
   factory _$LiveSessionStateCopyWith(_LiveSessionState value, $Res Function(_LiveSessionState) _then) = __$LiveSessionStateCopyWithImpl;
 @override @useResult
 $Res call({
- LoadState<Consultation> session, LoadState<List<ChatMessage>> messages, LoadState<Consultation> ending, double balance, int tick, String draft, bool muted, bool speakerOn, bool cameraOn
+ LoadState<Consultation> session, LoadState<List<ChatMessage>> messages, LoadState<Consultation> ending, double balance, int tick, String draft, bool muted, bool speakerOn, bool cameraOn, CallConnectionState callState, String? callError
 });
 
 
@@ -178,7 +190,7 @@ class __$LiveSessionStateCopyWithImpl<$Res>
 
 /// Create a copy of LiveSessionState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? session = null,Object? messages = null,Object? ending = null,Object? balance = null,Object? tick = null,Object? draft = null,Object? muted = null,Object? speakerOn = null,Object? cameraOn = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? session = null,Object? messages = null,Object? ending = null,Object? balance = null,Object? tick = null,Object? draft = null,Object? muted = null,Object? speakerOn = null,Object? cameraOn = null,Object? callState = null,Object? callError = freezed,}) {
   return _then(_LiveSessionState(
 session: null == session ? _self.session : session // ignore: cast_nullable_to_non_nullable
 as LoadState<Consultation>,messages: null == messages ? _self.messages : messages // ignore: cast_nullable_to_non_nullable
@@ -189,7 +201,9 @@ as int,draft: null == draft ? _self.draft : draft // ignore: cast_nullable_to_no
 as String,muted: null == muted ? _self.muted : muted // ignore: cast_nullable_to_non_nullable
 as bool,speakerOn: null == speakerOn ? _self.speakerOn : speakerOn // ignore: cast_nullable_to_non_nullable
 as bool,cameraOn: null == cameraOn ? _self.cameraOn : cameraOn // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,callState: null == callState ? _self.callState : callState // ignore: cast_nullable_to_non_nullable
+as CallConnectionState,callError: freezed == callError ? _self.callError : callError // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

@@ -85,7 +85,7 @@ void main() {
 
   test('does not attach a token to anonymous endpoints', () async {
     final adapter = _FakeAdapter((options) async => _json({'ok': true}, 200));
-    await buildClient(adapter).post<dynamic>('/auth/social', data: {});
+    await buildClient(adapter).post<dynamic>('/auth/phone/start', data: {});
 
     expect(adapter.seen.single.headers.containsKey('Authorization'), isFalse);
   });

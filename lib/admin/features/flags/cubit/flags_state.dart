@@ -17,6 +17,8 @@ abstract class FlagsState with _$FlagsState {
 
   /// Flags that are on but not fully rolled out — the ones mid-release, and
   /// the ones most likely to explain a report of "it works for me".
-  List<FeatureFlag> get partiallyRolledOut =>
-      [for (final f in items) if (f.enabled && f.rolloutPct < 100) f];
+  List<FeatureFlag> get partiallyRolledOut => [
+    for (final f in items)
+      if (f.enabled && f.rolloutPct < 100) f,
+  ];
 }

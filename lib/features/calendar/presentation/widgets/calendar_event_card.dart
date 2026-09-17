@@ -7,11 +7,17 @@ import '../../domain/entities/calendar_day.dart';
 import '../../domain/entities/calendar_event.dart';
 import '../../domain/entities/calendar_view_mode.dart';
 import '../l10n/calendar_strings.dart';
+import '../utils/active_calendar_view_mode.dart';
 import '../utils/calendar_format.dart';
 
 /// Event list card below the Patro grid (Figma 320:361 bottom):
-/// feature-image thumb, traditional (BS / Saka) date, AD date, title with
-/// accent left rule, weekday / tithi / rashi chips.
+/// feature-image thumb, the date in both calendars, title with accent left
+/// rule, and weekday / tithi / moon-sign chips.
+///
+/// The tithi and moon-sign chips come from the server's panchanga for the day
+/// and are left out when only an estimate is available: a chip carries no
+/// "approximate" label, so it must not show a value that may be wrong. The
+/// moon sign used to be guessed from "the moon changes sign every 2.25 days".
 class CalendarEventCard extends StatelessWidget {
   const CalendarEventCard({
     required this.event,
@@ -28,13 +34,29 @@ class CalendarEventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final languageCode = context.languageCode;
-    final devanagari = context.usesDevanagariDigits;
     final config = context.regionConfig;
     final strings = CalendarStrings.of(context);
-    final tithi = event.tithi(languageCode: languageCode).isNotEmpty
-        ? event.tithi(languageCode: languageCode)
-        : day.lunarDay.tithiName(nepali: devanagari);
-    final rashi = _rashiForDay(day, devanagari);
+    final exact = day.exactPanchanga;
+    final eventTithi = event.tithi(languageCode: languageCode);
+    final tithi = eventTithi.isNotEmpty
+        ? eventTithi
+        : exact?.tithi.resolve(languageCode);
+    final rashi = exact?.moonRashi.resolve(languageCode);
+    final gregorianFirst = context.gregorianLeads;
+    final dateStyle = context.textTheme.labelSmall?.copyWith(
+      fontSize: 10,
+      color: colors.textPrimary,
+    );
+    final traditionalLine = Text(
+      CalendarFormat.traditionalDate(
+        day.traditional,
+        calendar: config.calendar,
+        languageCode: languageCode,
+        era: config.labelsTraditionalEra,
+      ),
+      style: dateStyle,
+    );
+    final adLine = Text(CalendarFormat.adDateLong(day.ad), style: dateStyle);
     return Material(
       color: colors.surface,
       borderRadius: BorderRadius.circular(7),
@@ -73,26 +95,11 @@ class CalendarEventCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      CalendarFormat.traditionalDate(
-                        day.traditional,
-                        calendar: config.calendar,
-                        languageCode: languageCode,
-                        era: config.labelsTraditionalEra,
-                      ),
-                      style: context.textTheme.labelSmall?.copyWith(
-                        fontSize: 10,
-                        color: colors.textPrimary,
-                      ),
-                    ),
+                    // Led by the calendar the grid above is showing, so a
+                    // switch to A.D. reorders the cards with it.
+                    if (gregorianFirst) adLine else traditionalLine,
                     const SizedBox(height: 4),
-                    Text(
-                      CalendarFormat.adDateLong(day.ad),
-                      style: context.textTheme.labelSmall?.copyWith(
-                        fontSize: 10,
-                        color: colors.textPrimary,
-                      ),
-                    ),
+                    if (gregorianFirst) traditionalLine else adLine,
                     const Spacer(),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -117,8 +124,8 @@ class CalendarEventCard extends StatelessWidget {
                             languageCode: languageCode,
                           ),
                         ),
-                        _Chip(tithi),
-                        _Chip(rashi),
+                        if (tithi != null && tithi.isNotEmpty) _Chip(tithi),
+                        if (rashi != null) _Chip(rashi),
                       ],
                     ),
                   ],
@@ -129,41 +136,6 @@ class CalendarEventCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  static String _rashiForDay(CalendarDay day, bool nepali) {
-    const ne = [
-      'मेष',
-      'वृष',
-      'मिथुन',
-      'कर्कट',
-      'सिंह',
-      'कन्या',
-      'तुला',
-      'वृश्चिक',
-      'धनु',
-      'मकर',
-      'कुम्भ',
-      'मीन',
-    ];
-    const en = [
-      'Mesh',
-      'Brish',
-      'Mithun',
-      'Karkat',
-      'Singha',
-      'Kanya',
-      'Tula',
-      'Brishchik',
-      'Dhanu',
-      'Makar',
-      'Kumbha',
-      'Meen',
-    ];
-    // Moon moves ~1 rashi every 2.25 days – deterministic approximation.
-    final idx =
-        ((day.ad.difference(DateTime(2000)).inDays) / 2.25).floor() % 12;
-    return (nepali ? ne : en)[idx];
   }
 }
 

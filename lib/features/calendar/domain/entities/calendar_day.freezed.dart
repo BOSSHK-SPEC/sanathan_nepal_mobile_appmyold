@@ -18,8 +18,12 @@ mixin _$CalendarDay {
  TraditionalDate get traditional; DateTime get ad;/// False for the leading/trailing filler days of adjacent months.
  bool get isCurrentMonth; bool get isToday;/// Weekly rest day of the region (Saturday in Nepal, Sunday in India) –
 /// decided by `RegionConfig.weekendWeekdays`.
- bool get isWeekend;/// Approximate tithi/paksha for this day.
- LunarDay get lunarDay; List<CalendarEvent> get events;
+ bool get isWeekend;/// Mean-motion tithi/paksha estimate. Kept for callers that have nothing
+/// better; anything shown to a reader should prefer [panchanga].
+ LunarDay get lunarDay; List<CalendarEvent> get events;/// The day's panchanga — the server's ephemeris calculation, or an
+/// estimate marked `isApproximate`. `null` only when it could not be
+/// loaded at all.
+ DayPanchanga? get panchanga;
 /// Create a copy of CalendarDay
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +34,16 @@ $CalendarDayCopyWith<CalendarDay> get copyWith => _$CalendarDayCopyWithImpl<Cale
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CalendarDay&&(identical(other.traditional, traditional) || other.traditional == traditional)&&(identical(other.ad, ad) || other.ad == ad)&&(identical(other.isCurrentMonth, isCurrentMonth) || other.isCurrentMonth == isCurrentMonth)&&(identical(other.isToday, isToday) || other.isToday == isToday)&&(identical(other.isWeekend, isWeekend) || other.isWeekend == isWeekend)&&(identical(other.lunarDay, lunarDay) || other.lunarDay == lunarDay)&&const DeepCollectionEquality().equals(other.events, events));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CalendarDay&&(identical(other.traditional, traditional) || other.traditional == traditional)&&(identical(other.ad, ad) || other.ad == ad)&&(identical(other.isCurrentMonth, isCurrentMonth) || other.isCurrentMonth == isCurrentMonth)&&(identical(other.isToday, isToday) || other.isToday == isToday)&&(identical(other.isWeekend, isWeekend) || other.isWeekend == isWeekend)&&(identical(other.lunarDay, lunarDay) || other.lunarDay == lunarDay)&&const DeepCollectionEquality().equals(other.events, events)&&(identical(other.panchanga, panchanga) || other.panchanga == panchanga));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,traditional,ad,isCurrentMonth,isToday,isWeekend,lunarDay,const DeepCollectionEquality().hash(events));
+int get hashCode => Object.hash(runtimeType,traditional,ad,isCurrentMonth,isToday,isWeekend,lunarDay,const DeepCollectionEquality().hash(events),panchanga);
 
 @override
 String toString() {
-  return 'CalendarDay(traditional: $traditional, ad: $ad, isCurrentMonth: $isCurrentMonth, isToday: $isToday, isWeekend: $isWeekend, lunarDay: $lunarDay, events: $events)';
+  return 'CalendarDay(traditional: $traditional, ad: $ad, isCurrentMonth: $isCurrentMonth, isToday: $isToday, isWeekend: $isWeekend, lunarDay: $lunarDay, events: $events, panchanga: $panchanga)';
 }
 
 
@@ -50,11 +54,11 @@ abstract mixin class $CalendarDayCopyWith<$Res>  {
   factory $CalendarDayCopyWith(CalendarDay value, $Res Function(CalendarDay) _then) = _$CalendarDayCopyWithImpl;
 @useResult
 $Res call({
- TraditionalDate traditional, DateTime ad, bool isCurrentMonth, bool isToday, bool isWeekend, LunarDay lunarDay, List<CalendarEvent> events
+ TraditionalDate traditional, DateTime ad, bool isCurrentMonth, bool isToday, bool isWeekend, LunarDay lunarDay, List<CalendarEvent> events, DayPanchanga? panchanga
 });
 
 
-$TraditionalDateCopyWith<$Res> get traditional;$LunarDayCopyWith<$Res> get lunarDay;
+$TraditionalDateCopyWith<$Res> get traditional;$LunarDayCopyWith<$Res> get lunarDay;$DayPanchangaCopyWith<$Res>? get panchanga;
 
 }
 /// @nodoc
@@ -67,7 +71,7 @@ class _$CalendarDayCopyWithImpl<$Res>
 
 /// Create a copy of CalendarDay
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? traditional = null,Object? ad = null,Object? isCurrentMonth = null,Object? isToday = null,Object? isWeekend = null,Object? lunarDay = null,Object? events = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? traditional = null,Object? ad = null,Object? isCurrentMonth = null,Object? isToday = null,Object? isWeekend = null,Object? lunarDay = null,Object? events = null,Object? panchanga = freezed,}) {
   return _then(_self.copyWith(
 traditional: null == traditional ? _self.traditional : traditional // ignore: cast_nullable_to_non_nullable
 as TraditionalDate,ad: null == ad ? _self.ad : ad // ignore: cast_nullable_to_non_nullable
@@ -76,7 +80,8 @@ as bool,isToday: null == isToday ? _self.isToday : isToday // ignore: cast_nulla
 as bool,isWeekend: null == isWeekend ? _self.isWeekend : isWeekend // ignore: cast_nullable_to_non_nullable
 as bool,lunarDay: null == lunarDay ? _self.lunarDay : lunarDay // ignore: cast_nullable_to_non_nullable
 as LunarDay,events: null == events ? _self.events : events // ignore: cast_nullable_to_non_nullable
-as List<CalendarEvent>,
+as List<CalendarEvent>,panchanga: freezed == panchanga ? _self.panchanga : panchanga // ignore: cast_nullable_to_non_nullable
+as DayPanchanga?,
   ));
 }
 /// Create a copy of CalendarDay
@@ -97,6 +102,18 @@ $LunarDayCopyWith<$Res> get lunarDay {
   return $LunarDayCopyWith<$Res>(_self.lunarDay, (value) {
     return _then(_self.copyWith(lunarDay: value));
   });
+}/// Create a copy of CalendarDay
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DayPanchangaCopyWith<$Res>? get panchanga {
+    if (_self.panchanga == null) {
+    return null;
+  }
+
+  return $DayPanchangaCopyWith<$Res>(_self.panchanga!, (value) {
+    return _then(_self.copyWith(panchanga: value));
+  });
 }
 }
 
@@ -106,7 +123,7 @@ $LunarDayCopyWith<$Res> get lunarDay {
 
 
 class _CalendarDay extends CalendarDay {
-  const _CalendarDay({required this.traditional, required this.ad, required this.isCurrentMonth, required this.isToday, required this.isWeekend, required this.lunarDay, final  List<CalendarEvent> events = const <CalendarEvent>[]}): _events = events,super._();
+  const _CalendarDay({required this.traditional, required this.ad, required this.isCurrentMonth, required this.isToday, required this.isWeekend, required this.lunarDay, final  List<CalendarEvent> events = const <CalendarEvent>[], this.panchanga}): _events = events,super._();
   
 
 /// Date in the region's traditional calendar (BS / Saka).
@@ -118,7 +135,8 @@ class _CalendarDay extends CalendarDay {
 /// Weekly rest day of the region (Saturday in Nepal, Sunday in India) –
 /// decided by `RegionConfig.weekendWeekdays`.
 @override final  bool isWeekend;
-/// Approximate tithi/paksha for this day.
+/// Mean-motion tithi/paksha estimate. Kept for callers that have nothing
+/// better; anything shown to a reader should prefer [panchanga].
 @override final  LunarDay lunarDay;
  final  List<CalendarEvent> _events;
 @override@JsonKey() List<CalendarEvent> get events {
@@ -127,6 +145,10 @@ class _CalendarDay extends CalendarDay {
   return EqualUnmodifiableListView(_events);
 }
 
+/// The day's panchanga — the server's ephemeris calculation, or an
+/// estimate marked `isApproximate`. `null` only when it could not be
+/// loaded at all.
+@override final  DayPanchanga? panchanga;
 
 /// Create a copy of CalendarDay
 /// with the given fields replaced by the non-null parameter values.
@@ -138,16 +160,16 @@ _$CalendarDayCopyWith<_CalendarDay> get copyWith => __$CalendarDayCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CalendarDay&&(identical(other.traditional, traditional) || other.traditional == traditional)&&(identical(other.ad, ad) || other.ad == ad)&&(identical(other.isCurrentMonth, isCurrentMonth) || other.isCurrentMonth == isCurrentMonth)&&(identical(other.isToday, isToday) || other.isToday == isToday)&&(identical(other.isWeekend, isWeekend) || other.isWeekend == isWeekend)&&(identical(other.lunarDay, lunarDay) || other.lunarDay == lunarDay)&&const DeepCollectionEquality().equals(other._events, _events));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CalendarDay&&(identical(other.traditional, traditional) || other.traditional == traditional)&&(identical(other.ad, ad) || other.ad == ad)&&(identical(other.isCurrentMonth, isCurrentMonth) || other.isCurrentMonth == isCurrentMonth)&&(identical(other.isToday, isToday) || other.isToday == isToday)&&(identical(other.isWeekend, isWeekend) || other.isWeekend == isWeekend)&&(identical(other.lunarDay, lunarDay) || other.lunarDay == lunarDay)&&const DeepCollectionEquality().equals(other._events, _events)&&(identical(other.panchanga, panchanga) || other.panchanga == panchanga));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,traditional,ad,isCurrentMonth,isToday,isWeekend,lunarDay,const DeepCollectionEquality().hash(_events));
+int get hashCode => Object.hash(runtimeType,traditional,ad,isCurrentMonth,isToday,isWeekend,lunarDay,const DeepCollectionEquality().hash(_events),panchanga);
 
 @override
 String toString() {
-  return 'CalendarDay(traditional: $traditional, ad: $ad, isCurrentMonth: $isCurrentMonth, isToday: $isToday, isWeekend: $isWeekend, lunarDay: $lunarDay, events: $events)';
+  return 'CalendarDay(traditional: $traditional, ad: $ad, isCurrentMonth: $isCurrentMonth, isToday: $isToday, isWeekend: $isWeekend, lunarDay: $lunarDay, events: $events, panchanga: $panchanga)';
 }
 
 
@@ -158,11 +180,11 @@ abstract mixin class _$CalendarDayCopyWith<$Res> implements $CalendarDayCopyWith
   factory _$CalendarDayCopyWith(_CalendarDay value, $Res Function(_CalendarDay) _then) = __$CalendarDayCopyWithImpl;
 @override @useResult
 $Res call({
- TraditionalDate traditional, DateTime ad, bool isCurrentMonth, bool isToday, bool isWeekend, LunarDay lunarDay, List<CalendarEvent> events
+ TraditionalDate traditional, DateTime ad, bool isCurrentMonth, bool isToday, bool isWeekend, LunarDay lunarDay, List<CalendarEvent> events, DayPanchanga? panchanga
 });
 
 
-@override $TraditionalDateCopyWith<$Res> get traditional;@override $LunarDayCopyWith<$Res> get lunarDay;
+@override $TraditionalDateCopyWith<$Res> get traditional;@override $LunarDayCopyWith<$Res> get lunarDay;@override $DayPanchangaCopyWith<$Res>? get panchanga;
 
 }
 /// @nodoc
@@ -175,7 +197,7 @@ class __$CalendarDayCopyWithImpl<$Res>
 
 /// Create a copy of CalendarDay
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? traditional = null,Object? ad = null,Object? isCurrentMonth = null,Object? isToday = null,Object? isWeekend = null,Object? lunarDay = null,Object? events = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? traditional = null,Object? ad = null,Object? isCurrentMonth = null,Object? isToday = null,Object? isWeekend = null,Object? lunarDay = null,Object? events = null,Object? panchanga = freezed,}) {
   return _then(_CalendarDay(
 traditional: null == traditional ? _self.traditional : traditional // ignore: cast_nullable_to_non_nullable
 as TraditionalDate,ad: null == ad ? _self.ad : ad // ignore: cast_nullable_to_non_nullable
@@ -184,7 +206,8 @@ as bool,isToday: null == isToday ? _self.isToday : isToday // ignore: cast_nulla
 as bool,isWeekend: null == isWeekend ? _self.isWeekend : isWeekend // ignore: cast_nullable_to_non_nullable
 as bool,lunarDay: null == lunarDay ? _self.lunarDay : lunarDay // ignore: cast_nullable_to_non_nullable
 as LunarDay,events: null == events ? _self._events : events // ignore: cast_nullable_to_non_nullable
-as List<CalendarEvent>,
+as List<CalendarEvent>,panchanga: freezed == panchanga ? _self.panchanga : panchanga // ignore: cast_nullable_to_non_nullable
+as DayPanchanga?,
   ));
 }
 
@@ -205,6 +228,18 @@ $LunarDayCopyWith<$Res> get lunarDay {
   
   return $LunarDayCopyWith<$Res>(_self.lunarDay, (value) {
     return _then(_self.copyWith(lunarDay: value));
+  });
+}/// Create a copy of CalendarDay
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DayPanchangaCopyWith<$Res>? get panchanga {
+    if (_self.panchanga == null) {
+    return null;
+  }
+
+  return $DayPanchangaCopyWith<$Res>(_self.panchanga!, (value) {
+    return _then(_self.copyWith(panchanga: value));
   });
 }
 }

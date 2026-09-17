@@ -1,3 +1,4 @@
+import '../../core/events/data_changes.dart';
 import '../../core/config/data_source_selector.dart';
 import '../../core/network/api_client.dart';
 import 'data/datasources/api_appointment_data_source.dart';
@@ -69,6 +70,8 @@ void registerAppointmentFeature(GetIt sl) {
             : null,
         astrologer: astrologer,
         initialServiceId: serviceId,
+        // Absent in tests that wire this feature on its own.
+        changes: sl.isRegistered<DataChanges>() ? sl<DataChanges>() : null,
       ),
     );
 }

@@ -7,6 +7,7 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/section_chevron_button.dart';
 import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/state_widgets.dart';
 import '../../domain/entities/suva_sait.dart';
@@ -105,6 +106,12 @@ class _Body extends StatelessWidget {
                 padding: EdgeInsets.symmetric(
                   horizontal: padding.left,
                   vertical: AppSpacing.sm,
+                ),
+                // Same destination as the "see more" link under the list, but
+                // always present: that link hides when nothing is published,
+                // while the Panchanga page behind this is there regardless.
+                trailing: SectionChevronButton(
+                  onPressed: onMore ?? () => context.push(AppRoutes.panchanga),
                 ),
               ),
             Padding(

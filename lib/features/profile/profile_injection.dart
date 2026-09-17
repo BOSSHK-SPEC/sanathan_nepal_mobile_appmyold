@@ -1,4 +1,8 @@
 import 'package:get_it/get_it.dart';
+import '../../core/events/data_changes.dart';
+import '../../core/session/session_sync.dart';
+import 'data/session/profile_session_sync.dart';
+import 'data/session/server_role_granter.dart';
 
 import '../../core/auth/auth_session_manager.dart';
 import '../../core/config/app_environment.dart';
@@ -83,14 +87,29 @@ void registerProfileFeature(GetIt sl) {
     ..registerLazySingleton<SessionSource>(
       () => ProfileSessionSource(sl<ProfileLocalDataSource>()),
     )
+    // Live, a role is never granted on the device: the granter asks the
+    // server what the account holds. Mock keeps the local grant, because the
+    // mock is the server there.
     ..registerLazySingleton<RoleGranter>(
-      () => ProfileRoleGranter(sl<ProfileLocalDataSource>()),
+      () => selectDataSource<RoleGranter>(
+        mock: () => ProfileRoleGranter(sl<ProfileLocalDataSource>()),
+        live: () => ServerRoleGranter(sl<SessionSync>()),
+      ),
+    )
+    ..registerLazySingleton<SessionSync>(
+      () => ProfileSessionSync(
+        profiles: sl<ProfileRepository>(),
+        local: sl<ProfileLocalDataSource>(),
+        refresher: sl<SessionRefresher>(),
+      ),
     )
     // Repositories
     ..registerLazySingleton<ProfileRepository>(
       () => ProfileRepositoryImpl(
         local: sl(),
         favourites: sl(),
+        // Registered later by the session feature; resolved lazily.
+        sessionRefresher: sl<SessionRefresher>(),
         // Null under mocks, so the seeded profile keeps working offline and in
         // tests; live, the server is the source of truth for name, contact
         // details and — most importantly — roles.
@@ -123,7 +142,7 @@ void registerProfileFeature(GetIt sl) {
     ..registerLazySingleton(() => SetBusinessStatus(sl()))
     ..registerLazySingleton(() => GetAppointments(sl()))
     ..registerLazySingleton(() => GetOrders(sl()))
-    ..registerLazySingleton(() => UpdateOrderStatus(sl()))
+    ..registerLazySingleton(() => ApplyOrderAction(sl()))
     ..registerLazySingleton(() => RateOrder(sl()))
     // Cubits
     ..registerFactory(
@@ -163,8 +182,10 @@ void registerProfileFeature(GetIt sl) {
       () => ActivityCubit(
         getAppointments: sl(),
         getOrders: sl(),
-        updateOrderStatus: sl(),
+        applyOrderAction: sl(),
         rateOrder: sl(),
+        // Absent in tests that wire this feature on its own.
+        changes: sl.isRegistered<DataChanges>() ? sl<DataChanges>() : null,
       ),
     );
 }

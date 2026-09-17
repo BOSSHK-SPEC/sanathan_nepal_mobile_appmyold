@@ -57,14 +57,14 @@ class ConversionResultSection extends StatelessWidget {
         devanagari: devanagari,
       ),
       weekday: weekday,
-      sunrise: CalendarFormat.time(
-        result.panchanga.sunrise,
-        devanagari: devanagari,
-      ),
-      sunset: CalendarFormat.time(
-        result.panchanga.sunset,
-        devanagari: devanagari,
-      ),
+      // "≈" marks the on-device estimate, shown only when the server's
+      // calculation for the day could not be loaded.
+      sunrise:
+          '${result.panchanga.isApproximate ? '≈' : ''}'
+          '${CalendarFormat.time(result.panchanga.sunrise, devanagari: devanagari)}',
+      sunset:
+          '${result.panchanga.isApproximate ? '≈' : ''}'
+          '${CalendarFormat.time(result.panchanga.sunset, devanagari: devanagari)}',
       holiday: result.isHoliday,
       footnote: showVikram
           ? '${strings.vikramSamvat} '

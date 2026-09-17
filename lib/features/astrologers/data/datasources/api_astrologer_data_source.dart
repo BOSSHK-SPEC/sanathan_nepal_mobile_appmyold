@@ -144,9 +144,10 @@ class ApiAstrologerDataSource implements AstrologerDataSource {
                 )
                 .toList()
               ..sort(
-                (a, b) => (b['endedAt'] ?? b['startedAt'] ?? '')
-                    .toString()
-                    .compareTo((a['endedAt'] ?? a['startedAt'] ?? '').toString()),
+                (a, b) =>
+                    (b['endedAt'] ?? b['startedAt'] ?? '').toString().compareTo(
+                      (a['endedAt'] ?? a['startedAt'] ?? '').toString(),
+                    ),
               );
 
         if (completed.isEmpty) return null;

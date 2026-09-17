@@ -7,6 +7,13 @@ import 'time_window.dart';
 
 part 'panchanga.freezed.dart';
 
+/// Where a day's values came from.
+///
+/// [computed] is the server's ephemeris calculation (matched against Drik
+/// Panchang); [approximate] is the on-device mean-motion estimate the app
+/// falls back to when it has never been able to reach the server for that day.
+enum PanchangaSource { computed, approximate }
+
 /// Full panchanga (पञ्चाङ्ग) of one civil day.
 @freezed
 abstract class Panchanga with _$Panchanga {
@@ -53,7 +60,13 @@ abstract class Panchanga with _$Panchanga {
 
     /// Eight daytime Choghadiya segments (sunrise → sunset), ascending.
     @Default([]) List<TimeWindow> choghadiya,
+
+    /// Whether these values are the server's calculation or the on-device
+    /// estimate — the screen says so when they are only an estimate.
+    @Default(PanchangaSource.approximate) PanchangaSource source,
   }) = _Panchanga;
+
+  bool get isApproximate => source == PanchangaSource.approximate;
 
   String nepalSamvatMonth({required bool nepali}) =>
       nepali ? nepalSamvatMonthNe : nepalSamvatMonthEn;

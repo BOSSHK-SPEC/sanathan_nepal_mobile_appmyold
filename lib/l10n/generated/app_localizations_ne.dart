@@ -265,6 +265,9 @@ class AppLocalizationsNe extends AppLocalizations {
   String get menuBecomeAstrologer => 'ज्योतिषी बन्नुहोस्';
 
   @override
+  String get menuAstrologerConsole => 'ज्योतिषी कन्सोल';
+
+  @override
   String get addAPhoto => 'फोटो थप्नुहोस्';
 
   @override
@@ -292,4 +295,13 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get removePhoto => 'फोटो हटाउनुहोस्';
+
+  @override
+  String get year => 'वर्ष';
+
+  @override
+  String get month => 'महिना';
+
+  @override
+  String get day => 'गते';
 }

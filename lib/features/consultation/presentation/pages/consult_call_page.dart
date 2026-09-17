@@ -10,6 +10,8 @@ import '../../../astrologers/domain/entities/consult_channel.dart';
 import '../cubit/live_session_cubit.dart';
 import '../l10n/consultation_strings.dart';
 import '../widgets/billing_meter.dart';
+import '../widgets/call_status_line.dart';
+import '../widgets/call_video_view.dart';
 import '../widgets/live_session_scope.dart';
 
 /// Live voice or video consultation.
@@ -69,6 +71,14 @@ class _CallView extends StatelessWidget {
                       children: [
                         const SizedBox(height: AppSpacing.lg),
                         BillingMeter(state: state),
+                        // Directly under the meter, because the two belong
+                        // together: this is what says whether the minutes
+                        // being charged are carrying any audio.
+                        CallStatusLine(
+                          state: state.callState,
+                          error: state.callError,
+                          onRetry: cubit.retryCall,
+                        ),
                         if (state.isLowBalance)
                           Padding(
                             padding: const EdgeInsets.only(
@@ -85,13 +95,33 @@ class _CallView extends StatelessWidget {
                                   context.push(AppRoutes.walletTopUp),
                             ),
                           ),
-                        const Spacer(),
-                        AppAvatar(
-                          source: session.astrologerAvatar,
-                          name: session.astrologerName.en,
-                          size: isVideo ? 120 : 148,
-                          borderColor: colors.accent,
-                        ),
+                        // A video session shows the person; a voice session
+                        // shows who you are talking to. Same screen, and the
+                        // controls below are identical either way.
+                        if (isVideo)
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.pageGutter,
+                                vertical: AppSpacing.lg,
+                              ),
+                              child: CallVideoView(
+                                room: cubit.mediaRoom,
+                                placeholderName: session.astrologerName
+                                    .forLanguage(context.languageCode),
+                                avatarUrl: session.astrologerAvatar,
+                              ),
+                            ),
+                          )
+                        else ...[
+                          const Spacer(),
+                          AppAvatar(
+                            source: session.astrologerAvatar,
+                            name: session.astrologerName.en,
+                            size: 148,
+                            borderColor: colors.accent,
+                          ),
+                        ],
                         const SizedBox(height: AppSpacing.xl),
                         Text(
                           session.astrologerName.forLanguage(
@@ -108,7 +138,10 @@ class _CallView extends StatelessWidget {
                             color: _muted,
                           ),
                         ),
-                        const Spacer(),
+                        // The video already took the free space above; a second
+                        // flexible child here would halve the picture.
+                        if (!isVideo) const Spacer(),
+                        if (isVideo) const SizedBox(height: AppSpacing.xl),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

@@ -133,7 +133,11 @@ class _AstrologerCard extends StatelessWidget {
                           ),
                           if (astrologer.isVerified) ...[
                             const SizedBox(width: 4),
-                            Icon(Icons.verified, size: 14, color: colors.accent),
+                            Icon(
+                              Icons.verified,
+                              size: 14,
+                              color: colors.accent,
+                            ),
                           ],
                         ],
                       ),
@@ -190,7 +194,11 @@ class _AstrologerCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                Icon(Icons.chevron_right_rounded, size: 16, color: colors.accent),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 16,
+                  color: colors.accent,
+                ),
               ],
             ),
           ],

@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../../../../app/di/injection.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/state/load_state.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../panchanga/presentation/cubit/panchanga_cubit.dart';
 import '../../domain/entities/calendar_day.dart';
 import '../../domain/entities/calendar_event.dart';
 import '../../domain/entities/calendar_view_mode.dart';
-import '../../domain/services/panchanga_approximator.dart';
+import '../../domain/entities/day_panchanga.dart';
+import '../../domain/services/day_panchanga_estimate.dart';
 import '../l10n/calendar_strings.dart';
 import '../utils/calendar_format.dart';
 import 'event_detail_sheet.dart';
+import 'vrat_marker.dart';
 
-/// Day popup (Figma 320:1250): traditional/AD title, "आज" chip, tithi +
-/// paksha, sunrise/sunset (region's default city), पञ्चाङ्ग rows, events
-/// and शुभ साइत.
+/// Day popup (Figma 320:1250): the date in both calendars, the day's tithi
+/// with the moment it ends, sunrise and sunset, the five limbs of the
+/// panchanga, vrat, events and the auspicious times a panel has published —
+/// plus "add a reminder" and "share".
+///
+/// Panchanga comes from the server's ephemeris calculation. A day that has
+/// none (offline, never fetched) shows the on-device estimate, labelled as
+/// approximate. Auspicious times are never invented: a day with none
+/// published says so.
 class DateDetailSheet extends StatelessWidget {
   const DateDetailSheet({required this.day, super.key});
 
@@ -32,22 +45,26 @@ class DateDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final languageCode = context.languageCode;
+    final lang = context.languageCode;
     final devanagari = context.usesDevanagariDigits;
     final config = context.regionConfig;
     final strings = CalendarStrings.of(context);
-    final info = PanchangaApproximator.forRegion(day.ad, config);
-    final title =
-        '${CalendarFormat.traditionalDate(day.traditional, calendar: config.calendar, languageCode: languageCode, era: config.labelsTraditionalEra)}, '
-        '${CalendarFormat.weekdayFull(day.ad, languageCode: languageCode)}';
-    final tithi = info.lunarDay.tithiName(nepali: devanagari);
-    final paksha = info.lunarDay.pakshaName(nepali: devanagari);
-    final lunarIndex = PanchangaApproximator.siderealMonthIndex(day.ad);
-    final lunarMonth = devanagari
-        ? _lunarMonthNe[lunarIndex]
-        : _lunarMonthEn[lunarIndex];
+    final p = day.panchanga ?? DayPanchangaEstimate.forDate(day.ad, config);
 
-    return DecoratedBox(
+    final title =
+        '${CalendarFormat.traditionalDate(day.traditional, calendar: config.calendar, languageCode: lang, era: config.labelsTraditionalEra)}, '
+        '${CalendarFormat.weekdayFull(day.ad, languageCode: lang)}';
+    final month =
+        '${p.lunarMonth.resolve(lang)}'
+        '${p.isAdhikaMonth ? ' (${strings.adhika})' : ''}';
+    final tithi = '${p.tithi.resolve(lang)}, $month ${p.pakshaName.resolve(lang)}';
+    final endsAt = p.tithiEndsAt;
+    final until = endsAt == null
+        ? null
+        : strings.until(CalendarFormat.time(endsAt, devanagari: devanagari));
+    String time(DateTime t) => CalendarFormat.time(t, devanagari: devanagari);
+
+    final sheet = DecoratedBox(
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
@@ -94,10 +111,14 @@ class DateDetailSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    '$tithi, $lunarMonth $paksha',
-                    style: context.textTheme.bodyMedium,
-                  ),
+                  Text(tithi, style: context.textTheme.bodyMedium),
+                  if (until != null)
+                    Text(
+                      until,
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
                   const SizedBox(height: 2),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -105,54 +126,61 @@ class DateDetailSheet extends StatelessWidget {
                       _SunTime(
                         icon: Icons.wb_twilight,
                         label: strings.sunrise,
-                        time: CalendarFormat.time(
-                          info.sunrise,
-                          devanagari: devanagari,
-                        ),
+                        time: time(p.sunrise),
                       ),
                       const SizedBox(width: AppSpacing.md),
                       _SunTime(
                         icon: Icons.nightlight_outlined,
                         label: strings.sunset,
-                        time: CalendarFormat.time(
-                          info.sunset,
-                          devanagari: devanagari,
-                        ),
+                        time: time(p.sunset),
                       ),
                     ],
                   ),
+                  if (p.isApproximate) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    _ApproximateNote(text: strings.approximateNote),
+                  ],
                 ],
               ),
             ),
+            if (p.isVrat && !p.isApproximate) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Wrap(
+                spacing: AppSpacing.xs,
+                children: [
+                  for (final kind in p.vrat)
+                    Chip(
+                      avatar: VratMarker(kind: kind, size: 10),
+                      label: Text(strings.vrat(kind)),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                ],
+              ),
+            ],
             const SizedBox(height: AppSpacing.lg),
             Text(strings.panchanga, style: context.textTheme.headlineSmall),
             const SizedBox(height: AppSpacing.sm),
             _InfoRow(
               label: strings.day,
-              value: CalendarFormat.weekdayFull(
-                day.ad,
-                languageCode: languageCode,
-              ),
+              value: CalendarFormat.weekdayFull(day.ad, languageCode: lang),
             ),
             _InfoRow(
-              label: strings.nakshatra,
-              value: info.nakshatra(nepali: devanagari),
+              label: strings.tithi,
+              value: [
+                '${p.tithi.resolve(lang)} (${p.pakshaName.resolve(lang)})',
+                ?until,
+              ].join(' · '),
             ),
-            _InfoRow(label: strings.tithi, value: '$tithi ($paksha)'),
-            _InfoRow(
-              label: strings.karan,
-              value: info.karan(nepali: devanagari),
-            ),
-            _InfoRow(
-              label: strings.yog,
-              value: info.yog(nepali: devanagari),
-            ),
+            _InfoRow(label: strings.nakshatra, value: p.nakshatra.resolve(lang)),
+            _InfoRow(label: strings.yog, value: p.yoga.resolve(lang)),
+            _InfoRow(label: strings.karan, value: p.karana.resolve(lang)),
+            _InfoRow(label: strings.moonSign, value: p.moonRashi.resolve(lang)),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  context.push(AppRoutes.panchanga);
+                  context.push('${AppRoutes.panchanga}?date=${_iso(day.ad)}');
                 },
                 child: Text(
                   strings.moreInfo,
@@ -183,56 +211,146 @@ class DateDetailSheet extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             Text(strings.subhaSait, style: context.textTheme.headlineSmall),
             const SizedBox(height: AppSpacing.xs),
-            for (final s in _subhaSait(day, strings)) _Bullet(text: s),
+            const _PublishedSaits(),
+            const SizedBox(height: AppSpacing.lg),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      context.push(
+                        AppRoutes.eventCreate,
+                        extra: DateTime(day.ad.year, day.ad.month, day.ad.day),
+                      );
+                    },
+                    icon: const Icon(Icons.alarm_add_outlined, size: 18),
+                    label: Text(strings.addReminder),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => SharePlus.instance.share(
+                      ShareParams(
+                        subject: title,
+                        text: _shareText(
+                          title: title,
+                          tithi: tithi,
+                          until: until,
+                          panchanga: p,
+                          lang: lang,
+                          strings: strings,
+                          time: time,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.share_outlined, size: 18),
+                    label: Text(strings.share),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
+
+    // Published auspicious times come from the panchanga feature, the same
+    // way the date converter shows them.
+    if (!sl.isRegistered<PanchangaCubit>()) return sheet;
+    return BlocProvider<PanchangaCubit>(
+      create: (_) => sl<PanchangaCubit>()..selectDate(day.ad),
+      child: sheet,
+    );
   }
 
-  /// Deterministic mock शुभ साइत bullets keyed on tithi.
-  List<String> _subhaSait(CalendarDay day, CalendarStrings strings) {
-    final t = day.lunarDay.tithiIndex;
-    if (day.isWeekend || t == 4 || t == 9 || t == 14) {
-      return [strings.noSubhaSait];
+  String _shareText({
+    required String title,
+    required String tithi,
+    required String? until,
+    required DayPanchanga panchanga,
+    required String lang,
+    required CalendarStrings strings,
+    required String Function(DateTime) time,
+  }) => [
+    title,
+    CalendarFormat.adDate(day.ad),
+    '${strings.tithi}: $tithi${until == null ? '' : ' ($until)'}',
+    '${strings.nakshatra}: ${panchanga.nakshatra.resolve(lang)}',
+    '${strings.sunrise} ${time(panchanga.sunrise)} · '
+        '${strings.sunset} ${time(panchanga.sunset)}',
+    for (final e in day.events) '• ${e.title(languageCode: lang)}',
+    if (panchanga.isApproximate) strings.approximateNote,
+  ].join('\n');
+
+  static String _iso(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
+}
+
+/// The auspicious times published for the day, or a plain statement that
+/// none are — never a list made up from the tithi.
+class _PublishedSaits extends StatelessWidget {
+  const _PublishedSaits();
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = CalendarStrings.of(context);
+    final colors = context.colors;
+    final muted = context.textTheme.bodySmall?.copyWith(
+      color: colors.textSecondary,
+    );
+    if (!sl.isRegistered<PanchangaCubit>()) {
+      return Text(strings.noSaitsForDay, style: muted);
     }
-    return [
-      if (t.isOdd) strings.muhurtaPasni,
-      if (t % 3 == 0) strings.muhurtaWedding,
-      if (t % 5 == 0) strings.muhurtaHavan,
-      if (t.isEven) strings.muhurtaTravel,
-    ];
+    return BlocBuilder<PanchangaCubit, PanchangaState>(
+      buildWhen: (a, b) => a.saits != b.saits || a.date != b.date,
+      builder: (context, state) => switch (state.saits) {
+        Loaded() => state.saitsToday.isEmpty
+            ? Text(strings.noSaitsForDay, style: muted)
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final sait in state.saitsToday)
+                    _Bullet(
+                      text: sait.title(nepali: context.usesDevanagariDigits),
+                    ),
+                ],
+              ),
+        Failed() => Text(strings.saitsUnavailable, style: muted),
+        _ => const SizedBox(
+          height: 20,
+          width: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      },
+    );
   }
+}
 
-  /// Lunar month names indexed by sidereal solar month (0 = Mesha/Vaishakh).
-  static const List<String> _lunarMonthNe = [
-    'वैशाख',
-    'ज्येष्ठ',
-    'आषाढ',
-    'श्रावण',
-    'भाद्र',
-    'आश्विन',
-    'कार्तिक',
-    'मार्ग',
-    'पौष',
-    'माघ',
-    'फाल्गुण',
-    'चैत्र',
-  ];
-  static const List<String> _lunarMonthEn = [
-    'Vaishakh',
-    'Jyeshtha',
-    'Ashadh',
-    'Shrawan',
-    'Bhadra',
-    'Ashwin',
-    'Kartik',
-    'Marga',
-    'Poush',
-    'Magh',
-    'Falgun',
-    'Chaitra',
-  ];
+class _ApproximateNote extends StatelessWidget {
+  const _ApproximateNote({required this.text});
+  final String text;
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(Icons.info_outline, size: 12, color: context.colors.textMuted),
+      const SizedBox(width: 4),
+      Flexible(
+        child: Text(
+          text,
+          textAlign: TextAlign.end,
+          style: context.textTheme.labelSmall?.copyWith(
+            fontSize: 9,
+            color: context.colors.textMuted,
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 class _TodayChip extends StatelessWidget {
@@ -285,7 +403,7 @@ class _InfoRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 64,
+          width: 72,
           child: Text(label, style: context.textTheme.titleSmall),
         ),
         Expanded(

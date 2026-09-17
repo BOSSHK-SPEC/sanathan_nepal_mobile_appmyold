@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sanathan_nepal_mobile_app/app/di/injection.dart';
+import 'package:sanathan_nepal_mobile_app/features/calendar/domain/entities/calendar_view_mode.dart';
+import 'package:sanathan_nepal_mobile_app/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_resolver.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_scope.dart';
 import 'package:sanathan_nepal_mobile_app/core/theme/app_theme.dart';
+import 'package:sanathan_nepal_mobile_app/core/widgets/section_chevron_button.dart';
 import 'package:sanathan_nepal_mobile_app/features/calendar/calendar_injection.dart';
 import 'package:sanathan_nepal_mobile_app/features/calendar/presentation/widgets/month_calendar_view.dart';
 import 'package:sanathan_nepal_mobile_app/features/panchanga/data/datasources/mock_panchanga_data_source.dart';
@@ -70,6 +75,36 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
 
 void main() {
   tearDown(sl.reset);
+
+  // The day summary chose its leading calendar from the region, so it stayed
+  // in B.S. while the grid beside it showed A.D.
+  testWidgets('day summary follows the header grid into A.D.', (tester) async {
+    tester.view.physicalSize = const Size(400, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _registerCalendar(Region.nepal);
+    final cubit = _cubit();
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      _app(
+        BlocProvider.value(value: cubit..load(), child: const PanchangaView()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('फागुन,२०७९'), findsOneWidget);
+
+    unawaited(
+      tester
+          .element(find.byType(MonthCalendarView))
+          .read<CalendarCubit>()
+          .setViewMode(CalendarViewMode.gregorian),
+    );
+    await tester.pumpAndSettle();
+
+    // 23 Feb 2023: the column now leads with the A.D. month.
+    expect(find.text('फागुन,२०७९'), findsNothing);
+    expect(find.text('फेब्रुअरी, २०२३'), findsWidgets);
+  });
 
   testWidgets('PanchangaPage renders header, sait panel and table (Nepali)', (
     tester,
@@ -399,6 +434,39 @@ void main() {
 
       expect(find.textContaining('थप शुभ साइत'), findsOneWidget);
       expect(find.textContaining('प्रकाशित भएको छैन'), findsNothing);
+    });
+
+    // The header ended in an accent rule, so the Panchanga page behind the
+    // section went undiscovered. Unlike the "see more" link, the `>` stays
+    // when nothing is published: the page it opens is there regardless.
+    testWidgets('header ends in a > to the Panchanga page, published or not', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 1800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      var opened = 0;
+      await tester.pumpWidget(
+        _app(
+          Scaffold(
+            body: SingleChildScrollView(
+              child: SuvaSaitSection(
+                cubit: emptyCubit()..load(),
+                onMore: () => opened++,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SectionChevronButton), findsOneWidget);
+      // Localised like the rest of the section (the app runs in Nepali here).
+      expect(find.byTooltip('सबै हेर्नुहोस्'), findsOneWidget);
+
+      await tester.tap(find.byType(SectionChevronButton));
+      expect(opened, 1);
     });
   });
 }

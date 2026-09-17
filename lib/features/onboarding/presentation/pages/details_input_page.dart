@@ -17,6 +17,7 @@ import '../widgets/date_of_birth_field.dart';
 import '../widgets/auth_flow_navigation.dart';
 import '../widgets/page_dots.dart';
 import '../widgets/post_sign_in_scope.dart';
+import '../widgets/profile_photo_field.dart';
 
 /// Details Input Page (Figma 205:15): name, DOB (BS/AD · Saka/A.D.), birth
 /// time & place,
@@ -138,6 +139,12 @@ class _DetailsFormState extends State<_DetailsForm> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
+                  ProfilePhotoField(
+                    url: draft.avatarUrl,
+                    name: draft.fullName,
+                    onChanged: cubit.setAvatarUrl,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
                   AppTextField(
                     label: s.fullName,
                     required: true,

@@ -226,7 +226,6 @@ class _NotesViewState extends State<_NotesView> {
   }
 }
 
-
 /// What the "add remedy" sheet collected.
 @immutable
 class _RemedyDraft {

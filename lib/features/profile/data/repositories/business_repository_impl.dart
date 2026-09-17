@@ -38,6 +38,12 @@ class BusinessRepositoryImpl implements BusinessRepository {
       });
 
   @override
+  Future<Result<BusinessProfile>> setBusinessImage(
+    BusinessImageSlot slot,
+    String? url,
+  ) => guard(() async => (await _source.setImage(slot, url)).toEntity());
+
+  @override
   Future<Result<BusinessProfile>> setStatus(
     String id,
     BusinessStatus status, {

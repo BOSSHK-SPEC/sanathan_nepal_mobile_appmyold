@@ -1,6 +1,7 @@
 import '../../../../core/usecase/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../entities/astrologer_session.dart';
+import '../entities/call_credentials.dart';
 import '../entities/chat_message.dart';
 import '../entities/consult_intake.dart';
 import '../entities/consultation.dart';
@@ -105,6 +106,25 @@ class GetSpendableBalance implements NoParamsUseCase<double> {
 
   @override
   Future<Result<double>> call() => _repo.spendableBalance();
+}
+
+/// A join token for a live call. Fetched per join — never stored.
+class GetCallCredentials implements UseCase<CallCredentials, String> {
+  const GetCallCredentials(this._repo);
+  final ConsultationRepository _repo;
+
+  @override
+  Future<Result<CallCredentials>> call(String params) =>
+      _repo.callCredentials(params);
+}
+
+/// Whether this deployment carries voice and video at all.
+class GetCallsAvailable implements NoParamsUseCase<bool> {
+  const GetCallsAvailable(this._repo);
+  final ConsultationRepository _repo;
+
+  @override
+  Future<Result<bool>> call() => _repo.callsAvailable();
 }
 
 // --- Astrologer side ---------------------------------------------------

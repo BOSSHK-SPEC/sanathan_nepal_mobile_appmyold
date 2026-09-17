@@ -1,3 +1,4 @@
+import 'package:sanathan_nepal_mobile_app/core/events/data_changes.dart';
 import 'package:sanathan_nepal_mobile_app/core/session/app_role.dart';
 import 'package:sanathan_nepal_mobile_app/core/session/session_refresher.dart';
 import 'package:sanathan_nepal_mobile_app/core/session/role_granter.dart';
@@ -57,12 +58,16 @@ class MockGetAppointments extends Mock implements GetAppointments {}
 
 class MockGetOrders extends Mock implements GetOrders {}
 
-class MockUpdateOrderStatus extends Mock implements UpdateOrderStatus {}
+class MockApplyOrderAction extends Mock implements ApplyOrderAction {}
 
 class MockRateOrder extends Mock implements RateOrder {}
 
 const profile = UserProfile(id: 'u1', name: 'Kritika', email: 'k@x.com');
 const business = BusinessProfile(id: 'b1', name: 'Biz', category: 'Cat');
+/// A sale waiting on the seller — the one state where Accept is offered.
+///
+/// It used to be `placed`, which is *before payment settles*: the seller had
+/// nothing to accept, and the server would have refused the transition.
 final order = OrderSummary(
   id: 'o1',
   productName: 'Phone',
@@ -70,7 +75,7 @@ final order = OrderSummary(
   counterpartyName: 'Ram',
   counterpartyId: 'u2',
   role: OrderRole.seller,
-  status: OrderStatus.placed,
+  status: OrderStatus.confirmed,
   updatedAt: DateTime(2024),
 );
 
@@ -82,7 +87,7 @@ void main() {
       const SetBusinessStatusParams(id: '', status: BusinessStatus.pending),
     );
     registerFallbackValue(
-      const UpdateOrderStatusParams(id: '', status: OrderStatus.placed),
+      ApplyOrderActionParams(order: order, action: OrderAction.accept),
     );
     registerFallbackValue(const RateOrderParams(id: '', rating: 1));
   });
@@ -260,29 +265,30 @@ void main() {
       sessionRefresher: refresher,
     );
 
-    test('claiming seller access grants merchant and refreshes the session', () async {
-      // The bug this covers: an approved business left the owner without
-      // `manageProducts`, because permissions come from the cached profile and
-      // nothing re-derived them after approval. The Products tab then told an
-      // approved seller they were "still under review", forever.
-      when(
-        () => getBusiness('b1'),
-      ).thenAnswer(
-        (_) async => Result.success(
-          business.copyWith(status: BusinessStatus.approved),
-        ),
-      );
+    test(
+      'claiming seller access grants merchant and refreshes the session',
+      () async {
+        // The bug this covers: an approved business left the owner without
+        // `manageProducts`, because permissions come from the cached profile and
+        // nothing re-derived them after approval. The Products tab then told an
+        // approved seller they were "still under review", forever.
+        when(() => getBusiness('b1')).thenAnswer(
+          (_) async => Result.success(
+            business.copyWith(status: BusinessStatus.approved),
+          ),
+        );
 
-      final cubit = build();
-      await cubit.load('b1');
+        final cubit = build();
+        await cubit.load('b1');
 
-      expect(await cubit.claimSellerAccess(), isTrue);
-      expect(roles.granted, [AppRole.merchant]);
-      // Granting alone changes nothing on screen — the session is what the UI
-      // reads, so it has to be re-derived too.
-      expect(refresher.refreshes, 1);
-      await cubit.close();
-    });
+        expect(await cubit.claimSellerAccess(), isTrue);
+        expect(roles.granted, [AppRole.merchant]);
+        // Granting alone changes nothing on screen — the session is what the UI
+        // reads, so it has to be re-derived too.
+        expect(refresher.refreshes, 1);
+        await cubit.close();
+      },
+    );
 
     test('a business still under review claims nothing', () async {
       when(
@@ -538,21 +544,21 @@ void main() {
   group('ActivityCubit', () {
     late MockGetAppointments getAppointments;
     late MockGetOrders getOrders;
-    late MockUpdateOrderStatus updateStatus;
+    late MockApplyOrderAction applyAction;
     late MockRateOrder rateOrder;
     setUp(() {
       getAppointments = MockGetAppointments();
       getOrders = MockGetOrders();
-      updateStatus = MockUpdateOrderStatus();
+      applyAction = MockApplyOrderAction();
       rateOrder = MockRateOrder();
     });
 
     blocTest<ActivityCubit, ActivityState>(
-      'load then acceptOrder replaces the order',
+      'load then accept replaces the order',
       build: () => ActivityCubit(
         getAppointments: getAppointments,
         getOrders: getOrders,
-        updateOrderStatus: updateStatus,
+        applyOrderAction: applyAction,
         rateOrder: rateOrder,
       ),
       setUp: () {
@@ -560,19 +566,30 @@ void main() {
           getAppointments.call,
         ).thenAnswer((_) async => const Result.success([]));
         when(getOrders.call).thenAnswer((_) async => Result.success([order]));
-        when(() => updateStatus(any())).thenAnswer(
+        when(() => applyAction(any())).thenAnswer(
           (_) async =>
               Result.success(order.copyWith(status: OrderStatus.processing)),
         );
       },
       act: (c) async {
         await c.load();
-        await c.acceptOrder('o1');
+        await c.act(order, OrderAction.accept);
       },
       expect: () => [
         const ActivityState(
           appointments: LoadState.loading(),
           orders: LoadState.loading(),
+        ),
+        ActivityState(
+          appointments: const LoadState.loaded([]),
+          orders: LoadState.loaded([order]),
+        ),
+        // Held pending while the request is out, so the card can disable its
+        // buttons instead of accepting a second tap.
+        ActivityState(
+          appointments: const LoadState.loaded([]),
+          orders: LoadState.loaded([order]),
+          pendingOrderId: 'o1',
         ),
         ActivityState(
           appointments: const LoadState.loaded([]),
@@ -589,11 +606,55 @@ void main() {
     );
 
     blocTest<ActivityCubit, ActivityState>(
-      'failed order action keeps the orders as previous data',
+      'a refused action keeps the list and says why',
       build: () => ActivityCubit(
         getAppointments: getAppointments,
         getOrders: getOrders,
-        updateOrderStatus: updateStatus,
+        applyOrderAction: applyAction,
+        rateOrder: rateOrder,
+      ),
+      setUp: () {
+        when(
+          getAppointments.call,
+        ).thenAnswer((_) async => const Result.success([]));
+        when(getOrders.call).thenAnswer((_) async => Result.success([order]));
+        when(() => applyAction(any())).thenAnswer(
+          (_) async => const Result.failure(
+            ValidationFailure('This order has already shipped'),
+          ),
+        );
+      },
+      act: (c) async {
+        await c.load();
+        await c.act(order, OrderAction.accept);
+      },
+      verify: (c) {
+        // The orders on screen were never wrong — blanking them hid the card
+        // the seller was pressing, which is why the button looked dead.
+        expect(c.state.orders.dataOrNull, [order]);
+        expect(c.state.actionError, 'This order has already shipped');
+        expect(c.state.pendingOrderId, isNull);
+      },
+    );
+
+    test('refuses an action the order does not offer, without a request', () {
+      // A completed sale has no actions left; the guard lives in the use case
+      // so every caller gets it, not just the card that hides the button.
+      final finished = order.copyWith(status: OrderStatus.completed);
+      expect(finished.availableActions, isEmpty);
+      expect(order.availableActions, contains(OrderAction.accept));
+      expect(
+        order.copyWith(role: OrderRole.buyer).availableActions,
+        contains(OrderAction.cancel),
+      );
+    });
+
+    blocTest<ActivityCubit, ActivityState>(
+      'a failed rating leaves the list alone and reports the reason',
+      build: () => ActivityCubit(
+        getAppointments: getAppointments,
+        getOrders: getOrders,
+        applyOrderAction: applyAction,
         rateOrder: rateOrder,
       ),
       setUp: () {
@@ -611,19 +672,50 @@ void main() {
       },
       skip: 2,
       expect: () => [
+        // The orders were loaded fine; only the rating failed. Moving the
+        // whole list to `failed` used to hide every card behind an error the
+        // tab did not even render while the list was non-empty.
         ActivityState(
           appointments: const LoadState.loaded([]),
-          orders: LoadState.failed(
-            const NotFoundFailure('gone'),
-            previous: [order],
-          ),
+          orders: LoadState.loaded([order]),
+          actionError: 'gone',
         ),
       ],
       verify: (c) => expect(c.state.sales, hasLength(1)),
     );
+
+    test(
+      'reloads when an order is placed elsewhere, and stops once closed',
+      () async {
+        // The Profile tab stays alive, so it loaded before the order existed;
+        // only the signal makes it look again.
+        final changes = DataChanges();
+        addTearDown(changes.dispose);
+        when(
+          getAppointments.call,
+        ).thenAnswer((_) async => const Result.success([]));
+        when(getOrders.call).thenAnswer((_) async => Result.success([order]));
+        final cubit = ActivityCubit(
+          getAppointments: getAppointments,
+          getOrders: getOrders,
+          applyOrderAction: applyAction,
+          rateOrder: rateOrder,
+          changes: changes,
+        );
+
+        changes.notify(DataTopic.orders);
+        await pumpEventQueue();
+        verify(getOrders.call).called(1);
+        expect(cubit.state.orders.dataOrNull, [order]);
+
+        await cubit.close();
+        changes.notify(DataTopic.orders);
+        await pumpEventQueue();
+        verifyNever(getOrders.call);
+      },
+    );
   });
 }
-
 
 /// Records what was granted, so the seller claim can be asserted without a
 /// real profile store behind it.

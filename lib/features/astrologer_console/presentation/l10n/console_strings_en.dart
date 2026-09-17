@@ -362,8 +362,7 @@ class _En extends ConsoleStrings {
   @override
   String get setScheduleAction => 'Set schedule';
   @override
-  String get availabilityUnavailable =>
-      'Could not check your availability';
+  String get availabilityUnavailable => 'Could not check your availability';
   @override
   String get onlineChangeFailed => 'Could not change your status';
   @override
@@ -700,4 +699,136 @@ class _En extends ConsoleStrings {
   String stepCounter(String current, String total) => '$current / $total';
   @override
   String minutesLabel(String minutes) => '$minutes min';
+
+  // --- Appointments ---
+  @override
+  String get apptTitle => 'Appointments';
+  @override
+  String get apptUpcomingSection => 'Upcoming appointments';
+  @override
+  String get apptUpcomingTab => 'Upcoming';
+  @override
+  String get apptPastTab => 'Past';
+  @override
+  String get apptSeeAll => 'See all';
+  @override
+  String get apptNoUpcoming => 'No upcoming appointments';
+  @override
+  String get apptNoUpcomingHint =>
+      'When someone books a sitting with you, it appears here with their details.';
+  @override
+  String get apptNoPast => 'No past appointments yet';
+  @override
+  String get apptDetails => 'Appointment';
+  @override
+  String get apptClient => 'Client';
+  @override
+  String get apptPhone => 'Phone';
+  @override
+  String get apptEmail => 'Email';
+  @override
+  String get apptCountry => 'Country';
+  @override
+  String get apptCall => 'Call';
+  @override
+  String get apptWhatsapp => 'WhatsApp';
+  @override
+  String get apptBirthDetails => 'Birth details';
+  @override
+  String get apptBirthDate => 'Date of birth';
+  @override
+  String get apptBirthTime => 'Time of birth';
+  @override
+  String get apptBirthPlace => 'Place of birth';
+  @override
+  String get apptBirthMissing => 'The client did not give their birth details.';
+  @override
+  String get apptClientNote => 'Note from the client';
+  @override
+  String get apptAttachments => 'Attachments';
+  @override
+  String get apptBirthChart => 'Birth chart (cheena)';
+  @override
+  String get apptReceipt => 'Payment receipt';
+  @override
+  String get apptOpenFile => 'Open';
+  @override
+  String get apptFileUnavailable => 'This file is no longer available.';
+  @override
+  String get apptSitting => 'Sitting';
+  @override
+  String get apptType => 'Type';
+  @override
+  String get apptAdvice => 'What you advised';
+  @override
+  String get apptFollowUp => 'Follow-up';
+  @override
+  String get apptWhen => 'When';
+  @override
+  String get apptLength => 'Length';
+  @override
+  String get apptAmount => 'Amount';
+  @override
+  String get apptPayment => 'Payment';
+  @override
+  String get apptMarkCompleted => 'Mark as completed';
+  @override
+  String get apptMarkNoShow => 'Client did not come';
+  @override
+  String get apptCancel => 'Cancel appointment';
+  @override
+  String get apptOutcomeAfterStart =>
+      'You can mark how it went once the sitting starts.';
+  @override
+  String get apptCancelTitle => 'Cancel this appointment?';
+  @override
+  String get apptCancelBody =>
+      'The client will see that you cancelled, with your reason, and the time goes back on your calendar.';
+  @override
+  String get apptCancelReasonHint => 'Reason for the client';
+  @override
+  String get apptCancelReasonTooShort => 'Tell the client why, in a few words.';
+  @override
+  String get apptConfirmCancel => 'Cancel appointment';
+  @override
+  String get apptKeep => 'Keep it';
+  @override
+  String get apptMarkedCompleted => 'Marked as completed.';
+  @override
+  String get apptMarkedNoShow => 'Marked as a no-show.';
+  @override
+  String get apptCancelled => 'Appointment cancelled.';
+  @override
+  String get apptCouldNotOpen => 'Could not open it on this phone.';
+  @override
+  String apptReference(String reference) => 'Booking $reference';
+  @override
+  String apptSeats(String count) => 'For $count people';
+  @override
+  String apptStatus(ConsoleAppointmentStatus status) => switch (status) {
+    ConsoleAppointmentStatus.pending => 'Pending',
+    ConsoleAppointmentStatus.confirmed => 'Confirmed',
+    ConsoleAppointmentStatus.completed => 'Completed',
+    ConsoleAppointmentStatus.cancelled => 'Cancelled',
+    ConsoleAppointmentStatus.noShow => 'No-show',
+    ConsoleAppointmentStatus.rescheduled => 'Rescheduled',
+    ConsoleAppointmentStatus.missed => 'Missed',
+    ConsoleAppointmentStatus.declined => 'Declined',
+  };
+  @override
+  String apptChannel(String? channel) => switch (channel) {
+    'chat' => 'Chat',
+    'voice' => 'Voice call',
+    'video' => 'Video call',
+    _ => 'Session',
+  };
+  @override
+  String apptRemedyKind(RemedyKind kind) => switch (kind) {
+    RemedyKind.gemstone => 'Gemstone',
+    RemedyKind.mantra => 'Mantra',
+    RemedyKind.puja => 'Puja',
+    RemedyKind.donation => 'Donation',
+    RemedyKind.fasting => 'Fasting',
+    RemedyKind.practice => 'Practice',
+  };
 }

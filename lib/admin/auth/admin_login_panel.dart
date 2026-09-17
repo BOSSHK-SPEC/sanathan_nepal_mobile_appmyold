@@ -335,10 +335,7 @@ class _Notice extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            body,
-            style: context.textTheme.bodySmall?.copyWith(height: 1.5),
-          ),
+          Text(body, style: context.textTheme.bodySmall?.copyWith(height: 1.5)),
           ?action,
         ],
       ),

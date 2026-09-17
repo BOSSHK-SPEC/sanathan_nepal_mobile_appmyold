@@ -9,6 +9,7 @@ import '../../domain/entities/planet_position.dart';
 import '../../domain/entities/time_window.dart';
 import '../models/panchanga_model.dart';
 import '../models/suva_sait_model.dart';
+import 'muhurta_windows.dart';
 import 'panchanga_data_source.dart';
 import 'panchanga_names.dart';
 import 'suva_sait_seed.dart';
@@ -279,11 +280,26 @@ class MockPanchangaDataSource implements PanchangaDataSource {
       anandadiYogaNe: PanchangaNames.anandadiNe[anandadi],
       anandadiYogaEn: PanchangaNames.anandadiEn[anandadi],
       planets: _planets(d, ayan),
-      rahuKaal: _kaal(TimeWindowKind.rahuKaal, weekday, sunrise, sunset),
-      yamaganda: _kaal(TimeWindowKind.yamaganda, weekday, sunrise, sunset),
-      gulikaKaal: _kaal(TimeWindowKind.gulikaKaal, weekday, sunrise, sunset),
-      abhijitMuhurat: _abhijit(sunrise, sunset),
-      choghadiya: _choghadiya(weekday, sunrise, sunset),
+      rahuKaal: MuhurtaWindows.kaal(
+        TimeWindowKind.rahuKaal,
+        weekday,
+        sunrise,
+        sunset,
+      ),
+      yamaganda: MuhurtaWindows.kaal(
+        TimeWindowKind.yamaganda,
+        weekday,
+        sunrise,
+        sunset,
+      ),
+      gulikaKaal: MuhurtaWindows.kaal(
+        TimeWindowKind.gulikaKaal,
+        weekday,
+        sunrise,
+        sunset,
+      ),
+      abhijitMuhurat: MuhurtaWindows.abhijit(sunrise, sunset),
+      choghadiya: MuhurtaWindows.choghadiya(weekday, sunrise, sunset),
     );
     return PanchangaModel.fromEntity(panchanga);
   }
@@ -293,101 +309,6 @@ class MockPanchangaDataSource implements PanchangaDataSource {
       SuvaSaitSeed.build(config: _resolver.config, today: _now());
 
   // ---------------------------------------------------------------- helpers
-
-  /// 1-based day-segment (of 8 between sunrise and sunset) per weekday
-  /// (0 = Sunday) for Rahu Kaal, Yamaganda and Gulika Kaal.
-  static const List<int> _rahuSegment = [8, 2, 7, 5, 6, 4, 3];
-  static const List<int> _yamaSegment = [5, 4, 3, 2, 1, 7, 6];
-  static const List<int> _gulikaSegment = [7, 6, 5, 4, 3, 2, 1];
-
-  /// Choghadiya cycle (index into [_choghadiyaNe]/[_choghadiyaEn]) and the
-  /// starting index of the day sequence per weekday (0 = Sunday).
-  static const List<String> _choghadiyaNe = [
-    'उद्वेग',
-    'चर',
-    'लाभ',
-    'अमृत',
-    'काल',
-    'शुभ',
-    'रोग',
-  ];
-  static const List<String> _choghadiyaEn = [
-    'Udveg',
-    'Char',
-    'Labh',
-    'Amrit',
-    'Kaal',
-    'Shubh',
-    'Rog',
-  ];
-  static const List<ChoghadiyaQuality> _choghadiyaQuality = [
-    ChoghadiyaQuality.bad,
-    ChoghadiyaQuality.good,
-    ChoghadiyaQuality.good,
-    ChoghadiyaQuality.good,
-    ChoghadiyaQuality.bad,
-    ChoghadiyaQuality.good,
-    ChoghadiyaQuality.bad,
-  ];
-  static const List<int> _choghadiyaStart = [0, 3, 6, 2, 5, 1, 4];
-
-  static TimeWindow _kaal(
-    TimeWindowKind kind,
-    int weekday,
-    DateTime sunrise,
-    DateTime sunset,
-  ) {
-    final table = switch (kind) {
-      TimeWindowKind.rahuKaal => _rahuSegment,
-      TimeWindowKind.yamaganda => _yamaSegment,
-      _ => _gulikaSegment,
-    };
-    final segment = Duration(
-      seconds: sunset.difference(sunrise).inSeconds ~/ 8,
-    );
-    final start = sunrise.add(segment * (table[weekday] - 1));
-    return TimeWindow(kind: kind, start: start, end: start.add(segment));
-  }
-
-  static TimeWindow _abhijit(DateTime sunrise, DateTime sunset) {
-    final midday = sunrise.add(
-      Duration(seconds: sunset.difference(sunrise).inSeconds ~/ 2),
-    );
-    const half = Duration(minutes: 24);
-    return TimeWindow(
-      kind: TimeWindowKind.abhijit,
-      start: midday.subtract(half),
-      end: midday.add(half),
-      nameNe: 'अभिजित',
-      nameEn: 'Abhijit',
-      quality: ChoghadiyaQuality.good,
-    );
-  }
-
-  static List<TimeWindow> _choghadiya(
-    int weekday,
-    DateTime sunrise,
-    DateTime sunset,
-  ) {
-    final segment = Duration(
-      seconds: sunset.difference(sunrise).inSeconds ~/ 8,
-    );
-    return [
-      for (var i = 0; i < 8; i++)
-        () {
-          final idx = (_choghadiyaStart[weekday] + i) % 7;
-          final start = sunrise.add(segment * i);
-          return TimeWindow(
-            kind: TimeWindowKind.choghadiya,
-            start: start,
-            end: i == 7 ? sunset : start.add(segment),
-            nameNe: _choghadiyaNe[idx],
-            nameEn: _choghadiyaEn[idx],
-            quality: _choghadiyaQuality[idx],
-          );
-        }(),
-    ];
-  }
 
   PanchangaElement _element({
     required (String, String) names,

@@ -22,7 +22,9 @@ mixin _$Panchanga {
 /// (shown in India; computed for every region).
  TimeWindow? get rahuKaal; TimeWindow? get yamaganda; TimeWindow? get gulikaKaal;/// Auspicious midday window (solar noon ± 24 min).
  TimeWindow? get abhijitMuhurat;/// Eight daytime Choghadiya segments (sunrise → sunset), ascending.
- List<TimeWindow> get choghadiya;
+ List<TimeWindow> get choghadiya;/// Whether these values are the server's calculation or the on-device
+/// estimate — the screen says so when they are only an estimate.
+ PanchangaSource get source;
 /// Create a copy of Panchanga
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -33,16 +35,16 @@ $PanchangaCopyWith<Panchanga> get copyWith => _$PanchangaCopyWithImpl<Panchanga>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Panchanga&&(identical(other.date, date) || other.date == date)&&(identical(other.shakaSamvat, shakaSamvat) || other.shakaSamvat == shakaSamvat)&&(identical(other.nepalSamvat, nepalSamvat) || other.nepalSamvat == nepalSamvat)&&(identical(other.nepalSamvatMonthNe, nepalSamvatMonthNe) || other.nepalSamvatMonthNe == nepalSamvatMonthNe)&&(identical(other.nepalSamvatMonthEn, nepalSamvatMonthEn) || other.nepalSamvatMonthEn == nepalSamvatMonthEn)&&(identical(other.tithiTitleNe, tithiTitleNe) || other.tithiTitleNe == tithiTitleNe)&&(identical(other.tithiTitleEn, tithiTitleEn) || other.tithiTitleEn == tithiTitleEn)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.nakshatra, nakshatra) || other.nakshatra == nakshatra)&&(identical(other.karana, karana) || other.karana == karana)&&(identical(other.yoga, yoga) || other.yoga == yoga)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset)&&(identical(other.moonrise, moonrise) || other.moonrise == moonrise)&&(identical(other.moonset, moonset) || other.moonset == moonset)&&const DeepCollectionEquality().equals(other.dayDetails, dayDetails)&&(identical(other.chandraRashiNe, chandraRashiNe) || other.chandraRashiNe == chandraRashiNe)&&(identical(other.chandraRashiEn, chandraRashiEn) || other.chandraRashiEn == chandraRashiEn)&&(identical(other.anandadiYogaNe, anandadiYogaNe) || other.anandadiYogaNe == anandadiYogaNe)&&(identical(other.anandadiYogaEn, anandadiYogaEn) || other.anandadiYogaEn == anandadiYogaEn)&&const DeepCollectionEquality().equals(other.planets, planets)&&(identical(other.rahuKaal, rahuKaal) || other.rahuKaal == rahuKaal)&&(identical(other.yamaganda, yamaganda) || other.yamaganda == yamaganda)&&(identical(other.gulikaKaal, gulikaKaal) || other.gulikaKaal == gulikaKaal)&&(identical(other.abhijitMuhurat, abhijitMuhurat) || other.abhijitMuhurat == abhijitMuhurat)&&const DeepCollectionEquality().equals(other.choghadiya, choghadiya));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Panchanga&&(identical(other.date, date) || other.date == date)&&(identical(other.shakaSamvat, shakaSamvat) || other.shakaSamvat == shakaSamvat)&&(identical(other.nepalSamvat, nepalSamvat) || other.nepalSamvat == nepalSamvat)&&(identical(other.nepalSamvatMonthNe, nepalSamvatMonthNe) || other.nepalSamvatMonthNe == nepalSamvatMonthNe)&&(identical(other.nepalSamvatMonthEn, nepalSamvatMonthEn) || other.nepalSamvatMonthEn == nepalSamvatMonthEn)&&(identical(other.tithiTitleNe, tithiTitleNe) || other.tithiTitleNe == tithiTitleNe)&&(identical(other.tithiTitleEn, tithiTitleEn) || other.tithiTitleEn == tithiTitleEn)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.nakshatra, nakshatra) || other.nakshatra == nakshatra)&&(identical(other.karana, karana) || other.karana == karana)&&(identical(other.yoga, yoga) || other.yoga == yoga)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset)&&(identical(other.moonrise, moonrise) || other.moonrise == moonrise)&&(identical(other.moonset, moonset) || other.moonset == moonset)&&const DeepCollectionEquality().equals(other.dayDetails, dayDetails)&&(identical(other.chandraRashiNe, chandraRashiNe) || other.chandraRashiNe == chandraRashiNe)&&(identical(other.chandraRashiEn, chandraRashiEn) || other.chandraRashiEn == chandraRashiEn)&&(identical(other.anandadiYogaNe, anandadiYogaNe) || other.anandadiYogaNe == anandadiYogaNe)&&(identical(other.anandadiYogaEn, anandadiYogaEn) || other.anandadiYogaEn == anandadiYogaEn)&&const DeepCollectionEquality().equals(other.planets, planets)&&(identical(other.rahuKaal, rahuKaal) || other.rahuKaal == rahuKaal)&&(identical(other.yamaganda, yamaganda) || other.yamaganda == yamaganda)&&(identical(other.gulikaKaal, gulikaKaal) || other.gulikaKaal == gulikaKaal)&&(identical(other.abhijitMuhurat, abhijitMuhurat) || other.abhijitMuhurat == abhijitMuhurat)&&const DeepCollectionEquality().equals(other.choghadiya, choghadiya)&&(identical(other.source, source) || other.source == source));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,date,shakaSamvat,nepalSamvat,nepalSamvatMonthNe,nepalSamvatMonthEn,tithiTitleNe,tithiTitleEn,tithi,nakshatra,karana,yoga,sunrise,sunset,moonrise,moonset,const DeepCollectionEquality().hash(dayDetails),chandraRashiNe,chandraRashiEn,anandadiYogaNe,anandadiYogaEn,const DeepCollectionEquality().hash(planets),rahuKaal,yamaganda,gulikaKaal,abhijitMuhurat,const DeepCollectionEquality().hash(choghadiya)]);
+int get hashCode => Object.hashAll([runtimeType,date,shakaSamvat,nepalSamvat,nepalSamvatMonthNe,nepalSamvatMonthEn,tithiTitleNe,tithiTitleEn,tithi,nakshatra,karana,yoga,sunrise,sunset,moonrise,moonset,const DeepCollectionEquality().hash(dayDetails),chandraRashiNe,chandraRashiEn,anandadiYogaNe,anandadiYogaEn,const DeepCollectionEquality().hash(planets),rahuKaal,yamaganda,gulikaKaal,abhijitMuhurat,const DeepCollectionEquality().hash(choghadiya),source]);
 
 @override
 String toString() {
-  return 'Panchanga(date: $date, shakaSamvat: $shakaSamvat, nepalSamvat: $nepalSamvat, nepalSamvatMonthNe: $nepalSamvatMonthNe, nepalSamvatMonthEn: $nepalSamvatMonthEn, tithiTitleNe: $tithiTitleNe, tithiTitleEn: $tithiTitleEn, tithi: $tithi, nakshatra: $nakshatra, karana: $karana, yoga: $yoga, sunrise: $sunrise, sunset: $sunset, moonrise: $moonrise, moonset: $moonset, dayDetails: $dayDetails, chandraRashiNe: $chandraRashiNe, chandraRashiEn: $chandraRashiEn, anandadiYogaNe: $anandadiYogaNe, anandadiYogaEn: $anandadiYogaEn, planets: $planets, rahuKaal: $rahuKaal, yamaganda: $yamaganda, gulikaKaal: $gulikaKaal, abhijitMuhurat: $abhijitMuhurat, choghadiya: $choghadiya)';
+  return 'Panchanga(date: $date, shakaSamvat: $shakaSamvat, nepalSamvat: $nepalSamvat, nepalSamvatMonthNe: $nepalSamvatMonthNe, nepalSamvatMonthEn: $nepalSamvatMonthEn, tithiTitleNe: $tithiTitleNe, tithiTitleEn: $tithiTitleEn, tithi: $tithi, nakshatra: $nakshatra, karana: $karana, yoga: $yoga, sunrise: $sunrise, sunset: $sunset, moonrise: $moonrise, moonset: $moonset, dayDetails: $dayDetails, chandraRashiNe: $chandraRashiNe, chandraRashiEn: $chandraRashiEn, anandadiYogaNe: $anandadiYogaNe, anandadiYogaEn: $anandadiYogaEn, planets: $planets, rahuKaal: $rahuKaal, yamaganda: $yamaganda, gulikaKaal: $gulikaKaal, abhijitMuhurat: $abhijitMuhurat, choghadiya: $choghadiya, source: $source)';
 }
 
 
@@ -53,7 +55,7 @@ abstract mixin class $PanchangaCopyWith<$Res>  {
   factory $PanchangaCopyWith(Panchanga value, $Res Function(Panchanga) _then) = _$PanchangaCopyWithImpl;
 @useResult
 $Res call({
- DateTime date, int shakaSamvat, int nepalSamvat, String nepalSamvatMonthNe, String nepalSamvatMonthEn, String tithiTitleNe, String tithiTitleEn, PanchangaElement tithi, PanchangaElement nakshatra, PanchangaElement karana, PanchangaElement yoga, DateTime sunrise, DateTime sunset, DateTime moonrise, DateTime moonset, List<PanchangaDetail> dayDetails, String chandraRashiNe, String chandraRashiEn, String anandadiYogaNe, String anandadiYogaEn, List<PlanetPosition> planets, TimeWindow? rahuKaal, TimeWindow? yamaganda, TimeWindow? gulikaKaal, TimeWindow? abhijitMuhurat, List<TimeWindow> choghadiya
+ DateTime date, int shakaSamvat, int nepalSamvat, String nepalSamvatMonthNe, String nepalSamvatMonthEn, String tithiTitleNe, String tithiTitleEn, PanchangaElement tithi, PanchangaElement nakshatra, PanchangaElement karana, PanchangaElement yoga, DateTime sunrise, DateTime sunset, DateTime moonrise, DateTime moonset, List<PanchangaDetail> dayDetails, String chandraRashiNe, String chandraRashiEn, String anandadiYogaNe, String anandadiYogaEn, List<PlanetPosition> planets, TimeWindow? rahuKaal, TimeWindow? yamaganda, TimeWindow? gulikaKaal, TimeWindow? abhijitMuhurat, List<TimeWindow> choghadiya, PanchangaSource source
 });
 
 
@@ -70,7 +72,7 @@ class _$PanchangaCopyWithImpl<$Res>
 
 /// Create a copy of Panchanga
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? shakaSamvat = null,Object? nepalSamvat = null,Object? nepalSamvatMonthNe = null,Object? nepalSamvatMonthEn = null,Object? tithiTitleNe = null,Object? tithiTitleEn = null,Object? tithi = null,Object? nakshatra = null,Object? karana = null,Object? yoga = null,Object? sunrise = null,Object? sunset = null,Object? moonrise = null,Object? moonset = null,Object? dayDetails = null,Object? chandraRashiNe = null,Object? chandraRashiEn = null,Object? anandadiYogaNe = null,Object? anandadiYogaEn = null,Object? planets = null,Object? rahuKaal = freezed,Object? yamaganda = freezed,Object? gulikaKaal = freezed,Object? abhijitMuhurat = freezed,Object? choghadiya = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? shakaSamvat = null,Object? nepalSamvat = null,Object? nepalSamvatMonthNe = null,Object? nepalSamvatMonthEn = null,Object? tithiTitleNe = null,Object? tithiTitleEn = null,Object? tithi = null,Object? nakshatra = null,Object? karana = null,Object? yoga = null,Object? sunrise = null,Object? sunset = null,Object? moonrise = null,Object? moonset = null,Object? dayDetails = null,Object? chandraRashiNe = null,Object? chandraRashiEn = null,Object? anandadiYogaNe = null,Object? anandadiYogaEn = null,Object? planets = null,Object? rahuKaal = freezed,Object? yamaganda = freezed,Object? gulikaKaal = freezed,Object? abhijitMuhurat = freezed,Object? choghadiya = null,Object? source = null,}) {
   return _then(_self.copyWith(
 date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,shakaSamvat: null == shakaSamvat ? _self.shakaSamvat : shakaSamvat // ignore: cast_nullable_to_non_nullable
@@ -98,7 +100,8 @@ as TimeWindow?,yamaganda: freezed == yamaganda ? _self.yamaganda : yamaganda // 
 as TimeWindow?,gulikaKaal: freezed == gulikaKaal ? _self.gulikaKaal : gulikaKaal // ignore: cast_nullable_to_non_nullable
 as TimeWindow?,abhijitMuhurat: freezed == abhijitMuhurat ? _self.abhijitMuhurat : abhijitMuhurat // ignore: cast_nullable_to_non_nullable
 as TimeWindow?,choghadiya: null == choghadiya ? _self.choghadiya : choghadiya // ignore: cast_nullable_to_non_nullable
-as List<TimeWindow>,
+as List<TimeWindow>,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as PanchangaSource,
   ));
 }
 /// Create a copy of Panchanga
@@ -194,7 +197,7 @@ $TimeWindowCopyWith<$Res>? get abhijitMuhurat {
 
 
 class _Panchanga extends Panchanga {
-  const _Panchanga({required this.date, required this.shakaSamvat, required this.nepalSamvat, required this.nepalSamvatMonthNe, required this.nepalSamvatMonthEn, required this.tithiTitleNe, required this.tithiTitleEn, required this.tithi, required this.nakshatra, required this.karana, required this.yoga, required this.sunrise, required this.sunset, required this.moonrise, required this.moonset, required final  List<PanchangaDetail> dayDetails, required this.chandraRashiNe, required this.chandraRashiEn, required this.anandadiYogaNe, required this.anandadiYogaEn, required final  List<PlanetPosition> planets, this.rahuKaal, this.yamaganda, this.gulikaKaal, this.abhijitMuhurat, final  List<TimeWindow> choghadiya = const []}): _dayDetails = dayDetails,_planets = planets,_choghadiya = choghadiya,super._();
+  const _Panchanga({required this.date, required this.shakaSamvat, required this.nepalSamvat, required this.nepalSamvatMonthNe, required this.nepalSamvatMonthEn, required this.tithiTitleNe, required this.tithiTitleEn, required this.tithi, required this.nakshatra, required this.karana, required this.yoga, required this.sunrise, required this.sunset, required this.moonrise, required this.moonset, required final  List<PanchangaDetail> dayDetails, required this.chandraRashiNe, required this.chandraRashiEn, required this.anandadiYogaNe, required this.anandadiYogaEn, required final  List<PlanetPosition> planets, this.rahuKaal, this.yamaganda, this.gulikaKaal, this.abhijitMuhurat, final  List<TimeWindow> choghadiya = const [], this.source = PanchangaSource.approximate}): _dayDetails = dayDetails,_planets = planets,_choghadiya = choghadiya,super._();
   
 
 /// Gregorian civil date (midnight, local).
@@ -252,6 +255,9 @@ class _Panchanga extends Panchanga {
   return EqualUnmodifiableListView(_choghadiya);
 }
 
+/// Whether these values are the server's calculation or the on-device
+/// estimate — the screen says so when they are only an estimate.
+@override@JsonKey() final  PanchangaSource source;
 
 /// Create a copy of Panchanga
 /// with the given fields replaced by the non-null parameter values.
@@ -263,16 +269,16 @@ _$PanchangaCopyWith<_Panchanga> get copyWith => __$PanchangaCopyWithImpl<_Pancha
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Panchanga&&(identical(other.date, date) || other.date == date)&&(identical(other.shakaSamvat, shakaSamvat) || other.shakaSamvat == shakaSamvat)&&(identical(other.nepalSamvat, nepalSamvat) || other.nepalSamvat == nepalSamvat)&&(identical(other.nepalSamvatMonthNe, nepalSamvatMonthNe) || other.nepalSamvatMonthNe == nepalSamvatMonthNe)&&(identical(other.nepalSamvatMonthEn, nepalSamvatMonthEn) || other.nepalSamvatMonthEn == nepalSamvatMonthEn)&&(identical(other.tithiTitleNe, tithiTitleNe) || other.tithiTitleNe == tithiTitleNe)&&(identical(other.tithiTitleEn, tithiTitleEn) || other.tithiTitleEn == tithiTitleEn)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.nakshatra, nakshatra) || other.nakshatra == nakshatra)&&(identical(other.karana, karana) || other.karana == karana)&&(identical(other.yoga, yoga) || other.yoga == yoga)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset)&&(identical(other.moonrise, moonrise) || other.moonrise == moonrise)&&(identical(other.moonset, moonset) || other.moonset == moonset)&&const DeepCollectionEquality().equals(other._dayDetails, _dayDetails)&&(identical(other.chandraRashiNe, chandraRashiNe) || other.chandraRashiNe == chandraRashiNe)&&(identical(other.chandraRashiEn, chandraRashiEn) || other.chandraRashiEn == chandraRashiEn)&&(identical(other.anandadiYogaNe, anandadiYogaNe) || other.anandadiYogaNe == anandadiYogaNe)&&(identical(other.anandadiYogaEn, anandadiYogaEn) || other.anandadiYogaEn == anandadiYogaEn)&&const DeepCollectionEquality().equals(other._planets, _planets)&&(identical(other.rahuKaal, rahuKaal) || other.rahuKaal == rahuKaal)&&(identical(other.yamaganda, yamaganda) || other.yamaganda == yamaganda)&&(identical(other.gulikaKaal, gulikaKaal) || other.gulikaKaal == gulikaKaal)&&(identical(other.abhijitMuhurat, abhijitMuhurat) || other.abhijitMuhurat == abhijitMuhurat)&&const DeepCollectionEquality().equals(other._choghadiya, _choghadiya));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Panchanga&&(identical(other.date, date) || other.date == date)&&(identical(other.shakaSamvat, shakaSamvat) || other.shakaSamvat == shakaSamvat)&&(identical(other.nepalSamvat, nepalSamvat) || other.nepalSamvat == nepalSamvat)&&(identical(other.nepalSamvatMonthNe, nepalSamvatMonthNe) || other.nepalSamvatMonthNe == nepalSamvatMonthNe)&&(identical(other.nepalSamvatMonthEn, nepalSamvatMonthEn) || other.nepalSamvatMonthEn == nepalSamvatMonthEn)&&(identical(other.tithiTitleNe, tithiTitleNe) || other.tithiTitleNe == tithiTitleNe)&&(identical(other.tithiTitleEn, tithiTitleEn) || other.tithiTitleEn == tithiTitleEn)&&(identical(other.tithi, tithi) || other.tithi == tithi)&&(identical(other.nakshatra, nakshatra) || other.nakshatra == nakshatra)&&(identical(other.karana, karana) || other.karana == karana)&&(identical(other.yoga, yoga) || other.yoga == yoga)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset)&&(identical(other.moonrise, moonrise) || other.moonrise == moonrise)&&(identical(other.moonset, moonset) || other.moonset == moonset)&&const DeepCollectionEquality().equals(other._dayDetails, _dayDetails)&&(identical(other.chandraRashiNe, chandraRashiNe) || other.chandraRashiNe == chandraRashiNe)&&(identical(other.chandraRashiEn, chandraRashiEn) || other.chandraRashiEn == chandraRashiEn)&&(identical(other.anandadiYogaNe, anandadiYogaNe) || other.anandadiYogaNe == anandadiYogaNe)&&(identical(other.anandadiYogaEn, anandadiYogaEn) || other.anandadiYogaEn == anandadiYogaEn)&&const DeepCollectionEquality().equals(other._planets, _planets)&&(identical(other.rahuKaal, rahuKaal) || other.rahuKaal == rahuKaal)&&(identical(other.yamaganda, yamaganda) || other.yamaganda == yamaganda)&&(identical(other.gulikaKaal, gulikaKaal) || other.gulikaKaal == gulikaKaal)&&(identical(other.abhijitMuhurat, abhijitMuhurat) || other.abhijitMuhurat == abhijitMuhurat)&&const DeepCollectionEquality().equals(other._choghadiya, _choghadiya)&&(identical(other.source, source) || other.source == source));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,date,shakaSamvat,nepalSamvat,nepalSamvatMonthNe,nepalSamvatMonthEn,tithiTitleNe,tithiTitleEn,tithi,nakshatra,karana,yoga,sunrise,sunset,moonrise,moonset,const DeepCollectionEquality().hash(_dayDetails),chandraRashiNe,chandraRashiEn,anandadiYogaNe,anandadiYogaEn,const DeepCollectionEquality().hash(_planets),rahuKaal,yamaganda,gulikaKaal,abhijitMuhurat,const DeepCollectionEquality().hash(_choghadiya)]);
+int get hashCode => Object.hashAll([runtimeType,date,shakaSamvat,nepalSamvat,nepalSamvatMonthNe,nepalSamvatMonthEn,tithiTitleNe,tithiTitleEn,tithi,nakshatra,karana,yoga,sunrise,sunset,moonrise,moonset,const DeepCollectionEquality().hash(_dayDetails),chandraRashiNe,chandraRashiEn,anandadiYogaNe,anandadiYogaEn,const DeepCollectionEquality().hash(_planets),rahuKaal,yamaganda,gulikaKaal,abhijitMuhurat,const DeepCollectionEquality().hash(_choghadiya),source]);
 
 @override
 String toString() {
-  return 'Panchanga(date: $date, shakaSamvat: $shakaSamvat, nepalSamvat: $nepalSamvat, nepalSamvatMonthNe: $nepalSamvatMonthNe, nepalSamvatMonthEn: $nepalSamvatMonthEn, tithiTitleNe: $tithiTitleNe, tithiTitleEn: $tithiTitleEn, tithi: $tithi, nakshatra: $nakshatra, karana: $karana, yoga: $yoga, sunrise: $sunrise, sunset: $sunset, moonrise: $moonrise, moonset: $moonset, dayDetails: $dayDetails, chandraRashiNe: $chandraRashiNe, chandraRashiEn: $chandraRashiEn, anandadiYogaNe: $anandadiYogaNe, anandadiYogaEn: $anandadiYogaEn, planets: $planets, rahuKaal: $rahuKaal, yamaganda: $yamaganda, gulikaKaal: $gulikaKaal, abhijitMuhurat: $abhijitMuhurat, choghadiya: $choghadiya)';
+  return 'Panchanga(date: $date, shakaSamvat: $shakaSamvat, nepalSamvat: $nepalSamvat, nepalSamvatMonthNe: $nepalSamvatMonthNe, nepalSamvatMonthEn: $nepalSamvatMonthEn, tithiTitleNe: $tithiTitleNe, tithiTitleEn: $tithiTitleEn, tithi: $tithi, nakshatra: $nakshatra, karana: $karana, yoga: $yoga, sunrise: $sunrise, sunset: $sunset, moonrise: $moonrise, moonset: $moonset, dayDetails: $dayDetails, chandraRashiNe: $chandraRashiNe, chandraRashiEn: $chandraRashiEn, anandadiYogaNe: $anandadiYogaNe, anandadiYogaEn: $anandadiYogaEn, planets: $planets, rahuKaal: $rahuKaal, yamaganda: $yamaganda, gulikaKaal: $gulikaKaal, abhijitMuhurat: $abhijitMuhurat, choghadiya: $choghadiya, source: $source)';
 }
 
 
@@ -283,7 +289,7 @@ abstract mixin class _$PanchangaCopyWith<$Res> implements $PanchangaCopyWith<$Re
   factory _$PanchangaCopyWith(_Panchanga value, $Res Function(_Panchanga) _then) = __$PanchangaCopyWithImpl;
 @override @useResult
 $Res call({
- DateTime date, int shakaSamvat, int nepalSamvat, String nepalSamvatMonthNe, String nepalSamvatMonthEn, String tithiTitleNe, String tithiTitleEn, PanchangaElement tithi, PanchangaElement nakshatra, PanchangaElement karana, PanchangaElement yoga, DateTime sunrise, DateTime sunset, DateTime moonrise, DateTime moonset, List<PanchangaDetail> dayDetails, String chandraRashiNe, String chandraRashiEn, String anandadiYogaNe, String anandadiYogaEn, List<PlanetPosition> planets, TimeWindow? rahuKaal, TimeWindow? yamaganda, TimeWindow? gulikaKaal, TimeWindow? abhijitMuhurat, List<TimeWindow> choghadiya
+ DateTime date, int shakaSamvat, int nepalSamvat, String nepalSamvatMonthNe, String nepalSamvatMonthEn, String tithiTitleNe, String tithiTitleEn, PanchangaElement tithi, PanchangaElement nakshatra, PanchangaElement karana, PanchangaElement yoga, DateTime sunrise, DateTime sunset, DateTime moonrise, DateTime moonset, List<PanchangaDetail> dayDetails, String chandraRashiNe, String chandraRashiEn, String anandadiYogaNe, String anandadiYogaEn, List<PlanetPosition> planets, TimeWindow? rahuKaal, TimeWindow? yamaganda, TimeWindow? gulikaKaal, TimeWindow? abhijitMuhurat, List<TimeWindow> choghadiya, PanchangaSource source
 });
 
 
@@ -300,7 +306,7 @@ class __$PanchangaCopyWithImpl<$Res>
 
 /// Create a copy of Panchanga
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? shakaSamvat = null,Object? nepalSamvat = null,Object? nepalSamvatMonthNe = null,Object? nepalSamvatMonthEn = null,Object? tithiTitleNe = null,Object? tithiTitleEn = null,Object? tithi = null,Object? nakshatra = null,Object? karana = null,Object? yoga = null,Object? sunrise = null,Object? sunset = null,Object? moonrise = null,Object? moonset = null,Object? dayDetails = null,Object? chandraRashiNe = null,Object? chandraRashiEn = null,Object? anandadiYogaNe = null,Object? anandadiYogaEn = null,Object? planets = null,Object? rahuKaal = freezed,Object? yamaganda = freezed,Object? gulikaKaal = freezed,Object? abhijitMuhurat = freezed,Object? choghadiya = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? shakaSamvat = null,Object? nepalSamvat = null,Object? nepalSamvatMonthNe = null,Object? nepalSamvatMonthEn = null,Object? tithiTitleNe = null,Object? tithiTitleEn = null,Object? tithi = null,Object? nakshatra = null,Object? karana = null,Object? yoga = null,Object? sunrise = null,Object? sunset = null,Object? moonrise = null,Object? moonset = null,Object? dayDetails = null,Object? chandraRashiNe = null,Object? chandraRashiEn = null,Object? anandadiYogaNe = null,Object? anandadiYogaEn = null,Object? planets = null,Object? rahuKaal = freezed,Object? yamaganda = freezed,Object? gulikaKaal = freezed,Object? abhijitMuhurat = freezed,Object? choghadiya = null,Object? source = null,}) {
   return _then(_Panchanga(
 date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,shakaSamvat: null == shakaSamvat ? _self.shakaSamvat : shakaSamvat // ignore: cast_nullable_to_non_nullable
@@ -328,7 +334,8 @@ as TimeWindow?,yamaganda: freezed == yamaganda ? _self.yamaganda : yamaganda // 
 as TimeWindow?,gulikaKaal: freezed == gulikaKaal ? _self.gulikaKaal : gulikaKaal // ignore: cast_nullable_to_non_nullable
 as TimeWindow?,abhijitMuhurat: freezed == abhijitMuhurat ? _self.abhijitMuhurat : abhijitMuhurat // ignore: cast_nullable_to_non_nullable
 as TimeWindow?,choghadiya: null == choghadiya ? _self._choghadiya : choghadiya // ignore: cast_nullable_to_non_nullable
-as List<TimeWindow>,
+as List<TimeWindow>,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as PanchangaSource,
   ));
 }
 

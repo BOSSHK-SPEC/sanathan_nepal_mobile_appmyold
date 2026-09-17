@@ -92,10 +92,7 @@ class AdminRepositoryImpl implements AdminRepository {
     required bool approve,
     required String note,
   }) => guard(
-    () => _remote.decideRefund(
-      refundId: refundId,
-      approve: approve,
-      note: note,
-    ),
+    () =>
+        _remote.decideRefund(refundId: refundId, approve: approve, note: note),
   );
 }

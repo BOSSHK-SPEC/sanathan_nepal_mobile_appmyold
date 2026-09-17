@@ -40,8 +40,9 @@ class AdminAuthCubit extends AppCubit<AdminAuthState> {
     );
   }
 
-  void setPhone(String phone) =>
-      emit(state.copyWith(phone: phone.trim(), challenge: const LoadState.idle()));
+  void setPhone(String phone) => emit(
+    state.copyWith(phone: phone.trim(), challenge: const LoadState.idle()),
+  );
 
   Future<void> requestCode() async {
     final phone = state.phone;

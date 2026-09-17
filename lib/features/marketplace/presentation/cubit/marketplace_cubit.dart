@@ -1,6 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/session/permission.dart';
+import '../../../../core/session/session_resolver.dart';
 import '../../../../core/state/load_state.dart';
+import '../../../../core/utils/result.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_filter.dart';
@@ -25,7 +28,9 @@ class MarketplaceCubit extends AppCubit<MarketplaceState> {
     required GetMyProducts getMyProducts,
     required ToggleFavourite toggleFavourite,
     required DeleteProduct deleteProduct,
-  }) : _getCategories = getCategories,
+    SessionResolver? session,
+  }) : _session = session,
+       _getCategories = getCategories,
        _getBoosted = getBoosted,
        _getProducts = getProducts,
        _getMyProducts = getMyProducts,
@@ -40,7 +45,16 @@ class MarketplaceCubit extends AppCubit<MarketplaceState> {
   final ToggleFavourite _toggleFavourite;
   final DeleteProduct _deleteProduct;
 
+  /// Who is signed in. Absent in tests that do not care, which then behave as
+  /// a seller.
+  final SessionResolver? _session;
+
   static const int _feedLimit = 8;
+
+  /// Only sellers have listings of their own. Asking for them without the
+  /// permission earned a 403 on every visit — and a token refresh with it,
+  /// since a permission error is answered by refreshing and retrying once.
+  bool get _canSell => _session?.session.can(Permission.manageProducts) ?? true;
 
   Future<void> load() async {
     emit(
@@ -54,7 +68,9 @@ class MarketplaceCubit extends AppCubit<MarketplaceState> {
     );
     final categories = await _getCategories();
     final boosted = await _getBoosted();
-    final mine = await _getMyProducts();
+    final mine = _canSell
+        ? await _getMyProducts()
+        : const Result<List<Product>>.success([]);
     final recent = await _getProducts(_feedFilter(ProductSort.latest));
     final recommended = await _getProducts(
       _feedFilter(ProductSort.priceHighToLow),

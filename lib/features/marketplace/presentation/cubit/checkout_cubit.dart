@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/events/data_changes.dart';
 import '../../../../core/region/region_all.dart';
 import '../../../../core/state/load_state.dart';
 import '../../domain/entities/cart.dart';
@@ -23,10 +24,12 @@ class CheckoutCubit extends AppCubit<CheckoutState> {
     required PlaceOrder placeOrder,
     required ClearCart clearCart,
     required RegionResolver resolver,
+    DataChanges? changes,
   }) : _getCart = getCart,
        _placeOrder = placeOrder,
        _clearCart = clearCart,
        _resolver = resolver,
+       _changes = changes,
        super(
          CheckoutState(
            paymentMethod: PaymentMethod.forRegion(resolver.config).first,
@@ -37,6 +40,9 @@ class CheckoutCubit extends AppCubit<CheckoutState> {
   final PlaceOrder _placeOrder;
   final ClearCart _clearCart;
   final RegionResolver _resolver;
+
+  /// Told when an order is placed, so the screens listing orders reload.
+  final DataChanges? _changes;
 
   Future<void> load() async {
     final methods = PaymentMethod.forRegion(_resolver.config);
@@ -89,6 +95,7 @@ class CheckoutCubit extends AppCubit<CheckoutState> {
             cart: const LoadState.loaded(Cart.empty),
           ),
         );
+        _changes?.notify(DataTopic.orders);
       },
     );
   }

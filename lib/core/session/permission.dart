@@ -43,6 +43,27 @@ enum Permission {
   viewAuditLog,
   manageFeatureFlags;
 
+  /// Capabilities that belong to *being* an astrologer: each acts on the
+  /// caller's own astrologer profile.
+  ///
+  /// Staff do not hold them by virtue of being staff. An admin who is not an
+  /// astrologer has no console to open — offering one only leads to "you do
+  /// not have an astrologer profile" — and it is exactly the screen that must
+  /// stay shut until an application is approved. An admin who *is* an
+  /// approved astrologer holds the astrologer role as well, and gets them
+  /// from that.
+  static const Set<Permission> astrologerWorkspace = {
+    Permission.viewAstrologerConsole,
+    Permission.manageAvailability,
+    Permission.acceptConsultation,
+    Permission.managePricing,
+    Permission.replyToReview,
+  };
+
+  static final Set<Permission> _superAdmin = Set.unmodifiable(
+    Permission.values.toSet().difference(astrologerWorkspace),
+  );
+
   /// Permissions granted by a single role.
   static Set<Permission> ofRole(AppRole role) => switch (role) {
     AppRole.seeker => const {
@@ -86,7 +107,7 @@ enum Permission {
       Permission.manageUsers,
       Permission.issueRefund,
     },
-    AppRole.superAdmin => const {...Permission.values},
+    AppRole.superAdmin => _superAdmin,
   };
 
   /// Union of the permissions granted by [roles].

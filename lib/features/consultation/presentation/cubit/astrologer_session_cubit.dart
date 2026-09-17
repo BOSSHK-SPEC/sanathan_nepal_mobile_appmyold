@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/call/call_session.dart';
 import '../../../../core/state/load_state.dart';
 import '../../../../core/utils/localized_text.dart';
+import '../../../astrologers/domain/entities/consult_channel.dart';
 import '../../domain/entities/astrologer_session.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/consultation.dart';
@@ -27,13 +29,21 @@ class AstrologerSessionCubit extends AppCubit<AstrologerSessionState> {
     required SendAsAstrologer send,
     required EndConsultation endConsultation,
     required SaveSessionNotes saveNotes,
+    required GetCallCredentials getCallCredentials,
+    required CallSession callSession,
   }) : _id = consultationId,
        _get = getConsultation,
        _getMessages = getMessages,
        _send = send,
        _end = endConsultation,
        _saveNotes = saveNotes,
-       super(const AstrologerSessionState());
+       _getCallCredentials = getCallCredentials,
+       _call = callSession,
+       super(const AstrologerSessionState()) {
+    _callStates = _call.onState.listen((connection) {
+      if (!isClosed) emit(state.copyWith(callState: connection));
+    });
+  }
 
   final String _id;
   final GetConsultation _get;
@@ -41,6 +51,11 @@ class AstrologerSessionCubit extends AppCubit<AstrologerSessionState> {
   final SendAsAstrologer _send;
   final EndConsultation _end;
   final SaveSessionNotes _saveNotes;
+  final GetCallCredentials _getCallCredentials;
+  final CallSession _call;
+
+  StreamSubscription<CallConnectionState>? _callStates;
+  bool _joining = false;
 
   static const Duration tickInterval = Duration(seconds: 1);
   static const Duration pollInterval = Duration(seconds: 3);
@@ -57,7 +72,83 @@ class AstrologerSessionCubit extends AppCubit<AstrologerSessionState> {
       ),
     );
     await _refreshMessages();
+    await _joinCallIfNeeded();
     _start();
+  }
+
+  // --- The call itself ---------------------------------------------------
+
+  /// Joins the same room as the seeker, from the other side.
+  ///
+  /// The astrologer arrives here having just accepted, so the session is
+  /// already live and the meter already running: a screen that showed controls
+  /// without carrying audio would be charging their client for silence.
+  Future<void> _joinCallIfNeeded() async {
+    final session = state.consultation;
+    if (session == null || session.channel == ConsultChannel.chat) return;
+    if (_joining || state.isCallLive) return;
+
+    _joining = true;
+    emit(
+      state.copyWith(
+        callState: CallConnectionState.connecting,
+        callError: null,
+      ),
+    );
+
+    final result = await _getCallCredentials(_id);
+    if (isClosed) {
+      _joining = false;
+      return;
+    }
+
+    await result.fold(
+      (failure) async => emit(
+        state.copyWith(
+          callState: CallConnectionState.failed,
+          callError: failure.message,
+        ),
+      ),
+      (credentials) async {
+        try {
+          await _call.connect(
+            url: credentials.url,
+            token: credentials.token,
+            video: session.channel == ConsultChannel.video,
+          );
+          if (isClosed) return;
+          await _call.setMuted(state.muted);
+          if (session.channel == ConsultChannel.video) {
+            await _call.setCameraEnabled(state.cameraOn);
+          }
+        } on CallException catch (error) {
+          if (!isClosed) {
+            emit(
+              state.copyWith(
+                callState: CallConnectionState.failed,
+                callError: error.message,
+              ),
+            );
+          }
+        }
+      },
+    );
+    _joining = false;
+  }
+
+  /// The live media room, for the video view to attach renderers to.
+  Object? get mediaRoom => _call.mediaRoom;
+
+  /// Retries a join that failed — a permission granted after the fact, or a
+  /// network that came back.
+  Future<void> retryCall() async {
+    if (state.isCallLive) return;
+    await _joinCallIfNeeded();
+  }
+
+  Future<void> _leaveCall() async {
+    _joining = false;
+    await _call.disconnect();
   }
 
   void _start() {
@@ -86,7 +177,8 @@ class AstrologerSessionCubit extends AppCubit<AstrologerSessionState> {
       // screen spinning with nothing to explain it — the worst of both, since
       // the poller would have recovered on its own had anyone been told.
       // `toFailed` keeps whatever was already on screen.
-      (failure) => emit(state.copyWith(messages: state.messages.toFailed(failure))),
+      (failure) =>
+          emit(state.copyWith(messages: state.messages.toFailed(failure))),
       (messages) => emit(state.copyWith(messages: LoadState.loaded(messages))),
     );
   }
@@ -154,6 +246,7 @@ class AstrologerSessionCubit extends AppCubit<AstrologerSessionState> {
       },
       (session) {
         _stop();
+        unawaited(_leaveCall());
         emit(
           state.copyWith(
             ending: LoadState.loaded(session),
@@ -165,13 +258,27 @@ class AstrologerSessionCubit extends AppCubit<AstrologerSessionState> {
     );
   }
 
-  // --- Call controls (local UI state; no media stack yet) ---------------
+  // --- Call controls -----------------------------------------------------
+  //
+  // State first so the button responds at once, then the media stack.
 
-  void toggleMute() => emit(state.copyWith(muted: !state.muted));
+  Future<void> toggleMute() async {
+    final muted = !state.muted;
+    emit(state.copyWith(muted: muted));
+    await _call.setMuted(muted);
+  }
 
-  void toggleSpeaker() => emit(state.copyWith(speakerOn: !state.speakerOn));
+  Future<void> toggleSpeaker() async {
+    final speakerOn = !state.speakerOn;
+    emit(state.copyWith(speakerOn: speakerOn));
+    await _call.setSpeakerOn(speakerOn);
+  }
 
-  void toggleCamera() => emit(state.copyWith(cameraOn: !state.cameraOn));
+  Future<void> toggleCamera() async {
+    final cameraOn = !state.cameraOn;
+    emit(state.copyWith(cameraOn: cameraOn));
+    await _call.setCameraEnabled(cameraOn);
+  }
 
   // --- Write-up ---------------------------------------------------------
 
@@ -221,8 +328,12 @@ class AstrologerSessionCubit extends AppCubit<AstrologerSessionState> {
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     _stop();
+    await _callStates?.cancel();
+    // The astrologer's microphone must stop with the screen, not whenever the
+    // process happens to be collected.
+    await _leaveCall();
     return super.close();
   }
 }

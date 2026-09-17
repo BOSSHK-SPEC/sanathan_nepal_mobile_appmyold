@@ -22,8 +22,6 @@ import 'domain/repositories/auth_repository.dart';
 import 'domain/repositories/notification_prefs_repository.dart';
 import 'domain/usecases/get_notification_prefs.dart';
 import 'domain/usecases/save_notification_prefs.dart';
-import 'domain/usecases/sign_in_with_apple.dart';
-import 'domain/usecases/sign_in_with_google.dart';
 import 'domain/usecases/sign_in_with_phone.dart';
 import 'domain/usecases/submit_profile.dart';
 import 'domain/usecases/verify_otp.dart';
@@ -84,22 +82,13 @@ void registerOnboardingFeature(GetIt sl) {
       () => NotificationPrefsRepositoryImpl(sl()),
     )
     // Use cases
-    ..registerLazySingleton(() => SignInWithGoogle(sl()))
-    ..registerLazySingleton(() => SignInWithApple(sl()))
     ..registerLazySingleton(() => SignInWithPhone(sl(), sl<RegionResolver>()))
     ..registerLazySingleton(() => VerifyOtp(sl()))
     ..registerLazySingleton(() => SubmitProfile(sl()))
     ..registerLazySingleton(() => GetNotificationPrefs(sl()))
     ..registerLazySingleton(() => SaveNotificationPrefs(sl()))
     // Cubits
-    ..registerFactory(
-      () => AuthCubit(
-        signInWithGoogle: sl(),
-        signInWithApple: sl(),
-        signInWithPhone: sl(),
-        verifyOtp: sl(),
-      ),
-    )
+    ..registerFactory(() => AuthCubit(signInWithPhone: sl(), verifyOtp: sl()))
     ..registerFactory(
       () => ProfileDetailsCubit(
         submitProfile: sl(),

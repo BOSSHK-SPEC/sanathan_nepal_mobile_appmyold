@@ -103,6 +103,16 @@ class _En extends ConsultationStrings {
   @override
   String get callEnded => 'Call ended';
   @override
+  String get connectingCall => 'Connecting…';
+  @override
+  String get callFailed => 'Could not connect the call';
+  @override
+  String get retry => 'Retry';
+  @override
+  String get waitingForOther => 'Waiting for them to join…';
+  @override
+  String get cameraOff => 'Camera off';
+  @override
   String get sessionSummary => 'Session summary';
   @override
   String get duration => 'Duration';

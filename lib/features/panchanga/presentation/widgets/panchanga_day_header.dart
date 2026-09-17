@@ -6,6 +6,7 @@ import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../calendar/domain/entities/calendar_view_mode.dart';
 import '../../../calendar/presentation/cubit/calendar_cubit.dart';
+import '../../../calendar/presentation/utils/active_calendar_view_mode.dart';
 import '../../../calendar/presentation/utils/calendar_format.dart';
 import '../../../calendar/presentation/widgets/month_calendar_view.dart';
 import '../../../calendar/presentation/widgets/month_year_picker_sheet.dart';
@@ -207,8 +208,11 @@ class _DaySummary extends StatelessWidget {
     final calendar = config.calendar;
     final s = PanchangaStrings.of(context);
     final t = calendar.fromGregorian(date);
+    // Follows the month grid beside it, not the region: the region only
+    // decides what the calendar opens in. Without a grid (`showCalendar:
+    // false`) there is no cubit and this is the region's default.
     final traditionalPrimary =
-        config.defaultCalendarViewMode == CalendarViewMode.traditional;
+        context.activeCalendarViewMode == CalendarViewMode.traditional;
     final String monthYear;
     final String day;
     final String secondary;

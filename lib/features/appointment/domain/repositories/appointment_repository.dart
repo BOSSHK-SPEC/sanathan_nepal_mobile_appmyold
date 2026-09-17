@@ -18,5 +18,4 @@ abstract interface class AppointmentRepository {
   Future<Result<Appointment>> book(BookingRequest request);
   Future<Result<Appointment>> cancel(String id);
   Future<Result<Appointment>> reschedule(RescheduleRequest request);
-
 }

@@ -12,64 +12,73 @@ part of 'update_order.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$UpdateOrderStatusParams {
+mixin _$ApplyOrderActionParams {
 
- String get id; OrderStatus get status;
-/// Create a copy of UpdateOrderStatusParams
+ OrderSummary get order; OrderAction get action;
+/// Create a copy of ApplyOrderActionParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$UpdateOrderStatusParamsCopyWith<UpdateOrderStatusParams> get copyWith => _$UpdateOrderStatusParamsCopyWithImpl<UpdateOrderStatusParams>(this as UpdateOrderStatusParams, _$identity);
+$ApplyOrderActionParamsCopyWith<ApplyOrderActionParams> get copyWith => _$ApplyOrderActionParamsCopyWithImpl<ApplyOrderActionParams>(this as ApplyOrderActionParams, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateOrderStatusParams&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ApplyOrderActionParams&&(identical(other.order, order) || other.order == order)&&(identical(other.action, action) || other.action == action));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,status);
+int get hashCode => Object.hash(runtimeType,order,action);
 
 @override
 String toString() {
-  return 'UpdateOrderStatusParams(id: $id, status: $status)';
+  return 'ApplyOrderActionParams(order: $order, action: $action)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $UpdateOrderStatusParamsCopyWith<$Res>  {
-  factory $UpdateOrderStatusParamsCopyWith(UpdateOrderStatusParams value, $Res Function(UpdateOrderStatusParams) _then) = _$UpdateOrderStatusParamsCopyWithImpl;
+abstract mixin class $ApplyOrderActionParamsCopyWith<$Res>  {
+  factory $ApplyOrderActionParamsCopyWith(ApplyOrderActionParams value, $Res Function(ApplyOrderActionParams) _then) = _$ApplyOrderActionParamsCopyWithImpl;
 @useResult
 $Res call({
- String id, OrderStatus status
+ OrderSummary order, OrderAction action
 });
 
 
-
+$OrderSummaryCopyWith<$Res> get order;
 
 }
 /// @nodoc
-class _$UpdateOrderStatusParamsCopyWithImpl<$Res>
-    implements $UpdateOrderStatusParamsCopyWith<$Res> {
-  _$UpdateOrderStatusParamsCopyWithImpl(this._self, this._then);
+class _$ApplyOrderActionParamsCopyWithImpl<$Res>
+    implements $ApplyOrderActionParamsCopyWith<$Res> {
+  _$ApplyOrderActionParamsCopyWithImpl(this._self, this._then);
 
-  final UpdateOrderStatusParams _self;
-  final $Res Function(UpdateOrderStatusParams) _then;
+  final ApplyOrderActionParams _self;
+  final $Res Function(ApplyOrderActionParams) _then;
 
-/// Create a copy of UpdateOrderStatusParams
+/// Create a copy of ApplyOrderActionParams
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? order = null,Object? action = null,}) {
   return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as OrderStatus,
+order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+as OrderSummary,action: null == action ? _self.action : action // ignore: cast_nullable_to_non_nullable
+as OrderAction,
   ));
 }
-
+/// Create a copy of ApplyOrderActionParams
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$OrderSummaryCopyWith<$Res> get order {
+  
+  return $OrderSummaryCopyWith<$Res>(_self.order, (value) {
+    return _then(_self.copyWith(order: value));
+  });
+}
 }
 
 
@@ -77,69 +86,78 @@ as OrderStatus,
 /// @nodoc
 
 
-class _UpdateOrderStatusParams implements UpdateOrderStatusParams {
-  const _UpdateOrderStatusParams({required this.id, required this.status});
+class _ApplyOrderActionParams implements ApplyOrderActionParams {
+  const _ApplyOrderActionParams({required this.order, required this.action});
   
 
-@override final  String id;
-@override final  OrderStatus status;
+@override final  OrderSummary order;
+@override final  OrderAction action;
 
-/// Create a copy of UpdateOrderStatusParams
+/// Create a copy of ApplyOrderActionParams
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$UpdateOrderStatusParamsCopyWith<_UpdateOrderStatusParams> get copyWith => __$UpdateOrderStatusParamsCopyWithImpl<_UpdateOrderStatusParams>(this, _$identity);
+_$ApplyOrderActionParamsCopyWith<_ApplyOrderActionParams> get copyWith => __$ApplyOrderActionParamsCopyWithImpl<_ApplyOrderActionParams>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateOrderStatusParams&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ApplyOrderActionParams&&(identical(other.order, order) || other.order == order)&&(identical(other.action, action) || other.action == action));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,status);
+int get hashCode => Object.hash(runtimeType,order,action);
 
 @override
 String toString() {
-  return 'UpdateOrderStatusParams(id: $id, status: $status)';
+  return 'ApplyOrderActionParams(order: $order, action: $action)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$UpdateOrderStatusParamsCopyWith<$Res> implements $UpdateOrderStatusParamsCopyWith<$Res> {
-  factory _$UpdateOrderStatusParamsCopyWith(_UpdateOrderStatusParams value, $Res Function(_UpdateOrderStatusParams) _then) = __$UpdateOrderStatusParamsCopyWithImpl;
+abstract mixin class _$ApplyOrderActionParamsCopyWith<$Res> implements $ApplyOrderActionParamsCopyWith<$Res> {
+  factory _$ApplyOrderActionParamsCopyWith(_ApplyOrderActionParams value, $Res Function(_ApplyOrderActionParams) _then) = __$ApplyOrderActionParamsCopyWithImpl;
 @override @useResult
 $Res call({
- String id, OrderStatus status
+ OrderSummary order, OrderAction action
 });
 
 
-
+@override $OrderSummaryCopyWith<$Res> get order;
 
 }
 /// @nodoc
-class __$UpdateOrderStatusParamsCopyWithImpl<$Res>
-    implements _$UpdateOrderStatusParamsCopyWith<$Res> {
-  __$UpdateOrderStatusParamsCopyWithImpl(this._self, this._then);
+class __$ApplyOrderActionParamsCopyWithImpl<$Res>
+    implements _$ApplyOrderActionParamsCopyWith<$Res> {
+  __$ApplyOrderActionParamsCopyWithImpl(this._self, this._then);
 
-  final _UpdateOrderStatusParams _self;
-  final $Res Function(_UpdateOrderStatusParams) _then;
+  final _ApplyOrderActionParams _self;
+  final $Res Function(_ApplyOrderActionParams) _then;
 
-/// Create a copy of UpdateOrderStatusParams
+/// Create a copy of ApplyOrderActionParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,}) {
-  return _then(_UpdateOrderStatusParams(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as OrderStatus,
+@override @pragma('vm:prefer-inline') $Res call({Object? order = null,Object? action = null,}) {
+  return _then(_ApplyOrderActionParams(
+order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
+as OrderSummary,action: null == action ? _self.action : action // ignore: cast_nullable_to_non_nullable
+as OrderAction,
   ));
 }
 
-
+/// Create a copy of ApplyOrderActionParams
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$OrderSummaryCopyWith<$Res> get order {
+  
+  return $OrderSummaryCopyWith<$Res>(_self.order, (value) {
+    return _then(_self.copyWith(order: value));
+  });
+}
 }
 
 /// @nodoc

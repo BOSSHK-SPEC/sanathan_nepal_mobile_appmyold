@@ -59,6 +59,8 @@ abstract final class AppRoutes {
   static const String astrologerPricing = '/astrologer/pricing';
   static const String astrologerReviews = '/astrologer/reviews';
   static const String astrologerAnalytics = '/astrologer/analytics';
+  static const String astrologerAppointments = '/astrologer/appointments';
+  static const String astrologerAppointment = '/astrologer/appointments/:id';
   static const String astrologerBoost = '/astrologer/boost';
   static const String astrologerSession = '/astrologer/session/:id';
   static const String astrologerCall = '/astrologer/session/:id/call';
@@ -148,6 +150,8 @@ abstract final class AppRoutes {
   static String astrologerCallPath(String id) => '/astrologer/session/$id/call';
 
   static String astrologerClientPath(String id) => '/astrologer/clients/$id';
+  static String astrologerAppointmentPath(String id) =>
+      '/astrologer/appointments/$id';
 
   static String kundliChartPath(String id) => '/kundli/$id';
   static String pujaDetailsPath(String id) => '/pujas/$id';

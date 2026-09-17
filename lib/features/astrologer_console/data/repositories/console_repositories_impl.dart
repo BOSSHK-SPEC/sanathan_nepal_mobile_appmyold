@@ -8,6 +8,7 @@ import '../../domain/entities/compliance_notice.dart';
 import '../../domain/entities/work_preferences.dart';
 import '../../domain/entities/boost.dart';
 import '../../domain/entities/availability.dart';
+import '../../domain/entities/console_appointment.dart';
 import '../../domain/entities/console_pricing.dart';
 import '../../domain/entities/console_stats.dart';
 import '../../domain/entities/earnings.dart';
@@ -98,6 +99,27 @@ class AstrologerOpsRepositoryImpl implements AstrologerOpsRepository {
     required String clientId,
     required String notes,
   }) => guard(() => _source.saveClientNotes(clientId: clientId, notes: notes));
+
+  @override
+  Future<Result<List<ConsoleAppointment>>> appointments(
+    AppointmentScope scope,
+  ) => guard(() => _source.appointments(scope));
+
+  @override
+  Future<Result<ConsoleAppointment>> appointment(String id) =>
+      guard(() => _source.appointment(id));
+
+  @override
+  Future<Result<ConsoleAppointment>> recordAppointmentOutcome(
+    String id, {
+    required bool completed,
+  }) => guard(() => _source.recordAppointmentOutcome(id, completed: completed));
+
+  @override
+  Future<Result<ConsoleAppointment>> cancelAppointment(
+    String id, {
+    required String reason,
+  }) => guard(() => _source.cancelAppointment(id, reason: reason));
 }
 
 class AstrologerEarningsRepositoryImpl implements AstrologerEarningsRepository {

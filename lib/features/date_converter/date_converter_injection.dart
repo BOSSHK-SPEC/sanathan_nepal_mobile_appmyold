@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '../../core/region/region_resolver.dart';
+import '../calendar/data/datasources/panchanga_days_data_source.dart';
 import 'data/repositories/date_conversion_repository_impl.dart';
 import 'domain/repositories/date_conversion_repository.dart';
 import 'domain/usecases/convert_gregorian_to_traditional.dart';
@@ -17,7 +18,11 @@ import 'presentation/cubit/date_converter_cubit.dart';
 void registerDateConverterFeature(GetIt sl) {
   sl
     ..registerLazySingleton<DateConversionRepository>(
-      () => DateConversionRepositoryImpl(sl<RegionResolver>(), sl()),
+      () => DateConversionRepositoryImpl(
+        sl<RegionResolver>(),
+        sl(),
+        panchanga: sl<PanchangaDaysDataSource>(),
+      ),
     )
     ..registerLazySingleton(() => ConvertTraditionalToGregorian(sl()))
     ..registerLazySingleton(() => ConvertGregorianToTraditional(sl()))

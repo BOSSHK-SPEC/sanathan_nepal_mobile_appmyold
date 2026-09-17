@@ -18,6 +18,8 @@ import 'presentation/cubit/astrologer_profile_cubit.dart';
 import 'presentation/cubit/boost_cubit.dart';
 import 'presentation/cubit/clients_cubit.dart';
 import 'presentation/cubit/compliance_cubit.dart';
+import 'presentation/cubit/console_appointment_cubit.dart';
+import 'presentation/cubit/console_appointments_cubit.dart';
 import 'presentation/cubit/console_dashboard_cubit.dart';
 import 'presentation/cubit/earnings_cubit.dart';
 import 'presentation/cubit/payout_cubit.dart';
@@ -95,6 +97,11 @@ void registerAstrologerConsoleFeature(GetIt sl) {
     ..registerLazySingleton(() => GetBoostPlans(sl()))
     ..registerLazySingleton(() => GetBoostCampaigns(sl()))
     ..registerLazySingleton(() => BuyBoost(sl()))
+    // Appointments
+    ..registerLazySingleton(() => GetConsoleAppointments(sl()))
+    ..registerLazySingleton(() => GetConsoleAppointment(sl()))
+    ..registerLazySingleton(() => RecordAppointmentOutcome(sl()))
+    ..registerLazySingleton(() => CancelConsoleAppointment(sl()))
     // Cubits
     ..registerFactory(
       () => AstrologerProfileCubit(getProfile: sl(), saveProfile: sl()),
@@ -133,6 +140,16 @@ void registerAstrologerConsoleFeature(GetIt sl) {
       () => ScheduleCubit(getAvailability: sl(), saveAvailability: sl()),
     )
     ..registerFactory(() => ClientsCubit(getClients: sl(), saveNotes: sl()))
+    ..registerFactory(() => ConsoleAppointmentsCubit(getAppointments: sl()))
+    // param1 = appointment id.
+    ..registerFactoryParam<ConsoleAppointmentCubit, String, void>(
+      (id, _) => ConsoleAppointmentCubit(
+        id: id,
+        getAppointment: sl(),
+        recordOutcome: sl(),
+        cancelAppointment: sl(),
+      ),
+    )
     ..registerFactory(
       () => EarningsCubit(
         getEarnings: sl(),

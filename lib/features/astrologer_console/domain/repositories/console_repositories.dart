@@ -1,5 +1,6 @@
 import '../../../../core/utils/result.dart';
 import '../../../astrologers/domain/entities/astrologer_review.dart';
+import '../entities/console_appointment.dart';
 import '../entities/application.dart';
 import '../entities/astrologer_client.dart';
 import '../entities/astrologer_profile.dart';
@@ -72,6 +73,20 @@ abstract interface class AstrologerOpsRepository {
   Future<Result<AstrologerClient>> saveClientNotes({
     required String clientId,
     required String notes,
+  });
+
+  Future<Result<List<ConsoleAppointment>>> appointments(AppointmentScope scope);
+
+  Future<Result<ConsoleAppointment>> appointment(String id);
+
+  Future<Result<ConsoleAppointment>> recordAppointmentOutcome(
+    String id, {
+    required bool completed,
+  });
+
+  Future<Result<ConsoleAppointment>> cancelAppointment(
+    String id, {
+    required String reason,
   });
 }
 

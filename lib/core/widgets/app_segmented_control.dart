@@ -63,51 +63,61 @@ class AppSegmentedControl extends StatelessWidget {
                   ),
                 ),
               ),
-              Row(
-                children: List.generate(segments.length, (i) {
-                  final selected = i == selectedIndex;
-                  return Expanded(
-                    child: Semantics(
-                      button: true,
-                      selected: selected,
-                      child: InkWell(
-                        onTap: () => onChanged(i),
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (icons != null && i < icons!.length) ...[
-                              Icon(
-                                icons![i],
-                                size: 15,
-                                color: selected
-                                    ? colors.accent
-                                    : colors.textMuted,
-                              ),
-                              const SizedBox(width: AppSpacing.xs + 2),
-                            ],
-                            Flexible(
-                              child: Text(
-                                segments[i],
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: context.textTheme.labelLarge?.copyWith(
-                                  fontSize: 14,
+              // Fills the pill. An unpositioned Stack child is pinned to the
+              // top-left and sized to its own text, so the labels rode above
+              // the centre line — and only that strip of each segment was
+              // tappable, which read as a tab that would not switch.
+              Positioned.fill(
+                child: Row(
+                  // Stretch, so each segment's InkWell is as tall as the pill.
+                  // Centred children shrink-wrap their text, which left the
+                  // tap area a thin strip through the middle.
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: List.generate(segments.length, (i) {
+                    final selected = i == selectedIndex;
+                    return Expanded(
+                      child: Semantics(
+                        button: true,
+                        selected: selected,
+                        child: InkWell(
+                          onTap: () => onChanged(i),
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (icons != null && i < icons!.length) ...[
+                                Icon(
+                                  icons![i],
+                                  size: 15,
                                   color: selected
-                                      ? colors.textPrimary
+                                      ? colors.accent
                                       : colors.textMuted,
-                                  fontWeight: selected
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
+                                ),
+                                const SizedBox(width: AppSpacing.xs + 2),
+                              ],
+                              Flexible(
+                                child: Text(
+                                  segments[i],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.textTheme.labelLarge?.copyWith(
+                                    fontSize: 14,
+                                    color: selected
+                                        ? colors.textPrimary
+                                        : colors.textMuted,
+                                    fontWeight: selected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
             ],
           ),

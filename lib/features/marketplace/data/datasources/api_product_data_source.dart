@@ -3,6 +3,7 @@ import '../../../../core/network/api_time.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_guard.dart';
 import '../../../../core/network/api_money.dart';
+import '../../../../core/utils/web_url.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_draft.dart';
@@ -138,8 +139,11 @@ class ApiProductDataSource implements ProductDataSource {
     'condition': draft.condition.name,
     'isService': draft.isService,
     'negotiable': draft.negotiable,
-    if (draft.websiteLink != null && draft.websiteLink!.isNotEmpty)
-      'websiteLink': draft.websiteLink,
+    // Completed rather than sent as typed: a seller writes `shop.com`, the
+    // server requires a whole URL, and the raw value failed the entire listing
+    // with a validation error that named no field. `?` drops the key when the
+    // field was left blank.
+    'websiteLink': ?WebUrl.normalize(draft.websiteLink),
     'imageKeys': draft.images,
     // `.toUtc()` is load-bearing twice over: `toIso8601String()` on a local
     // DateTime emits no zone suffix, which the server's RFC-3339 check

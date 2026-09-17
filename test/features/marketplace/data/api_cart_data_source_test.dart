@@ -79,10 +79,7 @@ void main() {
     final request = adapter.requests.single;
     expect(request.method, 'POST');
     expect(request.path, '/cart/items');
-    expect(
-      (request.data! as Map)['productId'],
-      '01M22ZJMKW9A7FC3ZD47TMX1Z3',
-    );
+    expect((request.data! as Map)['productId'], '01M22ZJMKW9A7FC3ZD47TMX1Z3');
   });
 
   test('the cart shown is the one the server returned', () async {
@@ -101,10 +98,11 @@ void main() {
     await source.removeItem('p1');
     await source.clear();
 
-    expect(
-      adapter.requests.map((r) => '${r.method} ${r.path}'),
-      ['PATCH /cart/items/p1', 'DELETE /cart/items/p1', 'DELETE /cart'],
-    );
+    expect(adapter.requests.map((r) => '${r.method} ${r.path}'), [
+      'PATCH /cart/items/p1',
+      'DELETE /cart/items/p1',
+      'DELETE /cart',
+    ]);
   });
 
   test('delivery is not quoted before an address exists', () async {
@@ -117,6 +115,9 @@ void main() {
     final result = await CartRepositoryImpl(source).getCart();
 
     expect(result.isSuccess, isTrue);
-    expect(result.valueOrNull?.items.single.product.id, '01M22ZJMKW9A7FC3ZD47TMX1Z3');
+    expect(
+      result.valueOrNull?.items.single.product.id,
+      '01M22ZJMKW9A7FC3ZD47TMX1Z3',
+    );
   });
 }

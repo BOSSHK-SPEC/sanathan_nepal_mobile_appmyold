@@ -16,9 +16,8 @@ class OrderCard extends StatelessWidget {
   const OrderCard({
     required this.order,
     super.key,
-    this.onCancel,
-    this.onAccept,
-    this.onComplete,
+    this.onAction,
+    this.pending = false,
     this.onRate,
     this.onVisitSeller,
     this.onCall,
@@ -26,9 +25,14 @@ class OrderCard extends StatelessWidget {
   });
 
   final OrderSummary order;
-  final VoidCallback? onCancel;
-  final VoidCallback? onAccept;
-  final VoidCallback? onComplete;
+
+  /// Runs one of [OrderSummary.availableActions]. A single callback rather
+  /// than one per action, so adding a step to the fulfilment flow does not
+  /// mean threading another closure through three widgets.
+  final ValueChanged<OrderAction>? onAction;
+
+  /// True while this order has a request in flight; its buttons are disabled.
+  final bool pending;
   final ValueChanged<int>? onRate;
   final VoidCallback? onVisitSeller;
   final VoidCallback? onCall;
@@ -44,15 +48,21 @@ class OrderCard extends StatelessWidget {
 
     final String headline = switch ((order.role, order.status)) {
       (OrderRole.buyer, OrderStatus.placed) => s.orderPlaced,
+      // Paid, and the shop has not answered yet — a different thing from
+      // "placed", and the state a buyer most wants named.
+      (OrderRole.buyer, OrderStatus.confirmed) => s.awaitingSeller,
       (OrderRole.buyer, OrderStatus.processing) => s.orderApproved,
+      (OrderRole.buyer, OrderStatus.shipped) => s.shipped,
+      (OrderRole.buyer, OrderStatus.outForDelivery) => s.outForDelivery,
       (OrderRole.buyer, OrderStatus.completed) => s.purchaseCompleted,
-      (OrderRole.buyer, OrderStatus.sold) => s.purchaseCompleted,
-      (OrderRole.seller, OrderStatus.placed) => s.newOrderReceived,
+      (OrderRole.seller, OrderStatus.placed) ||
+      (OrderRole.seller, OrderStatus.confirmed) => s.newOrderReceived,
       (OrderRole.seller, OrderStatus.processing) =>
         '${s.processingOrderTo} ${order.counterpartyName.split(' ').first}',
-      (OrderRole.seller, OrderStatus.sold) =>
+      (OrderRole.seller, OrderStatus.shipped) => s.shipped,
+      (OrderRole.seller, OrderStatus.outForDelivery) => s.outForDelivery,
+      (OrderRole.seller, OrderStatus.completed) =>
         '${s.soldTo} ${order.counterpartyName.split(' ').first}',
-      (OrderRole.seller, OrderStatus.completed) => s.purchaseCompleted,
       (_, OrderStatus.cancelled) => s.orderCancelled,
     };
 
@@ -228,50 +238,49 @@ class OrderCard extends StatelessWidget {
         ),
       ),
     );
-    switch ((order.role, order.status)) {
-      case (OrderRole.buyer, OrderStatus.placed):
-        return [
-          SmallGradientButton(
-            label: s.cancelOrder,
-            outlined: true,
-            height: 22,
-            onPressed: onCancel,
-          ),
-        ];
-      case (OrderRole.buyer, OrderStatus.processing):
-        return [statusPill(s.processing, colors.primary)];
-      case (_, OrderStatus.completed):
-        return [statusPill(s.completed, colors.success)];
-      case (OrderRole.seller, OrderStatus.placed):
-        return [
-          SmallGradientButton(label: s.accept, height: 20, onPressed: onAccept),
-          const SizedBox(width: AppSpacing.xs),
-          SmallGradientButton(
-            label: s.cancel,
-            outlined: true,
-            height: 20,
-            onPressed: onCancel,
-          ),
-        ];
-      case (OrderRole.seller, OrderStatus.processing):
-        return [
-          SmallGradientButton(
-            label: s.complete,
-            height: 20,
-            onPressed: onComplete,
-          ),
-          const SizedBox(width: AppSpacing.xs),
-          SmallGradientButton(
-            label: s.cancel,
-            outlined: true,
-            height: 20,
-            onPressed: onCancel,
-          ),
-        ];
-      case (_, OrderStatus.sold):
-        return [statusPill(s.sold, colors.success)];
-      case (_, OrderStatus.cancelled):
-        return [statusPill(s.cancelled, colors.error)];
+    // Buttons come from the order itself, not from a switch restated here.
+    // The old switch offered a seller "Complete" on a freshly placed order —
+    // a jump the server refuses — and drew Accept for `placed`, a state where
+    // payment has not even settled.
+    final actions = order.availableActions;
+    if (actions.isEmpty) {
+      return switch (order.status) {
+        OrderStatus.completed => [statusPill(s.completed, colors.success)],
+        OrderStatus.cancelled => [statusPill(s.cancelled, colors.error)],
+        OrderStatus.shipped => [statusPill(s.shipped, colors.primary)],
+        OrderStatus.outForDelivery => [
+          statusPill(s.outForDelivery, colors.primary),
+        ],
+        _ => [statusPill(s.processing, colors.primary)],
+      };
     }
+
+    String label(OrderAction action) => switch (action) {
+      OrderAction.accept => s.accept,
+      OrderAction.ship => s.markShipped,
+      OrderAction.deliver => s.markDelivered,
+      // "Cancel Order" for the buyer, whose card has room for it; the seller's
+      // row carries two buttons, so it gets the short form.
+      OrderAction.cancel => order.role == OrderRole.buyer
+          ? s.cancelOrder
+          : s.cancel,
+    };
+
+    return [
+      for (final (index, action) in actions.indexed) ...[
+        if (index > 0) const SizedBox(width: AppSpacing.xs),
+        SmallGradientButton(
+          label: label(action),
+          // Cancel is the destructive one, so it never gets the filled
+          // treatment that invites a tap.
+          outlined: action == OrderAction.cancel,
+          height: 22,
+          // Disabled while a request is in flight: two taps on Accept sent two
+          // transitions, and the second failed with a message about a move
+          // nobody asked for.
+          onPressed: pending ? null : () => onAction?.call(action),
+        ),
+      ],
+    ];
   }
 }

@@ -2,6 +2,7 @@ import '../../../../core/billing/spending_account.dart';
 import '../../../../core/utils/repository_guard.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/astrologer_session.dart';
+import '../../domain/entities/call_credentials.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/consult_intake.dart';
 import '../../domain/entities/consultation.dart';
@@ -61,6 +62,13 @@ class ConsultationRepositoryImpl implements ConsultationRepository {
 
   @override
   Future<Result<double>> spendableBalance() => guard(_account.spendable);
+
+  @override
+  Future<Result<CallCredentials>> callCredentials(String consultationId) =>
+      guard(() => _source.callCredentials(consultationId));
+
+  @override
+  Future<Result<bool>> callsAvailable() => guard(_source.callsAvailable);
 
   @override
   Future<Result<Consultation>> acceptFromQueue(QueueAcceptRequest request) =>

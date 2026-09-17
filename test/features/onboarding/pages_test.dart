@@ -31,7 +31,7 @@ import 'package:sanathan_nepal_mobile_app/features/onboarding/presentation/pages
 import 'package:sanathan_nepal_mobile_app/features/onboarding/presentation/pages/notification_settings_onboarding_page.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/presentation/pages/otp_page.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/presentation/pages/splash_page.dart';
-import 'package:sanathan_nepal_mobile_app/features/onboarding/presentation/widgets/bs_date_picker_dialog.dart';
+import 'package:sanathan_nepal_mobile_app/core/widgets/traditional_date_picker.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/presentation/widgets/date_of_birth_field.dart';
 import 'package:sanathan_nepal_mobile_app/features/onboarding/presentation/widgets/post_sign_in_scope.dart';
 import 'package:sanathan_nepal_mobile_app/l10n/generated/app_localizations.dart';
@@ -39,17 +39,11 @@ import 'package:sanathan_nepal_mobile_app/l10n/generated/app_localizations.dart'
 import 'helpers/test_helpers.dart';
 
 void main() {
-  late MockSignInWithGoogle google;
-  late MockSignInWithApple apple;
   late MockSignInWithPhone phone;
   late MockVerifyOtp verifyUc;
 
-  AuthCubit authCubit() => AuthCubit(
-    signInWithGoogle: google,
-    signInWithApple: apple,
-    signInWithPhone: phone,
-    verifyOtp: verifyUc,
-  );
+  AuthCubit authCubit() =>
+      AuthCubit(signInWithPhone: phone, verifyOtp: verifyUc);
 
   setUpAll(() async {
     await loadAppFonts();
@@ -58,8 +52,6 @@ void main() {
   });
 
   setUp(() {
-    google = MockSignInWithGoogle();
-    apple = MockSignInWithApple();
     phone = MockSignInWithPhone();
     verifyUc = MockVerifyOtp();
   });
@@ -96,9 +88,15 @@ void main() {
               presence: _Presence(signedIn),
             ),
           ),
-          GoRoute(path: AppRoutes.languageTheme, builder: (_, _) => page('LANG')),
+          GoRoute(
+            path: AppRoutes.languageTheme,
+            builder: (_, _) => page('LANG'),
+          ),
           GoRoute(path: AppRoutes.login, builder: (_, _) => page('LOGIN')),
-          GoRoute(path: AppRoutes.detailsInput, builder: (_, _) => page('DETAILS')),
+          GoRoute(
+            path: AppRoutes.detailsInput,
+            builder: (_, _) => page('DETAILS'),
+          ),
           GoRoute(
             path: AppRoutes.notificationSettingsOnboarding,
             builder: (_, _) => page('NOTIFS'),
@@ -133,7 +131,11 @@ void main() {
     ) async {
       // The bug this replaces: reopening started over, the second sign-in no
       // longer counted as "new", and the details form was skipped for good.
-      await launch(tester, saved: OnboardingStep.profileDetails, signedIn: true);
+      await launch(
+        tester,
+        saved: OnboardingStep.profileDetails,
+        signedIn: true,
+      );
       expect(find.text('DETAILS'), findsOneWidget);
     });
 
@@ -160,12 +162,26 @@ void main() {
       expect(find.text('LANG'), findsOneWidget);
     });
 
-    testWidgets('closed on the login screen → reopens on login', (tester) async {
+    testWidgets('closed on the login screen → reopens on login', (
+      tester,
+    ) async {
       await launch(tester, saved: OnboardingStep.signIn);
       expect(find.text('LOGIN'), findsOneWidget);
     });
 
-    testWidgets('a finished onboarding always opens home', (tester) async {
+    testWidgets('signed out after onboarding opens sign-in, not Home', (
+      tester,
+    ) async {
+      // The bug: signing out left "onboarding completed" set, and the next
+      // launch went straight to Home for nobody.
+      await launch(tester, onboarded: true, signedIn: false);
+      expect(find.text('LOGIN'), findsOneWidget);
+      expect(find.text('HOME'), findsNothing);
+    });
+
+    testWidgets('a finished onboarding opens home while signed in', (
+      tester,
+    ) async {
       await launch(
         tester,
         saved: OnboardingStep.profileDetails,
@@ -225,15 +241,19 @@ void main() {
   });
 
   group('LoginPage', () {
-    testWidgets('renders social buttons and opens the phone sheet', (
+    testWidgets('offers only phone sign-in and opens the phone sheet', (
       tester,
     ) async {
       await setPhoneSurface(tester);
       await tester.pumpWidget(wrapApp(LoginPage(cubit: authCubit())));
       expect(find.text('Welcome to Sanatan Nepal Family!'), findsOneWidget);
-      expect(find.text('Continue with Google'), findsOneWidget);
-      expect(find.text('Continue with Apple'), findsOneWidget);
       expect(find.text('Continue with Number'), findsOneWidget);
+      // Mobile number + code is the only way in.
+      expect(find.text('Continue with Google'), findsNothing);
+      expect(find.text('Continue with Apple'), findsNothing);
+      // Terms and privacy are linked before anyone signs in.
+      expect(find.text('Terms'), findsOneWidget);
+      expect(find.text('Privacy Policy'), findsOneWidget);
 
       await tester.tap(find.text('Continue with Number'));
       await tester.pumpAndSettle();
@@ -308,7 +328,9 @@ void main() {
         wrapApp(LoginPage(cubit: authCubit()), dark: true),
       );
       expect(find.text('Log In'), findsOneWidget);
-      expect(find.text('Continue with Google'), findsOneWidget);
+      expect(find.text('Continue with Number'), findsOneWidget);
+      expect(find.text('Continue with Google'), findsNothing);
+      expect(find.text('Continue with Apple'), findsNothing);
     });
   });
 
@@ -330,7 +352,9 @@ void main() {
       expect(find.text('Existing User'), findsOneWidget);
       expect(find.text('Sita Sharma'), findsOneWidget);
       expect(find.text('Log In'), findsOneWidget);
-      expect(find.byType(TextField), findsNWidgets(6));
+      // One field drawn as six boxes.
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.byKey(const Key('otp_box_5')), findsOneWidget);
 
       // Pressing Log In with an incomplete code shows a validation hint.
       await tester.tap(find.text('Log In'));
@@ -357,10 +381,7 @@ void main() {
       );
       expect(find.text('New User'), findsOneWidget);
       expect(find.text('Verify'), findsOneWidget);
-      final fields = find.byType(TextField);
-      for (var i = 0; i < 6; i++) {
-        await tester.enterText(fields.at(i), '${i + 1}');
-      }
+      await tester.enterText(find.byType(TextField), '123456');
       await tester.pumpAndSettle();
       verify(() => verifyUc(any())).called(1);
       expect(find.text('Wrong code'), findsOneWidget);
@@ -472,9 +493,9 @@ void main() {
     ) async {
       await setPhoneSurface(tester);
       final submit = MockSubmitProfile();
-      when(() => submit(any())).thenAnswer(
-        (_) async => const Result.failure(ServerFailure('offline')),
-      );
+      when(
+        () => submit(any()),
+      ).thenAnswer((_) async => const Result.failure(ServerFailure('offline')));
       final cubit = ProfileDetailsCubit(
         submitProfile: submit,
         initial: UserProfileDraft(
@@ -494,7 +515,8 @@ void main() {
 
       expect(find.text('Enter a valid email'), findsNothing);
       final sent =
-          verify(() => submit(captureAny())).captured.single as UserProfileDraft;
+          verify(() => submit(captureAny())).captured.single
+              as UserProfileDraft;
       expect(sent.email, isEmpty);
     });
 
@@ -544,6 +566,24 @@ void main() {
       expect(find.widgetWithText(TextFormField, 'Hetauda'), findsOneWidget);
     });
 
+    testWidgets('offers a profile photo, and says it is optional', (
+      tester,
+    ) async {
+      await setPhoneSurface(tester);
+      await tester.pumpWidget(
+        wrapApp(
+          DetailsInputPage(
+            cubit: ProfileDetailsCubit(submitProfile: MockSubmitProfile()),
+          ),
+        ),
+      );
+      expect(find.text('Profile photo'), findsOneWidget);
+      expect(find.text('(Optional)'), findsOneWidget);
+      expect(find.text('Add photo'), findsOneWidget);
+      // Nothing to remove until a photo has been picked.
+      expect(find.text('Remove photo'), findsNothing);
+    });
+
     testWidgets('India region: Saka/A.D. toggle, New Delhi hint and Saka '
         'picker', (tester) async {
       await setPhoneSurface(tester);
@@ -565,7 +605,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(TraditionalDatePickerDialog), findsOneWidget);
+      expect(find.byType(TraditionalDatePicker), findsOneWidget);
       expect(find.text('Date of Birth (Saka)'), findsOneWidget);
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();

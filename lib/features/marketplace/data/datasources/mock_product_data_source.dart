@@ -148,8 +148,7 @@ class MockProductDataSource implements ProductDataSource {
   }
 
   @override
-  Future<List<Category>> fetchCategories() async =>
-      MarketplaceCategories.all;
+  Future<List<Category>> fetchCategories() async => MarketplaceCategories.all;
 
   @override
   Future<List<ProductModel>> myProducts() async {

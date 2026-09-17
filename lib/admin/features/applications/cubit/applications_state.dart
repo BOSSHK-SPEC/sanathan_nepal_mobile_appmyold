@@ -20,8 +20,10 @@ abstract class ApplicationsState with _$ApplicationsState {
   List<AstrologerApplication> get items => applications.dataOrNull ?? const [];
 
   /// Still awaiting a decision — what the queue is actually for.
-  List<AstrologerApplication> get pending =>
-      [for (final a in items) if (!a.status.isDecided) a];
+  List<AstrologerApplication> get pending => [
+    for (final a in items)
+      if (!a.status.isDecided) a,
+  ];
 
   bool isDeciding(String id) => decidingId == id;
 }

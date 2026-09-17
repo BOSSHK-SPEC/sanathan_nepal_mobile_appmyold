@@ -51,10 +51,10 @@ abstract final class AdminRouter {
         // A moderator has no finance permission, so sending everyone to the
         // overview would greet half the staff with an error.
         if (path == AdminRoutes.console) {
-          final permitted = ConsoleDestination.permittedFor(session.permissions);
-          return permitted.isEmpty
-              ? AdminRoutes.landing
-              : permitted.first.path;
+          final permitted = ConsoleDestination.permittedFor(
+            session.permissions,
+          );
+          return permitted.isEmpty ? AdminRoutes.landing : permitted.first.path;
         }
 
         return null;

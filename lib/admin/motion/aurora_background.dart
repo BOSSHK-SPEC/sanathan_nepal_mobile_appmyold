@@ -17,11 +17,7 @@ import 'motion_config.dart';
 /// forces an expensive offscreen pass on every frame and turns a 60fps page
 /// into a 20fps one.
 class AuroraBackground extends StatefulWidget {
-  const AuroraBackground({
-    required this.child,
-    super.key,
-    this.intensity = 1,
-  });
+  const AuroraBackground({required this.child, super.key, this.intensity = 1});
 
   final Widget child;
 

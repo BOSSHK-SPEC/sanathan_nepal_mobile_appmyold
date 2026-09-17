@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/di/injection.dart';
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/push/push_coordinator.dart';
+import '../../../../core/session/session_sync.dart';
 import '../../../app_settings/presentation/cubit/app_settings_cubit.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/onboarding_step.dart';
@@ -44,6 +46,18 @@ abstract final class AuthFlowNavigation {
     BuildContext context,
     AuthSession session,
   ) async {
+    // Whoever used this phone before, their cached profile — and roles — must
+    // not carry into this session: adopt this account from the server first.
+    // Bounded, so a slow network cannot hold the sign-in screen; the launch
+    // sync catches up if it times out.
+    await sl<SessionSync>()
+        .adoptSignedInUser(session.userId)
+        .timeout(const Duration(seconds: 8), onTimeout: () {});
+    // The token belongs to the phone, the registration to the account: this
+    // device has to be re-registered as *this* user, or their messages would
+    // keep going to whoever signed in here last.
+    unawaited(sl<PushCoordinator>().start());
+    if (!context.mounted) return;
     if (needsDetails(session)) {
       await _progress.saveStep(OnboardingStep.profileDetails);
       if (context.mounted) context.go(AppRoutes.detailsInput);

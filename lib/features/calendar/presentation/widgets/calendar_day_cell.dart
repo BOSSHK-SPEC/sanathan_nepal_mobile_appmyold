@@ -5,10 +5,11 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/calendar_day.dart';
 import '../../domain/entities/calendar_view_mode.dart';
 import '../utils/calendar_format.dart';
+import 'vrat_marker.dart';
 
 /// One grid cell: primary day number (traditional or Gregorian), small
-/// secondary number, event dot, today highlight (green box) and holiday
-/// colouring.
+/// secondary number, event dot, vrat marker, today highlight (green box) and
+/// holiday colouring.
 class CalendarDayCell extends StatelessWidget {
   const CalendarDayCell({
     required this.day,
@@ -65,10 +66,18 @@ class CalendarDayCell extends StatelessWidget {
 
     final primarySize = compact ? 12.0 : 15.0;
     final secondarySize = compact ? 8.0 : 10.0;
+    // Only the server's calculation marks a vrat: the marker has no room for
+    // an "approximate" label, so an estimate must not draw one.
+    final exact = day.exactPanchanga;
+    final vrat = exact?.vrat.firstOrNull;
+    final tithi = exact?.tithi.resolve(context.languageCode);
 
     return Semantics(
       button: true,
-      label: '$primary / $secondary',
+      label: [
+        '$primary / $secondary',
+        ?tithi,
+      ].join(', '),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -111,6 +120,16 @@ class CalendarDayCell extends StatelessWidget {
                   ),
                 ),
               ),
+              if (vrat != null)
+                Positioned(
+                  left: compact ? 2 : 4,
+                  top: compact ? 2 : 4,
+                  child: VratMarker(
+                    kind: vrat,
+                    size: compact ? 4 : 6,
+                    color: day.isToday ? colors.onPrimary : colors.accent,
+                  ),
+                ),
               if (day.hasEvents)
                 Positioned(
                   left: compact ? 3 : 6,

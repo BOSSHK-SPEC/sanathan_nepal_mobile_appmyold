@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/di/injection.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../calendar/presentation/cubit/calendar_cubit.dart';
+import '../../../calendar/presentation/utils/active_calendar_view_mode.dart';
 import '../../../calendar/presentation/widgets/month_calendar_view.dart';
 import '../../../panchanga/presentation/cubit/panchanga_cubit.dart';
 import '../l10n/events_strings.dart';
@@ -61,10 +63,21 @@ class EventsHeaderCard extends StatelessWidget {
         ),
       ),
     );
-    if (!hasPanchanga) return child;
-    return BlocProvider<PanchangaCubit>(
-      create: (_) => sl<PanchangaCubit>()..selectDate(today),
-      child: child,
+    final withPanchanga = hasPanchanga
+        ? BlocProvider<PanchangaCubit>(
+            create: (_) => sl<PanchangaCubit>()..selectDate(today),
+            child: child,
+          )
+        : child;
+    // The today column and the grid are two views of one date, so they must
+    // share one CalendarCubit. The events page provides it (its list rows
+    // follow the toggle too); on its own the card owns one. The grid used to
+    // create a private cubit, which is why switching to A.D. or Saka converted
+    // the grid and left the column beside it unchanged.
+    if (context.hasCalendarCubitAbove) return withPanchanga;
+    return BlocProvider<CalendarCubit>(
+      create: (_) => sl<CalendarCubit>(param1: null)..load(),
+      child: withPanchanga,
     );
   }
 }
@@ -80,13 +93,17 @@ class _TodayColumn extends StatelessWidget {
     final config = context.regionConfig;
     final lang = context.languageCode;
     final devanagari = context.usesDevanagariDigits;
+    // Follows the grid's toggle, not the region — the region only decides
+    // what the calendar opens in.
+    final gregorianFirst = context.gregorianLeads;
     final traditional = config.calendar.fromGregorian(today);
-    final day = config.isIndia ? today.day : traditional.day;
-    final secondary = config.isIndia
+    final day = gregorianFirst ? today.day : traditional.day;
+    final secondary = gregorianFirst
         ? EventDateFormat.traditionalLine(
             today,
             config: config,
             languageCode: lang,
+            era: true,
           )
         : EventDateFormat.ad(today);
     final panchanga = hasPanchanga
@@ -97,6 +114,7 @@ class _TodayColumn extends StatelessWidget {
         today,
         config: config,
         languageCode: lang,
+        gregorianFirst: gregorianFirst,
       ),
       day: EventDateFormat.digits('$day', devanagari: devanagari),
       weekday: EventDateFormat.weekday(today, weekdays: s.weekdays),

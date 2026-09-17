@@ -62,6 +62,10 @@ class ProfileDetailsCubit extends AppCubit<ProfileDetailsState> {
   void setZodiacSign(ZodiacSign v) =>
       _update(state.draft.copyWith(zodiacSign: v));
 
+  /// Null removes the photo that was picked.
+  void setAvatarUrl(String? url) =>
+      _update(state.draft.copyWith(avatarUrl: url));
+
   Future<void> submit() async {
     _saveTimer?.cancel();
     // Surrounding spaces are not part of anyone's name or address. An email
@@ -71,7 +75,9 @@ class ProfileDetailsCubit extends AppCubit<ProfileDetailsState> {
       email: state.draft.email.trim(),
       birthPlace: state.draft.birthPlace.trim(),
     );
-    emit(state.copyWith(draft: draft, submission: state.submission.toLoading()));
+    emit(
+      state.copyWith(draft: draft, submission: state.submission.toLoading()),
+    );
 
     final result = await _submit(draft);
     if (result.failureOrNull == null) {

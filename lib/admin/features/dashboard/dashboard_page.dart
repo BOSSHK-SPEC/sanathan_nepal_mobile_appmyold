@@ -40,10 +40,7 @@ class _DashboardView extends StatelessWidget {
           subtitle: 'Everything that moved in the last ${state.days} days',
           onRefresh: cubit.load,
           actions: [
-            _WindowSelector(
-              days: state.days,
-              onChanged: cubit.setWindow,
-            ),
+            _WindowSelector(days: state.days, onChanged: cubit.setWindow),
           ],
           child: LoadStateView<FinancialSummary>(
             state: state.summary,
@@ -90,9 +87,9 @@ class _Summary extends StatelessWidget {
     final session = context.watch<AdminAuthCubit>().state.user;
     final shortcuts = session == null
         ? <ConsoleDestination>[]
-        : ConsoleDestination.permittedFor(session.permissions)
-              .where((d) => d.path != AdminRoutes.overview)
-              .toList();
+        : ConsoleDestination.permittedFor(
+            session.permissions,
+          ).where((d) => d.path != AdminRoutes.overview).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -337,9 +334,7 @@ class _SplitRow extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(
-              child: Text(label, style: context.textTheme.bodyMedium),
-            ),
+            Expanded(child: Text(label, style: context.textTheme.bodyMedium)),
             MoneyText(
               amount,
               style: context.textTheme.bodyMedium?.copyWith(

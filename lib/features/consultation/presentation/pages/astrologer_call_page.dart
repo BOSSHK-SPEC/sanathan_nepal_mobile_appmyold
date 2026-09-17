@@ -10,6 +10,8 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../astrologers/domain/entities/consult_channel.dart';
 import '../cubit/astrologer_session_cubit.dart';
 import '../l10n/consultation_strings.dart';
+import '../widgets/call_status_line.dart';
+import '../widgets/call_video_view.dart';
 
 /// The astrologer's voice and video call screen.
 ///
@@ -109,12 +111,35 @@ class _AstrologerCallView extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const Spacer(),
-                        AppAvatar(
-                          name: session.astrologerName.en,
-                          size: isVideo ? 120 : 148,
-                          borderColor: colors.accent,
+                        CallStatusLine(
+                          state: state.callState,
+                          error: state.callError,
+                          onRetry: cubit.retryCall,
                         ),
+                        // The client's picture on a video session — the same
+                        // view the seeker sees, from the other side.
+                        if (isVideo)
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.pageGutter,
+                                vertical: AppSpacing.lg,
+                              ),
+                              child: CallVideoView(
+                                room: cubit.mediaRoom,
+                                placeholderName: session.astrologerName
+                                    .forLanguage(context.languageCode),
+                              ),
+                            ),
+                          )
+                        else ...[
+                          const Spacer(),
+                          AppAvatar(
+                            name: session.astrologerName.en,
+                            size: 148,
+                            borderColor: colors.accent,
+                          ),
+                        ],
                         const SizedBox(height: AppSpacing.xl),
                         Text(
                           s.clientOnCall,
@@ -147,7 +172,10 @@ class _AstrologerCallView extends StatelessWidget {
                             ),
                           ),
                         ],
-                        const Spacer(),
+                        // See the seeker's screen: with video above taking the
+                        // free space, a second flexible child would halve it.
+                        if (!isVideo) const Spacer(),
+                        if (isVideo) const SizedBox(height: AppSpacing.xl),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

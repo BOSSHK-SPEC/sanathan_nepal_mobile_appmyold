@@ -5,8 +5,6 @@ import '../../../../core/state/load_state.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/otp_challenge.dart';
-import '../../domain/usecases/sign_in_with_apple.dart';
-import '../../domain/usecases/sign_in_with_google.dart';
 import '../../domain/usecases/sign_in_with_phone.dart';
 import '../../domain/usecases/verify_otp.dart';
 import '../../../../core/state/app_cubit.dart';
@@ -15,31 +13,18 @@ part 'auth_cubit.freezed.dart';
 part 'auth_state.dart';
 
 /// Drives the SIGNUP / LOGIN screen, the phone-number sheet and OTP popups.
+///
+/// Mobile number + one-time code is the only way in.
 class AuthCubit extends AppCubit<AuthState> {
   AuthCubit({
-    required SignInWithGoogle signInWithGoogle,
-    required SignInWithApple signInWithApple,
     required SignInWithPhone signInWithPhone,
     required VerifyOtp verifyOtp,
-  }) : _google = signInWithGoogle,
-       _apple = signInWithApple,
-       _phone = signInWithPhone,
+  }) : _phone = signInWithPhone,
        _verify = verifyOtp,
        super(const AuthState());
 
-  final SignInWithGoogle _google;
-  final SignInWithApple _apple;
   final SignInWithPhone _phone;
   final VerifyOtp _verify;
-
-  Future<void> signInWithGoogle() => _social(_google());
-
-  Future<void> signInWithApple() => _social(_apple());
-
-  Future<void> _social(Future<Result<AuthSession>> call) async {
-    emit(state.copyWith(session: state.session.toLoading()));
-    _emitSession(await call);
-  }
 
   /// Requests an OTP for [phoneNumber]; on success `challenge` is loaded.
   Future<void> requestOtp(String phoneNumber) async {

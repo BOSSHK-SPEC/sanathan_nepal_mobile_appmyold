@@ -14,6 +14,7 @@ import '../../../consultation/domain/entities/consultation.dart';
 import '../../domain/entities/queue_entry.dart';
 import '../cubit/console_dashboard_cubit.dart';
 import '../l10n/console_strings.dart';
+import '../widgets/upcoming_appointments_section.dart';
 import '../widgets/compliance_banner.dart';
 import '../widgets/incoming_request_sheet.dart';
 
@@ -223,6 +224,11 @@ class _DashboardView extends StatelessWidget {
                       _OngoingSessionTile(session: session, strings: s),
                   ],
                   const SizedBox(height: AppSpacing.xl),
+                  // Booked sittings: what the astrologer has to prepare for.
+                  // Before the queue because it is planned work; the queue is
+                  // whoever happens to be waiting right now.
+                  const UpcomingAppointmentsSection(),
+                  const SizedBox(height: AppSpacing.xl),
                   SectionHeader(title: s.liveQueue),
                   if (state.waiting.isEmpty)
                     _EmptyQueue(online: state.isOnline, strings: s)
@@ -280,8 +286,7 @@ class _OnlineCard extends StatelessWidget {
                   switch (state.onlineBlocker) {
                     OnlineBlocker.unavailable => s.availabilityUnavailable,
                     OnlineBlocker.noSchedule => s.setScheduleFirst,
-                    OnlineBlocker.none ||
-                    OnlineBlocker.loading =>
+                    OnlineBlocker.none || OnlineBlocker.loading =>
                       online ? s.queueEmptyOnline : s.queueEmptyOffline,
                   },
                   style: context.textTheme.labelSmall?.copyWith(
@@ -476,7 +481,6 @@ class _MenuRow extends StatelessWidget {
     ],
   );
 }
-
 
 /// One consultation that is running right now.
 ///

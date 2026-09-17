@@ -24,6 +24,10 @@ abstract class PanchangaInfo with _$PanchangaInfo {
     /// Wall-clock times at the region's default city.
     required DateTime sunrise,
     required DateTime sunset,
+
+    /// True for the on-device estimate; false once the server's calculation
+    /// has replaced it.
+    @Default(true) bool isApproximate,
   }) = _PanchangaInfo;
 
   String nakshatra({required bool nepali}) =>

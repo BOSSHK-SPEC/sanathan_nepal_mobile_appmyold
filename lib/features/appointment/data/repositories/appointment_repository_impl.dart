@@ -22,8 +22,9 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       guard(() => _source.fetchAstrologer(id));
 
   @override
-  Future<Result<List<AstrologerSlot>>> getAstrologerSlots(String astrologerId) =>
-      guard(() => _source.fetchAstrologerSlots(astrologerId));
+  Future<Result<List<AstrologerSlot>>> getAstrologerSlots(
+    String astrologerId,
+  ) => guard(() => _source.fetchAstrologerSlots(astrologerId));
 
   @override
   Future<Result<List<TimeSlot>>> getTimeSlots(SlotQuery query) =>
@@ -64,5 +65,4 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
         );
         return updated.toEntity();
       });
-
 }

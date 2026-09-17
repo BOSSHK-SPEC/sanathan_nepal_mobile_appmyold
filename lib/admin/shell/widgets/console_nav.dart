@@ -93,7 +93,12 @@ class _NavItemState extends State<_NavItem> {
             // piece of depth, and a clearer affordance than a colour change
             // alone for anyone who does not perceive the colour.
             transform: Matrix4.identity()
-              ..translateByDouble(animate && _hovering && !active ? 4 : 0, 0, 0, 1),
+              ..translateByDouble(
+                animate && _hovering && !active ? 4 : 0,
+                0,
+                0,
+                1,
+              ),
             padding: EdgeInsets.symmetric(
               horizontal: widget.compact ? 12 : 14,
               vertical: 12,

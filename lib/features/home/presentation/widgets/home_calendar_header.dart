@@ -28,24 +28,33 @@ class HomeCalendarHeader extends StatelessWidget {
       create: (_) => sl<CalendarCubit>(param1: null)..load(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pageGutter),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        // One builder over the whole header, not just the toggle row: the
+        // summary column and the grid are two views of the same date, so they
+        // have to rebuild on the same state. With the column outside it, a
+        // switch to A.D. or Saka converted the grid and left the dates beside
+        // it unchanged.
+        child: BlocBuilder<CalendarCubit, CalendarState>(
+          builder: (context, state) {
+            final cubit = context.read<CalendarCubit>();
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TodaySummaryColumn(now: now, metalRates: metalRates),
-                const SizedBox(width: AppSpacing.sm),
-                const Expanded(
-                  child: MonthCalendarView(compact: true, showHeader: false),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TodaySummaryColumn(
+                      now: now,
+                      mode: state.viewMode,
+                      metalRates: metalRates,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Expanded(
+                      child: MonthCalendarView(compact: true, showHeader: false),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            BlocBuilder<CalendarCubit, CalendarState>(
-              builder: (context, state) {
-                final cubit = context.read<CalendarCubit>();
-                return CalendarViewToggle(
+                const SizedBox(height: AppSpacing.sm),
+                CalendarViewToggle(
                   mode: state.viewMode,
                   year: state.year,
                   month: state.month,
@@ -66,10 +75,10 @@ class HomeCalendarHeader extends StatelessWidget {
                       );
                     }
                   },
-                );
-              },
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

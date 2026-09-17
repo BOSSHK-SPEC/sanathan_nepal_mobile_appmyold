@@ -13,20 +13,31 @@ import '../l10n/home_strings.dart';
 /// clock and gold/silver mini card (Figma "Group 35645" / "आजको सुन, चाँदीको
 /// दर").
 ///
-/// Mirrors the region's default calendar view: Nepal shows the Bikram
-/// Sambat month + day with the A.D. date underneath; India shows the
-/// Gregorian month + day with the Saka date underneath. Time carries the
+/// Follows [mode], the same value that drives the month grid beside it:
+/// traditional leads with the Bikram Sambat / Saka month and day and prints
+/// the A.D. date underneath, Gregorian does the reverse. Time carries the
 /// region's zone label (NST / IST) and bullion is priced in the region's
 /// currency per unit (रु./tola, ₹/10 g).
+///
+/// [mode] is passed in rather than read from the region, which is the whole
+/// point: the region only decides what the calendar *opens* in. Deriving it
+/// from `config.defaultCalendarViewMode` meant switching to A.D. or Saka
+/// converted the grid while this column carried on showing the other
+/// calendar — the two halves of one header disagreeing about today's date.
 class TodaySummaryColumn extends StatelessWidget {
   const TodaySummaryColumn({
     required this.now,
+    required this.mode,
     super.key,
     this.metalRates,
     this.width = 78,
   });
 
   final DateTime now;
+
+  /// Which calendar leads. Comes from `CalendarCubit`, so a toggle moves this
+  /// column and the grid together.
+  final CalendarViewMode mode;
   final MetalRates? metalRates;
   final double width;
 
@@ -39,8 +50,7 @@ class TodaySummaryColumn extends StatelessWidget {
     final devanagari = context.usesDevanagariDigits;
     final calendar = config.calendar;
     final traditional = calendar.fromGregorian(now);
-    final traditionalPrimary =
-        config.defaultCalendarViewMode == CalendarViewMode.traditional;
+    final traditionalPrimary = mode == CalendarViewMode.traditional;
 
     final String monthYear;
     final String day;
@@ -69,6 +79,9 @@ class TodaySummaryColumn extends StatelessWidget {
         traditional,
         calendar: calendar,
         languageCode: languageCode,
+        // Named only when it is the secondary date, which is exactly when it
+        // needs naming: "Shravana 27, 1948" beside a Gregorian heading is
+        // ambiguous, the same date leading its own column is not.
         era: true,
       );
     }

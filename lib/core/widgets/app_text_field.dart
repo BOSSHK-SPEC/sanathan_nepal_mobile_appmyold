@@ -72,6 +72,13 @@ class _AppTextFieldState extends State<AppTextField> {
 
   TextEditingController? get _controller => widget.controller ?? _owned;
 
+  /// Only created when the caller did not bring its own. Without one the
+  /// field could not tell whether it was being typed in, and "never replace
+  /// text under the cursor" silently stopped applying.
+  FocusNode? _ownedFocus;
+
+  FocusNode get _focus => widget.focusNode ?? (_ownedFocus ??= FocusNode());
+
   @override
   void initState() {
     super.initState();
@@ -85,15 +92,26 @@ class _AppTextFieldState extends State<AppTextField> {
     super.didUpdateWidget(old);
     final next = widget.initialValue;
     if (_owned == null || next == null || old.initialValue == next) return;
-    // Never while it has focus: replacing the text under a cursor moves it to
-    // the start and eats half-typed input.
-    final focused = widget.focusNode?.hasFocus ?? false;
-    if (!focused && _owned!.text != next) _owned!.text = next;
+    // Applied after this frame, not during it. Setting a controller's text
+    // notifies the FormField listening to it, which tells the enclosing Form
+    // to rebuild — and an ancestor cannot be marked dirty while its subtree is
+    // mid-build. That threw whenever a value changed from outside, e.g. a
+    // form trimming "  sita@example.com " as it was submitted.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final owned = _owned;
+      final latest = widget.initialValue;
+      if (!mounted || owned == null || latest == null) return;
+      // Never while it has focus: replacing the text under a cursor moves it
+      // to the start and eats half-typed input.
+      if (_focus.hasFocus || owned.text == latest) return;
+      owned.text = latest;
+    });
   }
 
   @override
   void dispose() {
     _owned?.dispose();
+    _ownedFocus?.dispose();
     super.dispose();
   }
 
@@ -121,7 +139,7 @@ class _AppTextFieldState extends State<AppTextField> {
         ],
         TextFormField(
           controller: _controller,
-          focusNode: widget.focusNode,
+          focusNode: _focus,
           enabled: widget.enabled,
           keyboardType: widget.keyboardType,
           obscureText: widget.obscureText,

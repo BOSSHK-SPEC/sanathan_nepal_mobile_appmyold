@@ -144,7 +144,6 @@ abstract class AppointmentStrings {
 }
 
 class _En extends AppointmentStrings {
-
   @override
   String minutesLabel(String minutes) => '$minutes min';
 
@@ -374,7 +373,6 @@ class _En extends AppointmentStrings {
 }
 
 class _Ne extends AppointmentStrings {
-
   @override
   String minutesLabel(String minutes) => '$minutes मिनेट';
 
@@ -603,7 +601,6 @@ class _Ne extends AppointmentStrings {
 }
 
 class _Hi extends AppointmentStrings {
-
   @override
   String minutesLabel(String minutes) => '$minutes मिनट';
 

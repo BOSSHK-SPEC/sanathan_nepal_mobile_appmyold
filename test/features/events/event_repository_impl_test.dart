@@ -37,6 +37,100 @@ void main() {
     );
   });
 
+  group('recurring events', () {
+    /// The bug this group exists for: an event created with a past date and
+    /// `repeatsYearly` came back from the API, parsed correctly, and was then
+    /// dropped by the upcoming filter — present in the response, absent from
+    /// the screen.
+    final birthday = EventModel.fromEntity(
+      Event(
+        id: 'bday',
+        title: LocalizedText.same('My birthday'),
+        date: DateTime(2000, 2, 3),
+        category: EventCategory.birthday,
+        repeat: EventRepeat.yearly,
+      ),
+    );
+
+    late _MockSource source;
+    late EventRepositoryImpl recurring;
+
+    setUp(() {
+      source = _MockSource();
+      when(source.fetchAll).thenAnswer((_) async => [birthday]);
+      recurring = EventRepositoryImpl(
+        source,
+        clock: () => now,
+        resolver: const FixedRegionResolver(Region.nepal),
+      );
+    });
+
+    test('a birthday from years ago is still upcoming', () async {
+      final events = (await recurring.getEvents()).valueOrNull!;
+
+      expect(events, hasLength(1));
+      // February next, not the year 2000.
+      expect(events.single.nextOccurrence(from: now).year, 2027);
+      expect(events.single.daysLeft(now), greaterThan(0));
+    });
+
+    test('a one-off in the past stays in the past', () async {
+      when(
+        source.fetchAll,
+      ).thenAnswer((_) async => [birthday.copyWith(repeat: EventRepeat.none)]);
+
+      // `EventFilter()` is the upcoming one; the repository's own default is
+      // `EventFilter.all`, which deliberately hides nothing. With no repeat
+      // there is nothing to project — this one really has passed.
+      expect(
+        (await recurring.getEvents(const EventFilter())).valueOrNull,
+        isEmpty,
+      );
+      expect(
+        (await recurring.getEvents(EventFilter.all)).valueOrNull,
+        hasLength(1),
+      );
+    });
+
+    test('the upcoming list keeps a recurring event and drops a dead one', () async {
+      when(source.fetchAll).thenAnswer(
+        (_) async => [
+          birthday,
+          birthday.copyWith(id: 'once', repeat: EventRepeat.none),
+        ],
+      );
+
+      // The pairing is the point: same date, same everything, and only the
+      // repeating one belongs in a list of what is coming up.
+      final upcoming = (await recurring.getEvents(
+        const EventFilter(),
+      )).valueOrNull!;
+
+      expect(upcoming.map((e) => e.id), ['bday']);
+    });
+
+    test('the anniversary keeps its day of the month', () async {
+      final next = (await recurring.getEvents()).valueOrNull!.single
+          .nextOccurrence(from: now);
+
+      expect(next.month, 2);
+      expect(next.day, 3);
+    });
+
+    test('a 29 February birthday survives a non-leap year', () async {
+      when(
+        source.fetchAll,
+      ).thenAnswer((_) async => [birthday.copyWith(date: DateTime(2000, 2, 29))]);
+
+      // 2027 has no 29 February. Clamping to the 28th beats throwing, and
+      // beats rolling silently into March.
+      final next = (await recurring.getEvents()).valueOrNull!.single
+          .nextOccurrence(from: now);
+      expect(next.month, 2);
+      expect(next.day, 28);
+    });
+  });
+
   group('EventRepositoryImpl (mock source)', () {
     test('EventFilter.onDay lists only that day (all groups)', () async {
       // Seed: "Medicine Time" to-do is dated today; personal events later.

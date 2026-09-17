@@ -152,8 +152,12 @@ class LanguageThemePage extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.only(right: AppSpacing.xxl),
                         child: TextButton(
+                          // Skips choosing a language and theme (the
+                          // defaults stay), not signing in: the app is not
+                          // usable without an account, so "skip" into it
+                          // would only bounce off the sign-in gate.
                           onPressed: () =>
-                              AuthFlowNavigation.finishOnboarding(context),
+                              AuthFlowNavigation.startSignIn(context),
                           child: Text(
                             l10n.skip,
                             style: context.textTheme.bodyLarge?.copyWith(

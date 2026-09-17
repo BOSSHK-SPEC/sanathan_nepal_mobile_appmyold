@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 mixin _$PanchangaInfo {
 
  LunarDay get lunarDay; String get nakshatraNe; String get nakshatraEn; String get karanNe; String get karanEn; String get yogNe; String get yogEn; String get chandraRashiNe; String get chandraRashiEn;/// Wall-clock times at the region's default city.
- DateTime get sunrise; DateTime get sunset;
+ DateTime get sunrise; DateTime get sunset;/// True for the on-device estimate; false once the server's calculation
+/// has replaced it.
+ bool get isApproximate;
 /// Create a copy of PanchangaInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +28,16 @@ $PanchangaInfoCopyWith<PanchangaInfo> get copyWith => _$PanchangaInfoCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PanchangaInfo&&(identical(other.lunarDay, lunarDay) || other.lunarDay == lunarDay)&&(identical(other.nakshatraNe, nakshatraNe) || other.nakshatraNe == nakshatraNe)&&(identical(other.nakshatraEn, nakshatraEn) || other.nakshatraEn == nakshatraEn)&&(identical(other.karanNe, karanNe) || other.karanNe == karanNe)&&(identical(other.karanEn, karanEn) || other.karanEn == karanEn)&&(identical(other.yogNe, yogNe) || other.yogNe == yogNe)&&(identical(other.yogEn, yogEn) || other.yogEn == yogEn)&&(identical(other.chandraRashiNe, chandraRashiNe) || other.chandraRashiNe == chandraRashiNe)&&(identical(other.chandraRashiEn, chandraRashiEn) || other.chandraRashiEn == chandraRashiEn)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PanchangaInfo&&(identical(other.lunarDay, lunarDay) || other.lunarDay == lunarDay)&&(identical(other.nakshatraNe, nakshatraNe) || other.nakshatraNe == nakshatraNe)&&(identical(other.nakshatraEn, nakshatraEn) || other.nakshatraEn == nakshatraEn)&&(identical(other.karanNe, karanNe) || other.karanNe == karanNe)&&(identical(other.karanEn, karanEn) || other.karanEn == karanEn)&&(identical(other.yogNe, yogNe) || other.yogNe == yogNe)&&(identical(other.yogEn, yogEn) || other.yogEn == yogEn)&&(identical(other.chandraRashiNe, chandraRashiNe) || other.chandraRashiNe == chandraRashiNe)&&(identical(other.chandraRashiEn, chandraRashiEn) || other.chandraRashiEn == chandraRashiEn)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset)&&(identical(other.isApproximate, isApproximate) || other.isApproximate == isApproximate));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,lunarDay,nakshatraNe,nakshatraEn,karanNe,karanEn,yogNe,yogEn,chandraRashiNe,chandraRashiEn,sunrise,sunset);
+int get hashCode => Object.hash(runtimeType,lunarDay,nakshatraNe,nakshatraEn,karanNe,karanEn,yogNe,yogEn,chandraRashiNe,chandraRashiEn,sunrise,sunset,isApproximate);
 
 @override
 String toString() {
-  return 'PanchangaInfo(lunarDay: $lunarDay, nakshatraNe: $nakshatraNe, nakshatraEn: $nakshatraEn, karanNe: $karanNe, karanEn: $karanEn, yogNe: $yogNe, yogEn: $yogEn, chandraRashiNe: $chandraRashiNe, chandraRashiEn: $chandraRashiEn, sunrise: $sunrise, sunset: $sunset)';
+  return 'PanchangaInfo(lunarDay: $lunarDay, nakshatraNe: $nakshatraNe, nakshatraEn: $nakshatraEn, karanNe: $karanNe, karanEn: $karanEn, yogNe: $yogNe, yogEn: $yogEn, chandraRashiNe: $chandraRashiNe, chandraRashiEn: $chandraRashiEn, sunrise: $sunrise, sunset: $sunset, isApproximate: $isApproximate)';
 }
 
 
@@ -46,7 +48,7 @@ abstract mixin class $PanchangaInfoCopyWith<$Res>  {
   factory $PanchangaInfoCopyWith(PanchangaInfo value, $Res Function(PanchangaInfo) _then) = _$PanchangaInfoCopyWithImpl;
 @useResult
 $Res call({
- LunarDay lunarDay, String nakshatraNe, String nakshatraEn, String karanNe, String karanEn, String yogNe, String yogEn, String chandraRashiNe, String chandraRashiEn, DateTime sunrise, DateTime sunset
+ LunarDay lunarDay, String nakshatraNe, String nakshatraEn, String karanNe, String karanEn, String yogNe, String yogEn, String chandraRashiNe, String chandraRashiEn, DateTime sunrise, DateTime sunset, bool isApproximate
 });
 
 
@@ -63,7 +65,7 @@ class _$PanchangaInfoCopyWithImpl<$Res>
 
 /// Create a copy of PanchangaInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? lunarDay = null,Object? nakshatraNe = null,Object? nakshatraEn = null,Object? karanNe = null,Object? karanEn = null,Object? yogNe = null,Object? yogEn = null,Object? chandraRashiNe = null,Object? chandraRashiEn = null,Object? sunrise = null,Object? sunset = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? lunarDay = null,Object? nakshatraNe = null,Object? nakshatraEn = null,Object? karanNe = null,Object? karanEn = null,Object? yogNe = null,Object? yogEn = null,Object? chandraRashiNe = null,Object? chandraRashiEn = null,Object? sunrise = null,Object? sunset = null,Object? isApproximate = null,}) {
   return _then(_self.copyWith(
 lunarDay: null == lunarDay ? _self.lunarDay : lunarDay // ignore: cast_nullable_to_non_nullable
 as LunarDay,nakshatraNe: null == nakshatraNe ? _self.nakshatraNe : nakshatraNe // ignore: cast_nullable_to_non_nullable
@@ -76,7 +78,8 @@ as String,chandraRashiNe: null == chandraRashiNe ? _self.chandraRashiNe : chandr
 as String,chandraRashiEn: null == chandraRashiEn ? _self.chandraRashiEn : chandraRashiEn // ignore: cast_nullable_to_non_nullable
 as String,sunrise: null == sunrise ? _self.sunrise : sunrise // ignore: cast_nullable_to_non_nullable
 as DateTime,sunset: null == sunset ? _self.sunset : sunset // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,isApproximate: null == isApproximate ? _self.isApproximate : isApproximate // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 /// Create a copy of PanchangaInfo
@@ -97,7 +100,7 @@ $LunarDayCopyWith<$Res> get lunarDay {
 
 
 class _PanchangaInfo extends PanchangaInfo {
-  const _PanchangaInfo({required this.lunarDay, required this.nakshatraNe, required this.nakshatraEn, required this.karanNe, required this.karanEn, required this.yogNe, required this.yogEn, required this.chandraRashiNe, required this.chandraRashiEn, required this.sunrise, required this.sunset}): super._();
+  const _PanchangaInfo({required this.lunarDay, required this.nakshatraNe, required this.nakshatraEn, required this.karanNe, required this.karanEn, required this.yogNe, required this.yogEn, required this.chandraRashiNe, required this.chandraRashiEn, required this.sunrise, required this.sunset, this.isApproximate = true}): super._();
   
 
 @override final  LunarDay lunarDay;
@@ -112,6 +115,9 @@ class _PanchangaInfo extends PanchangaInfo {
 /// Wall-clock times at the region's default city.
 @override final  DateTime sunrise;
 @override final  DateTime sunset;
+/// True for the on-device estimate; false once the server's calculation
+/// has replaced it.
+@override@JsonKey() final  bool isApproximate;
 
 /// Create a copy of PanchangaInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -123,16 +129,16 @@ _$PanchangaInfoCopyWith<_PanchangaInfo> get copyWith => __$PanchangaInfoCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PanchangaInfo&&(identical(other.lunarDay, lunarDay) || other.lunarDay == lunarDay)&&(identical(other.nakshatraNe, nakshatraNe) || other.nakshatraNe == nakshatraNe)&&(identical(other.nakshatraEn, nakshatraEn) || other.nakshatraEn == nakshatraEn)&&(identical(other.karanNe, karanNe) || other.karanNe == karanNe)&&(identical(other.karanEn, karanEn) || other.karanEn == karanEn)&&(identical(other.yogNe, yogNe) || other.yogNe == yogNe)&&(identical(other.yogEn, yogEn) || other.yogEn == yogEn)&&(identical(other.chandraRashiNe, chandraRashiNe) || other.chandraRashiNe == chandraRashiNe)&&(identical(other.chandraRashiEn, chandraRashiEn) || other.chandraRashiEn == chandraRashiEn)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PanchangaInfo&&(identical(other.lunarDay, lunarDay) || other.lunarDay == lunarDay)&&(identical(other.nakshatraNe, nakshatraNe) || other.nakshatraNe == nakshatraNe)&&(identical(other.nakshatraEn, nakshatraEn) || other.nakshatraEn == nakshatraEn)&&(identical(other.karanNe, karanNe) || other.karanNe == karanNe)&&(identical(other.karanEn, karanEn) || other.karanEn == karanEn)&&(identical(other.yogNe, yogNe) || other.yogNe == yogNe)&&(identical(other.yogEn, yogEn) || other.yogEn == yogEn)&&(identical(other.chandraRashiNe, chandraRashiNe) || other.chandraRashiNe == chandraRashiNe)&&(identical(other.chandraRashiEn, chandraRashiEn) || other.chandraRashiEn == chandraRashiEn)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset)&&(identical(other.isApproximate, isApproximate) || other.isApproximate == isApproximate));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,lunarDay,nakshatraNe,nakshatraEn,karanNe,karanEn,yogNe,yogEn,chandraRashiNe,chandraRashiEn,sunrise,sunset);
+int get hashCode => Object.hash(runtimeType,lunarDay,nakshatraNe,nakshatraEn,karanNe,karanEn,yogNe,yogEn,chandraRashiNe,chandraRashiEn,sunrise,sunset,isApproximate);
 
 @override
 String toString() {
-  return 'PanchangaInfo(lunarDay: $lunarDay, nakshatraNe: $nakshatraNe, nakshatraEn: $nakshatraEn, karanNe: $karanNe, karanEn: $karanEn, yogNe: $yogNe, yogEn: $yogEn, chandraRashiNe: $chandraRashiNe, chandraRashiEn: $chandraRashiEn, sunrise: $sunrise, sunset: $sunset)';
+  return 'PanchangaInfo(lunarDay: $lunarDay, nakshatraNe: $nakshatraNe, nakshatraEn: $nakshatraEn, karanNe: $karanNe, karanEn: $karanEn, yogNe: $yogNe, yogEn: $yogEn, chandraRashiNe: $chandraRashiNe, chandraRashiEn: $chandraRashiEn, sunrise: $sunrise, sunset: $sunset, isApproximate: $isApproximate)';
 }
 
 
@@ -143,7 +149,7 @@ abstract mixin class _$PanchangaInfoCopyWith<$Res> implements $PanchangaInfoCopy
   factory _$PanchangaInfoCopyWith(_PanchangaInfo value, $Res Function(_PanchangaInfo) _then) = __$PanchangaInfoCopyWithImpl;
 @override @useResult
 $Res call({
- LunarDay lunarDay, String nakshatraNe, String nakshatraEn, String karanNe, String karanEn, String yogNe, String yogEn, String chandraRashiNe, String chandraRashiEn, DateTime sunrise, DateTime sunset
+ LunarDay lunarDay, String nakshatraNe, String nakshatraEn, String karanNe, String karanEn, String yogNe, String yogEn, String chandraRashiNe, String chandraRashiEn, DateTime sunrise, DateTime sunset, bool isApproximate
 });
 
 
@@ -160,7 +166,7 @@ class __$PanchangaInfoCopyWithImpl<$Res>
 
 /// Create a copy of PanchangaInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? lunarDay = null,Object? nakshatraNe = null,Object? nakshatraEn = null,Object? karanNe = null,Object? karanEn = null,Object? yogNe = null,Object? yogEn = null,Object? chandraRashiNe = null,Object? chandraRashiEn = null,Object? sunrise = null,Object? sunset = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? lunarDay = null,Object? nakshatraNe = null,Object? nakshatraEn = null,Object? karanNe = null,Object? karanEn = null,Object? yogNe = null,Object? yogEn = null,Object? chandraRashiNe = null,Object? chandraRashiEn = null,Object? sunrise = null,Object? sunset = null,Object? isApproximate = null,}) {
   return _then(_PanchangaInfo(
 lunarDay: null == lunarDay ? _self.lunarDay : lunarDay // ignore: cast_nullable_to_non_nullable
 as LunarDay,nakshatraNe: null == nakshatraNe ? _self.nakshatraNe : nakshatraNe // ignore: cast_nullable_to_non_nullable
@@ -173,7 +179,8 @@ as String,chandraRashiNe: null == chandraRashiNe ? _self.chandraRashiNe : chandr
 as String,chandraRashiEn: null == chandraRashiEn ? _self.chandraRashiEn : chandraRashiEn // ignore: cast_nullable_to_non_nullable
 as String,sunrise: null == sunrise ? _self.sunrise : sunrise // ignore: cast_nullable_to_non_nullable
 as DateTime,sunset: null == sunset ? _self.sunset : sunset // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,isApproximate: null == isApproximate ? _self.isApproximate : isApproximate // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

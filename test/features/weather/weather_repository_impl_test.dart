@@ -61,6 +61,54 @@ void main() {
     expect(bundle.current.condition, WeatherCondition.partlyCloudy);
   });
 
+  test('a missing endpoint still serves a forecast, marked as fallback', () async {
+    // The failure that hid for months: if the app calls a path this backend
+    // does not serve, every request 404s and the fallback quietly covers for
+    // it. The screen must still show weather — and the bundle must admit it
+    // is not live, which is what the page's banner reads.
+    when(
+      () => remote.fetchForecast(any()),
+    ).thenThrow(const NotFoundException('Cannot GET /market/weather'));
+
+    final result = await repo.getForecast(GeoLocation.kathmandu);
+
+    expect(result.isSuccess, isTrue);
+    expect(result.valueOrNull!.isFallback, isTrue);
+  });
+
+  test('a server error falls back too, rather than failing the screen', () async {
+    // A 500 is not the user's problem to look at: weather is ambient, so the
+    // home screen degrades instead of erroring.
+    when(
+      () => remote.fetchForecast(any()),
+    ).thenThrow(const ServerException('upstream unavailable', 503));
+
+    final result = await repo.getForecast(GeoLocation.kathmandu);
+
+    expect(result.isSuccess, isTrue);
+    expect(result.valueOrNull!.isFallback, isTrue);
+  });
+
+  test('live data is never marked as fallback', () async {
+    // The flag is what the page trusts to decide whether to warn the user, so
+    // a success path that mislabels itself is worse than no flag at all.
+    final model = await MockWeatherDataSource(
+      now: clock,
+    ).fetchForecast(GeoLocation.kathmandu);
+    when(() => remote.fetchForecast(any())).thenAnswer(
+      (_) async => WeatherBundleModel(
+        location: model.location,
+        current: model.current,
+        hourly: model.hourly,
+        daily: model.daily,
+      ),
+    );
+
+    final result = await repo.getForecast(GeoLocation.kathmandu);
+
+    expect(result.valueOrNull!.isFallback, isFalse);
+  });
+
   test('WeatherBundleModel parses Open-Meteo JSON', () {
     final json = <String, dynamic>{
       'current': {

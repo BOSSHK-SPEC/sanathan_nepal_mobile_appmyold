@@ -36,7 +36,10 @@ void main() {
     test('an unknown saved value starts from the beginning', () {
       expect(OnboardingStep.tryParse('someOldStep'), isNull);
       expect(OnboardingStep.tryParse(null), isNull);
-      expect(OnboardingStep.tryParse('profileDetails'), OnboardingStep.profileDetails);
+      expect(
+        OnboardingStep.tryParse('profileDetails'),
+        OnboardingStep.profileDetails,
+      );
     });
   });
 
@@ -49,20 +52,37 @@ void main() {
     );
 
     test('a brand-new account', () {
-      expect(AuthFlowNavigation.needsDetails(session(isNew: true, name: 'Sita')), isTrue);
+      expect(
+        AuthFlowNavigation.needsDetails(session(isNew: true, name: 'Sita')),
+        isTrue,
+      );
     });
 
     test('a returning account the server still calls Guest', () {
       // Closed the app on the details form, then signed in again: the server
       // no longer says "new", but never received a name either.
-      expect(AuthFlowNavigation.needsDetails(session(isNew: false, name: 'Guest')), isTrue);
-      expect(AuthFlowNavigation.needsDetails(session(isNew: false, name: ' guest ')), isTrue);
+      expect(
+        AuthFlowNavigation.needsDetails(session(isNew: false, name: 'Guest')),
+        isTrue,
+      );
+      expect(
+        AuthFlowNavigation.needsDetails(session(isNew: false, name: ' guest ')),
+        isTrue,
+      );
       expect(AuthFlowNavigation.needsDetails(session(isNew: false)), isTrue);
-      expect(AuthFlowNavigation.needsDetails(session(isNew: false, name: '')), isTrue);
+      expect(
+        AuthFlowNavigation.needsDetails(session(isNew: false, name: '')),
+        isTrue,
+      );
     });
 
     test('a returning account with a real name goes straight in', () {
-      expect(AuthFlowNavigation.needsDetails(session(isNew: false, name: 'Sita Sharma')), isFalse);
+      expect(
+        AuthFlowNavigation.needsDetails(
+          session(isNew: false, name: 'Sita Sharma'),
+        ),
+        isFalse,
+      );
     });
   });
 

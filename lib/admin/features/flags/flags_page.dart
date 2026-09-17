@@ -151,7 +151,10 @@ class _FlagRowState extends State<_FlagRow> {
                   ),
                 )
               else
-                Switch(value: flag.enabled, onChanged: (_) => widget.onToggle()),
+                Switch(
+                  value: flag.enabled,
+                  onChanged: (_) => widget.onToggle(),
+                ),
             ],
           ),
           if (flag.enabled) ...[

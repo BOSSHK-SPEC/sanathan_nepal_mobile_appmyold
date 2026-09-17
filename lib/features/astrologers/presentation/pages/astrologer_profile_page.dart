@@ -500,7 +500,8 @@ class _ConsultBar extends StatelessWidget {
                               onPressed: () => context.push(
                                 AppRoutes.consultIntakePath(
                                   astrologer.id,
-                                  channel: astrologer.channels.firstOrNull?.name,
+                                  channel:
+                                      astrologer.channels.firstOrNull?.name,
                                 ),
                               ),
                             ),

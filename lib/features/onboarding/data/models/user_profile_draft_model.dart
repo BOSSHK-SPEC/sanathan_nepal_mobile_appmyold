@@ -23,6 +23,7 @@ abstract class UserProfileDraftModel with _$UserProfileDraftModel {
     Gender? gender,
     @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
     ZodiacSign? zodiacSign,
+    String? avatarUrl,
   }) = _UserProfileDraftModel;
 
   factory UserProfileDraftModel.fromJson(Map<String, dynamic> json) =>
@@ -38,6 +39,7 @@ abstract class UserProfileDraftModel with _$UserProfileDraftModel {
         birthPlace: e.birthPlace,
         gender: e.gender,
         zodiacSign: e.zodiacSign,
+        avatarUrl: e.avatarUrl,
       );
 
   UserProfileDraft toEntity() => UserProfileDraft(
@@ -49,5 +51,6 @@ abstract class UserProfileDraftModel with _$UserProfileDraftModel {
     birthPlace: birthPlace,
     gender: gender,
     zodiacSign: zodiacSign,
+    avatarUrl: avatarUrl,
   );
 }

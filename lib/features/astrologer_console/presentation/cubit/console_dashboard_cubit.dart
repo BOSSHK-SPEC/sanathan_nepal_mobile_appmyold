@@ -120,7 +120,8 @@ class ConsoleDashboardCubit extends AppCubit<ConsoleDashboardState> {
     result.fold(
       // A failed poll leaves the last known list on screen rather than
       // blanking a session the astrologer is about to tap.
-      (failure) => emit(state.copyWith(sessions: state.sessions.toFailed(failure))),
+      (failure) =>
+          emit(state.copyWith(sessions: state.sessions.toFailed(failure))),
       (sessions) => emit(state.copyWith(sessions: LoadState.loaded(sessions))),
     );
   }

@@ -41,33 +41,6 @@ class ApiAuthDataSource implements AuthRemoteDataSource {
   static const String _challengePhoneKey = 'auth.otp.phone';
 
   @override
-  Future<AuthSessionModel> signInWithGoogle() =>
-      _social(AuthProvider.google, 'google');
-
-  @override
-  Future<AuthSessionModel> signInWithApple() =>
-      _social(AuthProvider.apple, 'apple');
-
-  Future<AuthSessionModel> _social(AuthProvider provider, String wire) =>
-      guardApi(() async {
-        // The identity token comes from the platform sign-in SDK. Until those
-        // are wired, the dev backend accepts any stable string and maps it to
-        // one account — which keeps the whole flow testable.
-        final idToken = await _obtainIdToken(wire);
-
-        final response = await _client.post<dynamic>(
-          ApiEndpoints.authSocial,
-          data: {
-            'provider': wire,
-            'idToken': idToken,
-            'region': _regions.region.code,
-          },
-        );
-
-        return _adopt(asJsonMap(response), provider);
-      });
-
-  @override
   Future<OtpChallengeModel> requestOtp(String phoneNumber) =>
       guardApi(() async {
         final response = await _client.post<dynamic>(
@@ -119,23 +92,29 @@ class ApiAuthDataSource implements AuthRemoteDataSource {
   });
 
   @override
-  Future<void> submitProfile(UserProfileDraftModel profile) =>
-      guardApi(() async {
-        await _client.patch<dynamic>(
-          ApiEndpoints.profile,
-          data: {
-            if (profile.fullName.isNotEmpty) 'name': profile.fullName,
-            if (profile.email.isNotEmpty) 'email': profile.email,
-            if (profile.gender != null) 'gender': profile.gender!.name,
-            if (profile.dateOfBirth != null)
-              'dobAd': profile.dateOfBirth!.toIso8601String().substring(0, 10),
-            // The draft stores minutes-from-midnight; the API wants "HH:mm".
-            if (profile.birthTimeMinutes != null)
-              'birthTime': _formatMinutes(profile.birthTimeMinutes!),
-            if (profile.birthPlace.isNotEmpty) 'birthPlace': profile.birthPlace,
-          },
-        );
-      });
+  Future<void> submitProfile(
+    UserProfileDraftModel profile,
+  ) => guardApi(() async {
+    await _client.patch<dynamic>(
+      ApiEndpoints.profile,
+      data: {
+        if (profile.fullName.isNotEmpty) 'name': profile.fullName,
+        if (profile.email.isNotEmpty) 'email': profile.email,
+        if (profile.gender != null) 'gender': profile.gender!.name,
+        if (profile.dateOfBirth != null)
+          'dobAd': profile.dateOfBirth!.toIso8601String().substring(0, 10),
+        // The draft stores minutes-from-midnight; the API wants "HH:mm".
+        if (profile.birthTimeMinutes != null)
+          'birthTime': _formatMinutes(profile.birthTimeMinutes!),
+        if (profile.birthPlace.isNotEmpty) 'birthPlace': profile.birthPlace,
+        // Picked on this very form and, until now, never sent — which is
+        // why the profile always said the sign was not set.
+        if (profile.zodiacSign != null) 'zodiacSign': profile.zodiacSign!.name,
+        if (profile.avatarUrl?.isNotEmpty ?? false)
+          'avatarUrl': profile.avatarUrl,
+      },
+    );
+  });
 
   /// Stores the returned pair and maps the body onto the app's session model.
   Future<AuthSessionModel> _adopt(
@@ -164,22 +143,5 @@ class ApiAuthDataSource implements AuthRemoteDataSource {
     final hours = (minutesOfDay ~/ 60).toString().padLeft(2, '0');
     final minutes = (minutesOfDay % 60).toString().padLeft(2, '0');
     return '$hours:$minutes';
-  }
-
-  /// Placeholder for the platform sign-in SDKs.
-  ///
-  /// Google and Apple sign-in need native configuration (an OAuth client id,
-  /// an Apple services id and their entitlements) that does not exist yet, so
-  /// this returns a stable per-install token the dev backend accepts. Wiring
-  /// `google_sign_in` / `sign_in_with_apple` replaces this method and nothing
-  /// else — the exchange, storage and refresh are already real.
-  Future<String> _obtainIdToken(String provider) async {
-    const key = 'auth.dev.install_id';
-    final existing = _store.getString(key);
-    if (existing != null) return '$provider:$existing';
-
-    final installId = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
-    await _store.setString(key, installId);
-    return '$provider:$installId';
   }
 }

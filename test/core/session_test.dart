@@ -22,12 +22,23 @@ void main() {
       expect(session.can(Permission.manageProducts), isFalse);
     });
 
-    test('superAdmin holds every permission', () {
-      const session = AppSession(roles: {AppRole.superAdmin});
-      for (final p in Permission.values) {
-        expect(session.can(p), isTrue, reason: 'missing $p');
-      }
-    });
+    test(
+      'superAdmin holds every permission except the astrologer workspace',
+      () {
+        // The astrologer console acts on the caller's *own* astrologer profile.
+        // An admin is not an astrologer by being an admin, and that console must
+        // stay shut until an application is approved — so staff get everything
+        // administrative, and the workspace only through the astrologer role.
+        const session = AppSession(roles: {AppRole.superAdmin});
+        for (final p in Permission.values) {
+          expect(
+            session.can(p),
+            !Permission.astrologerWorkspace.contains(p),
+            reason: '$p',
+          );
+        }
+      },
+    );
 
     test('staff roles are scoped, not omnipotent', () {
       const finance = AppSession(roles: {AppRole.finance});

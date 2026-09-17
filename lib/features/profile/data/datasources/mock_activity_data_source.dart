@@ -6,7 +6,7 @@ import '../../domain/entities/order_summary.dart';
 abstract interface class ActivityDataSource {
   Future<List<AppointmentSummary>> getAppointments();
   Future<List<OrderSummary>> getOrders();
-  Future<OrderSummary> updateOrderStatus(String id, OrderStatus status);
+  Future<OrderSummary> applyOrderAction(OrderSummary order, OrderAction action);
   Future<OrderSummary> rateOrder(String id, int rating);
 }
 
@@ -54,7 +54,8 @@ class MockActivityDataSource implements ActivityDataSource {
         counterpartyName: 'Ram Bahadur',
         counterpartyId: 'u-2002',
         role: OrderRole.seller,
-        status: OrderStatus.placed,
+        // Paid and waiting on the seller — the state where Accept appears.
+        status: OrderStatus.confirmed,
         updatedAt: now.subtract(const Duration(hours: 11)),
       ),
       OrderSummary(
@@ -76,7 +77,9 @@ class MockActivityDataSource implements ActivityDataSource {
         counterpartyName: 'Ram Bahadur',
         counterpartyId: 'u-2002',
         role: OrderRole.seller,
-        status: OrderStatus.sold,
+        // A finished sale. `sold` was a state the API never produced, so a
+        // card could show it but no action could ever reach it.
+        status: OrderStatus.completed,
         updatedAt: now.subtract(const Duration(minutes: 15)),
       ),
     ];
@@ -103,11 +106,33 @@ class MockActivityDataSource implements ActivityDataSource {
   @override
   Future<List<OrderSummary>> getOrders() async => List.unmodifiable(_orders);
 
+  /// Applies the same transition rules the server enforces.
+  ///
+  /// A mock that accepts any move would let the demo do things the live API
+  /// refuses, which is how a screen ships working against mocks and failing
+  /// against the backend.
   @override
-  Future<OrderSummary> updateOrderStatus(String id, OrderStatus status) async {
-    final index = _orders.indexWhere((o) => o.id == id);
+  Future<OrderSummary> applyOrderAction(
+    OrderSummary order,
+    OrderAction action,
+  ) async {
+    final index = _orders.indexWhere((o) => o.id == order.id);
     if (index < 0) throw const NotFoundException('Order not found');
-    final updated = _orders[index].copyWith(status: status);
+
+    final current = _orders[index];
+    if (!current.availableActions.contains(action)) {
+      throw const ValidationException('That is no longer possible');
+    }
+
+    final updated = current.copyWith(
+      status: switch (action) {
+        OrderAction.accept => OrderStatus.processing,
+        OrderAction.ship => OrderStatus.shipped,
+        OrderAction.deliver => OrderStatus.completed,
+        OrderAction.cancel => OrderStatus.cancelled,
+      },
+      updatedAt: DateTime.now(),
+    );
     _orders = [..._orders]..[index] = updated;
     return updated;
   }

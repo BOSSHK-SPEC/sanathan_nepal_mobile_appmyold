@@ -32,7 +32,19 @@ class _ProfileActivitiesTabState extends State<ProfileActivitiesTab> {
   @override
   Widget build(BuildContext context) {
     final s = ProfileStrings.of(context);
-    return BlocBuilder<ActivityCubit, ActivityState>(
+    return BlocConsumer<ActivityCubit, ActivityState>(
+      // An accept or cancel that the server refused used to change nothing on
+      // screen — the reason went into a slice this tab only reads when the
+      // list is empty, so the button looked broken. Now it is said out loud.
+      listenWhen: (p, n) => p.actionError != n.actionError,
+      listener: (context, state) {
+        final message = state.actionError;
+        if (message == null) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+        context.read<ActivityCubit>().clearActionError();
+      },
       builder: (context, state) {
         final appointments = state.appointments.dataOrNull;
         if (appointments == null && state.orders.dataOrNull == null) {
@@ -64,6 +76,10 @@ class _ProfileActivitiesTabState extends State<ProfileActivitiesTab> {
               const SizedBox(height: AppSpacing.md),
               _OrdersSection(
                 orders: _orderRole == 0 ? state.purchases : state.sales,
+                errorMessage: state.orders.isFailed
+                    ? state.orders.errorMessage
+                    : null,
+                pendingOrderId: state.pendingOrderId,
               ),
             ],
           ],
@@ -142,13 +158,29 @@ Future<void> _book(BuildContext context) async {
 }
 
 class _OrdersSection extends StatelessWidget {
-  const _OrdersSection({required this.orders});
+  const _OrdersSection({
+    required this.orders,
+    this.errorMessage,
+    this.pendingOrderId,
+  });
   final List<OrderSummary> orders;
+
+  /// Set when the orders could not be loaded and there is nothing to show.
+  final String? errorMessage;
+
+  /// The order with a request in flight, so its buttons can be disabled.
+  final String? pendingOrderId;
 
   @override
   Widget build(BuildContext context) {
     final s = ProfileStrings.of(context);
     final cubit = context.read<ActivityCubit>();
+    // A failed load is not an empty history. Saying "No orders yet" to
+    // someone whose orders simply did not load sent them hunting for an
+    // order that was there all along.
+    if (orders.isEmpty && errorMessage != null) {
+      return ErrorView(message: errorMessage, onRetry: cubit.load);
+    }
     if (orders.isEmpty) {
       return ProfileSectionCard(
         child: Column(
@@ -178,9 +210,8 @@ class _OrdersSection extends StatelessWidget {
         for (final o in orders)
           OrderCard(
             order: o,
-            onCancel: () => cubit.cancelOrder(o.id),
-            onAccept: () => cubit.acceptOrder(o.id),
-            onComplete: () => cubit.completeOrder(o.id),
+            onAction: (action) => cubit.act(o, action),
+            pending: pendingOrderId == o.id,
             onRate: (r) => cubit.rate(o.id, r),
             onVisitSeller: () =>
                 context.push(AppRoutes.businessProfilePath(o.counterpartyId)),

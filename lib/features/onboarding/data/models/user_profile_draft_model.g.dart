@@ -33,6 +33,7 @@ _UserProfileDraftModel _$UserProfileDraftModelFromJson(
     json['zodiac_sign'],
     unknownValue: JsonKey.nullForUndefinedEnumValue,
   ),
+  avatarUrl: json['avatar_url'] as String?,
 );
 
 Map<String, dynamic> _$UserProfileDraftModelToJson(
@@ -46,6 +47,7 @@ Map<String, dynamic> _$UserProfileDraftModelToJson(
   'birth_place': instance.birthPlace,
   'gender': ?_$GenderEnumMap[instance.gender],
   'zodiac_sign': ?_$ZodiacSignEnumMap[instance.zodiacSign],
+  'avatar_url': ?instance.avatarUrl,
 };
 
 const _$DateSystemEnumMap = {DateSystem.bs: 'bs', DateSystem.ad: 'ad'};

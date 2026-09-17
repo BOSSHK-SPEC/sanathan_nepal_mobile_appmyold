@@ -4,7 +4,8 @@ import '../entities/bookable_astrologer.dart';
 import '../repositories/appointment_repository.dart';
 
 /// Lists all bookable astrologers (the first one is the featured astrologer).
-class GetBookableAstrologers implements NoParamsUseCase<List<BookableAstrologer>> {
+class GetBookableAstrologers
+    implements NoParamsUseCase<List<BookableAstrologer>> {
   const GetBookableAstrologers(this._repo);
   final AppointmentRepository _repo;
 

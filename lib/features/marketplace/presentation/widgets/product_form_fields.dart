@@ -52,6 +52,7 @@ class ProductFormFields extends StatelessWidget {
         ProductFormError.invalidPrice => s.invalidPrice,
         ProductFormError.invalidCategory => s.invalidCategory,
         ProductFormError.invalidPhone => s.invalidPhone,
+        ProductFormError.invalidWebsite => s.invalidWebsite,
       };
 
   @override
@@ -216,13 +217,19 @@ class ProductFormFields extends StatelessWidget {
             onChanged: (v) => cubit.patch((d) => d.copyWith(phone: v)),
           ),
         ),
-        AppTextField(
-          controller: website,
-          label: s.website,
-          hint: 'www.websitedomain.com',
-          keyboardType: TextInputType.url,
-          prefix: Icon(Icons.language_outlined, color: colors.iconMuted),
-          onChanged: (v) => cubit.patch((d) => d.copyWith(websiteLink: v)),
+        // Wrapped like every other validated field: this one had no error slot
+        // at all, so a website the server would refuse looked perfectly fine
+        // until Publish failed with a message that named no field.
+        _Field(
+          error: _error(s, ProductFormField.website),
+          child: AppTextField(
+            controller: website,
+            label: s.website,
+            hint: 'www.websitedomain.com',
+            keyboardType: TextInputType.url,
+            prefix: Icon(Icons.language_outlined, color: colors.iconMuted),
+            onChanged: (v) => cubit.patch((d) => d.copyWith(websiteLink: v)),
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
         FormChoiceRow<int>(

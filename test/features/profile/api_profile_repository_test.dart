@@ -56,6 +56,7 @@ Map<String, dynamic> _serverProfile({String name = 'Ram Bahadur'}) => {
   'birthPlace': 'Hetauda',
   'address': 'Kathmandu',
   'bio': null,
+  'religion': 'Hindu',
   'language': 'ne',
   'region': 'NP',
   'verified': true,
@@ -182,6 +183,68 @@ void main() {
 
     expect(result.failureOrNull, isNotNull);
     expect(store.getString(ProfileStorageKeys.profile), isNull);
+  });
+
+  test('an edit sends birth date and time in the server\'s format', () async {
+    Object? sent;
+    final repo = repoWith(
+      _StubAdapter((options) async {
+        if (options.method == 'PATCH') sent = options.data;
+        return _json(200, _serverProfile());
+      }),
+    );
+
+    await repo.updateProfile(
+      const UserProfile(
+        id: 'x',
+        name: 'Yashwanth',
+        email: '',
+        dobAd: '2006/01/01',
+        birthTime: '12:00:00 PM',
+      ),
+    );
+
+    // The form's display strings were sent as-is and the API refused the
+    // whole save: it takes `YYYY-MM-DD` and 24-hour `HH:mm`.
+    expect(sent, isA<Map<String, dynamic>>());
+    final body = sent! as Map<String, dynamic>;
+    expect(body['dobAd'], '2006-01-01');
+    expect(body['birthTime'], '12:00');
+  });
+
+  test('a fetched profile reads back in the app\'s format', () async {
+    final repo = repoWith(
+      _StubAdapter((_) async => _json(200, _serverProfile())),
+    );
+
+    final profile = (await repo.getProfile()).valueOrNull;
+
+    // `YYYY/MM/DD` is what the B.S. / Saka conversion parses.
+    expect(profile?.dobAd, '1998/04/02');
+    expect(profile?.birthTime, '4:12:00 PM');
+  });
+
+  test('religion is saved and read back; emptying it clears it', () async {
+    final sent = <Object?>[];
+    final repo = repoWith(
+      _StubAdapter((options) async {
+        if (options.method == 'PATCH') sent.add(options.data);
+        return _json(200, _serverProfile());
+      }),
+    );
+
+    final saved = await repo.updateProfile(
+      const UserProfile(id: 'x', name: 'Sita', email: '', religion: ' Hindu '),
+    );
+    await repo.updateProfile(
+      const UserProfile(id: 'x', name: 'Sita', email: '', religion: ''),
+    );
+
+    // It used to be left out of the request, so it vanished on every save.
+    expect((sent[0]! as Map<String, dynamic>)['religion'], 'Hindu');
+    expect(saved.valueOrNull?.religion, 'Hindu');
+    // Left out, the server would keep the old value; blank says "clear it".
+    expect((sent[1]! as Map<String, dynamic>)['religion'], '');
   });
 
   group('signing out', () {

@@ -79,23 +79,26 @@ void main() {
     expect(pricing.commissionRate, 0.2);
   });
 
-  test('an astrologer who has priced nothing gets no rates, not an error', () async {
-    source = build({
-      'channels': {
-        'chat': {'ratePerMinuteMinor': '0', 'enabled': false},
-        'voice': {'ratePerMinuteMinor': '0', 'enabled': false},
-        'video': {'ratePerMinuteMinor': '0', 'enabled': false},
-      },
-      'commissionPercent': 20,
-      'firstSessionRateMinor': null,
-      'freeFirstMinutes': 0,
-    });
+  test(
+    'an astrologer who has priced nothing gets no rates, not an error',
+    () async {
+      source = build({
+        'channels': {
+          'chat': {'ratePerMinuteMinor': '0', 'enabled': false},
+          'voice': {'ratePerMinuteMinor': '0', 'enabled': false},
+          'video': {'ratePerMinuteMinor': '0', 'enabled': false},
+        },
+        'commissionPercent': 20,
+        'firstSessionRateMinor': null,
+        'freeFirstMinutes': 0,
+      });
 
-    final pricing = await source.pricing();
+      final pricing = await source.pricing();
 
-    expect(pricing.ratePerMinute, isEmpty);
-    expect(pricing.commissionRate, 0.2);
-  });
+      expect(pricing.ratePerMinute, isEmpty);
+      expect(pricing.commissionRate, 0.2);
+    },
+  );
 
   test('saving sends every channel, so switching one off takes effect', () async {
     source = build(_pricing(video: '0'));
@@ -104,10 +107,7 @@ void main() {
     // offered" after the field is cleared.
     await source.savePricing(
       const ConsolePricing(
-        ratePerMinute: {
-          ConsultChannel.chat: 20,
-          ConsultChannel.voice: 35,
-        },
+        ratePerMinute: {ConsultChannel.chat: 20, ConsultChannel.voice: 35},
       ),
     );
 

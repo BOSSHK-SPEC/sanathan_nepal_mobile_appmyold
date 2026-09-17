@@ -23,7 +23,9 @@ class FlagsCubit extends AppCubit<FlagsState> {
     emit(state.copyWith(flags: state.flags.toLoading()));
     final result = await _admin.featureFlags();
     emit(
-      state.copyWith(flags: result.fold(state.flags.toFailed, LoadState.loaded)),
+      state.copyWith(
+        flags: result.fold(state.flags.toFailed, LoadState.loaded),
+      ),
     );
   }
 

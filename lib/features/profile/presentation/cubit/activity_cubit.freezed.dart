@@ -14,7 +14,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ActivityState {
 
- LoadState<List<AppointmentSummary>> get appointments; LoadState<List<OrderSummary>> get orders;
+ LoadState<List<AppointmentSummary>> get appointments; LoadState<List<OrderSummary>> get orders;/// Why the last accept / ship / cancel failed. Shown once, then cleared.
+ String? get actionError;/// The order with a request in flight. Its buttons are disabled, so a
+/// second tap cannot send a second transition.
+ String? get pendingOrderId;
 /// Create a copy of ActivityState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +28,16 @@ $ActivityStateCopyWith<ActivityState> get copyWith => _$ActivityStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ActivityState&&(identical(other.appointments, appointments) || other.appointments == appointments)&&(identical(other.orders, orders) || other.orders == orders));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ActivityState&&(identical(other.appointments, appointments) || other.appointments == appointments)&&(identical(other.orders, orders) || other.orders == orders)&&(identical(other.actionError, actionError) || other.actionError == actionError)&&(identical(other.pendingOrderId, pendingOrderId) || other.pendingOrderId == pendingOrderId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,appointments,orders);
+int get hashCode => Object.hash(runtimeType,appointments,orders,actionError,pendingOrderId);
 
 @override
 String toString() {
-  return 'ActivityState(appointments: $appointments, orders: $orders)';
+  return 'ActivityState(appointments: $appointments, orders: $orders, actionError: $actionError, pendingOrderId: $pendingOrderId)';
 }
 
 
@@ -45,7 +48,7 @@ abstract mixin class $ActivityStateCopyWith<$Res>  {
   factory $ActivityStateCopyWith(ActivityState value, $Res Function(ActivityState) _then) = _$ActivityStateCopyWithImpl;
 @useResult
 $Res call({
- LoadState<List<AppointmentSummary>> appointments, LoadState<List<OrderSummary>> orders
+ LoadState<List<AppointmentSummary>> appointments, LoadState<List<OrderSummary>> orders, String? actionError, String? pendingOrderId
 });
 
 
@@ -62,11 +65,13 @@ class _$ActivityStateCopyWithImpl<$Res>
 
 /// Create a copy of ActivityState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? appointments = null,Object? orders = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? appointments = null,Object? orders = null,Object? actionError = freezed,Object? pendingOrderId = freezed,}) {
   return _then(_self.copyWith(
 appointments: null == appointments ? _self.appointments : appointments // ignore: cast_nullable_to_non_nullable
 as LoadState<List<AppointmentSummary>>,orders: null == orders ? _self.orders : orders // ignore: cast_nullable_to_non_nullable
-as LoadState<List<OrderSummary>>,
+as LoadState<List<OrderSummary>>,actionError: freezed == actionError ? _self.actionError : actionError // ignore: cast_nullable_to_non_nullable
+as String?,pendingOrderId: freezed == pendingOrderId ? _self.pendingOrderId : pendingOrderId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of ActivityState
@@ -96,11 +101,16 @@ $LoadStateCopyWith<List<OrderSummary>, $Res> get orders {
 
 
 class _ActivityState extends ActivityState {
-  const _ActivityState({this.appointments = const LoadState.idle(), this.orders = const LoadState.idle()}): super._();
+  const _ActivityState({this.appointments = const LoadState.idle(), this.orders = const LoadState.idle(), this.actionError, this.pendingOrderId}): super._();
   
 
 @override@JsonKey() final  LoadState<List<AppointmentSummary>> appointments;
 @override@JsonKey() final  LoadState<List<OrderSummary>> orders;
+/// Why the last accept / ship / cancel failed. Shown once, then cleared.
+@override final  String? actionError;
+/// The order with a request in flight. Its buttons are disabled, so a
+/// second tap cannot send a second transition.
+@override final  String? pendingOrderId;
 
 /// Create a copy of ActivityState
 /// with the given fields replaced by the non-null parameter values.
@@ -112,16 +122,16 @@ _$ActivityStateCopyWith<_ActivityState> get copyWith => __$ActivityStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ActivityState&&(identical(other.appointments, appointments) || other.appointments == appointments)&&(identical(other.orders, orders) || other.orders == orders));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ActivityState&&(identical(other.appointments, appointments) || other.appointments == appointments)&&(identical(other.orders, orders) || other.orders == orders)&&(identical(other.actionError, actionError) || other.actionError == actionError)&&(identical(other.pendingOrderId, pendingOrderId) || other.pendingOrderId == pendingOrderId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,appointments,orders);
+int get hashCode => Object.hash(runtimeType,appointments,orders,actionError,pendingOrderId);
 
 @override
 String toString() {
-  return 'ActivityState(appointments: $appointments, orders: $orders)';
+  return 'ActivityState(appointments: $appointments, orders: $orders, actionError: $actionError, pendingOrderId: $pendingOrderId)';
 }
 
 
@@ -132,7 +142,7 @@ abstract mixin class _$ActivityStateCopyWith<$Res> implements $ActivityStateCopy
   factory _$ActivityStateCopyWith(_ActivityState value, $Res Function(_ActivityState) _then) = __$ActivityStateCopyWithImpl;
 @override @useResult
 $Res call({
- LoadState<List<AppointmentSummary>> appointments, LoadState<List<OrderSummary>> orders
+ LoadState<List<AppointmentSummary>> appointments, LoadState<List<OrderSummary>> orders, String? actionError, String? pendingOrderId
 });
 
 
@@ -149,11 +159,13 @@ class __$ActivityStateCopyWithImpl<$Res>
 
 /// Create a copy of ActivityState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? appointments = null,Object? orders = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? appointments = null,Object? orders = null,Object? actionError = freezed,Object? pendingOrderId = freezed,}) {
   return _then(_ActivityState(
 appointments: null == appointments ? _self.appointments : appointments // ignore: cast_nullable_to_non_nullable
 as LoadState<List<AppointmentSummary>>,orders: null == orders ? _self.orders : orders // ignore: cast_nullable_to_non_nullable
-as LoadState<List<OrderSummary>>,
+as LoadState<List<OrderSummary>>,actionError: freezed == actionError ? _self.actionError : actionError // ignore: cast_nullable_to_non_nullable
+as String?,pendingOrderId: freezed == pendingOrderId ? _self.pendingOrderId : pendingOrderId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

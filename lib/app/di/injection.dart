@@ -1,13 +1,24 @@
+import '../../core/events/data_changes.dart';
 import '../../core/media/media_picker.dart';
 import '../../core/media/media_service.dart';
 import '../../core/media/media_uploader.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../../core/auth/auth_session_manager.dart';
 import '../../core/auth/token_store.dart';
+import '../../core/call/call_session.dart';
+import '../../core/call/livekit_call_session.dart';
+import '../../core/config/app_environment.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/network/api_client.dart';
+import '../../core/push/firebase_push_service.dart';
+import '../../core/push/push_coordinator.dart';
+import '../../core/push/push_device_registrar.dart';
+import '../../core/push/push_service.dart';
+import '../router/app_router.dart';
 import '../../core/region/region_resolver.dart';
 import '../../features/appointment/domain/repositories/booking_contact_source.dart';
 import '../../features/profile/domain/usecases/get_user_profile.dart';
@@ -104,6 +115,9 @@ Future<void> configureDependencies({TokenStore? tokenStore}) async {
       instanceName: ApiClients.openMeteo,
     );
 
+  // One signal for "this data changed", so screens that stay alive reload.
+  sl.registerLazySingleton<DataChanges>(DataChanges.new);
+
   // Uploads: one picker and one uploader for every form in the app.
   sl
     ..registerLazySingleton<MediaPicker>(MediaPickerImpl.new)
@@ -114,6 +128,43 @@ Future<void> configureDependencies({TokenStore? tokenStore}) async {
       () => MediaService(
         picker: sl<MediaPicker>(),
         uploader: sl<MediaUploader>(),
+      ),
+    );
+
+  // Voice and video. One session for the app: two rooms at once would mean two
+  // microphones, and the second call silently taking over the first.
+  // A test or mock build carries nothing rather than opening a real device.
+  sl.registerLazySingleton<CallSession>(
+    () => AppEnvironment.useMockData ? NoopCallSession() : LiveKitCallSession(),
+  );
+
+  // Notifications: the transport, the server-side registration of this device,
+  // and the one place that decides what a tapped notification opens. A test or
+  // a mock build delivers nothing — no test may open a socket to Firebase.
+  sl
+    ..registerLazySingleton<PushService>(
+      () => AppEnvironment.useMockData
+          ? const NoopPushService()
+          : FirebasePushService(),
+    )
+    ..registerLazySingleton<PushDeviceRegistrar>(
+      () => PushDeviceRegistrar(
+        client: sl<ApiClient>(),
+        store: sl<KeyValueStore>(),
+        languageCode: () => activeLanguageCode(sl),
+      ),
+    )
+    ..registerLazySingleton<PushCoordinator>(
+      () => PushCoordinator(
+        service: sl<PushService>(),
+        registrar: sl<PushDeviceRegistrar>(),
+        session: sl<AuthSessionManager>(),
+        // Through the root navigator: a notification can be tapped while any
+        // screen is open, or none at all.
+        openRoute: (route) {
+          final context = AppRouter.rootNavigatorKey.currentContext;
+          if (context != null) GoRouter.of(context).push<void>(route);
+        },
       ),
     );
 

@@ -119,7 +119,8 @@ class ApiCartDataSource implements CartDataSource {
         // beside the row, which simply does not render without one.
         categoryId: '',
         images: [
-          if (json['imageKey'] is String && (json['imageKey'] as String).isNotEmpty)
+          if (json['imageKey'] is String &&
+              (json['imageKey'] as String).isNotEmpty)
             json['imageKey'] as String,
         ],
         seller: const SellerModel(id: '', name: ''),

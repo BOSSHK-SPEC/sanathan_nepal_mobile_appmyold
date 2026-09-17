@@ -61,9 +61,7 @@ class _BusinessesView extends StatelessWidget {
                 child: ChoiceChip(
                   selected: state.filter == filter,
                   onSelected: (_) => cubit.setFilter(filter),
-                  label: Text(
-                    '${_label(filter)} (${state.countFor(filter)})',
-                  ),
+                  label: Text('${_label(filter)} (${state.countFor(filter)})'),
                 ),
               ),
           ],
@@ -189,7 +187,10 @@ class _BusinessCard extends StatelessWidget {
               if (business.phone.isNotEmpty)
                 _Detail(icon: Icons.call_rounded, value: business.phone),
               if (business.email.isNotEmpty)
-                _Detail(icon: Icons.mail_outline_rounded, value: business.email),
+                _Detail(
+                  icon: Icons.mail_outline_rounded,
+                  value: business.email,
+                ),
               if (business.address.isNotEmpty)
                 _Detail(
                   icon: Icons.location_on_outlined,

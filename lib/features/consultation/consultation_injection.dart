@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 
 import '../../core/billing/spending_account.dart';
+import '../../core/call/call_session.dart';
 import '../../core/storage/key_value_store.dart';
 import '../astrologers/domain/entities/consult_channel.dart';
 import '../astrologers/domain/repositories/astrologer_repository.dart';
@@ -52,6 +53,8 @@ void registerConsultationFeature(GetIt sl) {
     ..registerLazySingleton(() => GetSessionSummary(sl()))
     ..registerLazySingleton(() => GetConsultationHistory(sl()))
     ..registerLazySingleton(() => GetSpendableBalance(sl()))
+    ..registerLazySingleton(() => GetCallCredentials(sl()))
+    ..registerLazySingleton(() => GetCallsAvailable(sl()))
     ..registerLazySingleton(() => GetActiveSession(sl()))
     ..registerLazySingleton(() => AcceptFromQueue(sl()))
     ..registerLazySingleton(() => GetAstrologerSessions(sl()))
@@ -80,6 +83,8 @@ void registerConsultationFeature(GetIt sl) {
         endConsultation: sl(),
         cancelConsultation: sl(),
         getBalance: sl(),
+        getCallCredentials: sl(),
+        callSession: sl<CallSession>(),
       ),
     )
     ..registerFactoryParam<AstrologerSessionCubit, String, void>(
@@ -90,6 +95,8 @@ void registerConsultationFeature(GetIt sl) {
         send: sl(),
         endConsultation: sl(),
         saveNotes: sl(),
+        getCallCredentials: sl(),
+        callSession: sl<CallSession>(),
       ),
     )
     ..registerFactoryParam<SessionSummaryCubit, String, void>(

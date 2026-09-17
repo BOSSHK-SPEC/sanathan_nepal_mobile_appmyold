@@ -55,6 +55,7 @@ abstract class WalletStrings {
   String get paymentSuccessBody;
   String get paymentFailedTitle;
   String get tryAgain;
+
   /// Sends the payer to the gateway's hosted checkout.
   String get completePayment;
 

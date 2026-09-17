@@ -17,7 +17,7 @@ import '../cubit/edit_profile_cubit.dart';
 import '../l10n/profile_strings.dart';
 import '../widgets/avatar_picker.dart';
 import '../widgets/dob_format.dart';
-import '../widgets/traditional_date_picker_dialog.dart';
+import '../../../../core/widgets/traditional_date_picker.dart';
 import '../widgets/zodiac_dropdown.dart';
 
 /// Edit profile form (Figma "EDIT USER PROFILE" 1873:4031 dark / 1351:2978
@@ -45,6 +45,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   final _formKey = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _email = TextEditingController();
+  static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
   final _phone = TextEditingController();
   final _religion = TextEditingController();
   final _birthPlace = TextEditingController();
@@ -119,7 +120,19 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   /// Traditional-calendar picker (B.S. in Nepal, Saka in India).
   Future<void> _pickDobTraditional() async {
-    final picked = await TraditionalDatePickerDialog.show(context, _initialDob);
+    final s = ProfileStrings.of(context);
+    final picked = await TraditionalDatePicker.show(
+      context,
+      title: s.dobIn(
+        context.traditionalCalendar.eraLabel(
+          languageCode: context.languageCode,
+        ),
+      ),
+      initial: _initialDob,
+      // Same range as the A.D. picker above.
+      firstDate: DateTime(1900),
+      confirmLabel: s.save,
+    );
     if (picked != null) _applyDob(picked);
   }
 
@@ -218,7 +231,11 @@ class _EditProfileViewState extends State<EditProfileView> {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                AvatarPicker(fileName: _avatarFile, onTap: _pickAvatar),
+                AvatarPicker(
+                  fileName: _avatarFile,
+                  onTap: _pickAvatar,
+                  required: false,
+                ),
                 const SizedBox(height: AppSpacing.lg),
                 AppTextField(
                   controller: _name,
@@ -232,11 +249,17 @@ class _EditProfileViewState extends State<EditProfileView> {
                 AppTextField(
                   controller: _email,
                   label: s.email,
-                  required: true,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || !v.contains('@')) ? s.invalidEmail : null,
+                  // Optional: many people sign in with a phone number and have
+                  // no email to give. Only an address that was typed is
+                  // checked — and properly, not merely for an @.
+                  validator: (v) {
+                    final email = (v ?? '').trim();
+                    return email.isEmpty || _emailPattern.hasMatch(email)
+                        ? null
+                        : s.invalidEmail;
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppTextField(
@@ -315,10 +338,12 @@ class _EditProfileViewState extends State<EditProfileView> {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
+                // Optional, as at sign-up and on the server: sign-up never
+                // asks for an address, so marking it required here flagged
+                // every new account's profile as incomplete.
                 AppTextField(
                   controller: _address,
                   label: s.currentAddress,
-                  required: true,
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: AppSpacing.lg),
