@@ -20,11 +20,9 @@ import 'zodiac_sign_header.dart';
 class HoroscopeSignCard extends StatelessWidget {
   const HoroscopeSignCard({
     required this.prediction,
-    required this.isPlaying,
-    required this.position,
-    required this.onTogglePlayback,
     super.key,
-    this.onSeek,
+    this.clipUrl,
+    this.onOpenClip,
     this.showLucky = true,
     this.highlighted = false,
     this.expanded = false,
@@ -32,17 +30,16 @@ class HoroscopeSignCard extends StatelessWidget {
     this.liked = false,
     this.onLike,
     this.onShare,
-    this.isLuckyPlaying = false,
-    this.luckyPosition = Duration.zero,
-    this.onToggleLuckyPlayback,
+    this.luckyClipUrl,
+    this.onOpenLuckyClip,
     this.onShop,
   });
 
   final HoroscopePrediction prediction;
-  final bool isPlaying;
-  final Duration position;
-  final VoidCallback onTogglePlayback;
-  final ValueChanged<double>? onSeek;
+
+  /// The reading's clip, when one is published. Null renders no player.
+  final String? clipUrl;
+  final VoidCallback? onOpenClip;
   final bool showLucky;
   final bool highlighted;
 
@@ -53,10 +50,9 @@ class HoroscopeSignCard extends StatelessWidget {
   final VoidCallback? onLike;
   final VoidCallback? onShare;
 
-  /// Playback of the second ("lucky details") clip.
-  final bool isLuckyPlaying;
-  final Duration luckyPosition;
-  final VoidCallback? onToggleLuckyPlayback;
+  /// The second ("lucky details") clip, when published.
+  final String? luckyClipUrl;
+  final VoidCallback? onOpenLuckyClip;
   final VoidCallback? onShop;
 
   @override
@@ -104,8 +100,7 @@ class HoroscopeSignCard extends StatelessWidget {
                   children: [
                     ZodiacSignHeader(
                       sign: p.sign,
-                      isPlaying: isPlaying,
-                      onAudioTap: onTogglePlayback,
+                      onAudioTap: clipUrl == null ? null : onOpenClip,
                       showIcon: false,
                     ),
                     const SizedBox(height: AppSpacing.xs),
@@ -113,10 +108,7 @@ class HoroscopeSignCard extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     HoroscopeMediaCard(
                       media: p.media,
-                      position: position,
-                      isPlaying: isPlaying,
-                      onToggle: onTogglePlayback,
-                      onSeek: onSeek,
+                      onOpen: clipUrl == null ? null : onOpenClip,
                       height: 130,
                     ),
                   ],
@@ -139,10 +131,8 @@ class HoroscopeSignCard extends StatelessWidget {
                       padding: const EdgeInsets.only(top: AppSpacing.md),
                       child: HoroscopeDetailsPanel(
                         prediction: p,
-                        isPlaying: isLuckyPlaying,
-                        position: luckyPosition,
-                        onTogglePlayback: onToggleLuckyPlayback ?? () {},
-                        onSeek: onSeek,
+                        luckyClipUrl: luckyClipUrl,
+                        onOpenLuckyClip: onOpenLuckyClip,
                         onShop: onShop,
                       ),
                     )

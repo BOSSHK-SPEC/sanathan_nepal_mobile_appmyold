@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The Sanatan Nepal mark: a Sri Yantra inside an eight-petal lotus, lit at the
+    bindu. Generated from the same 200x200 grid as lib/core/widgets/brand_mark.dart
+    and the public site's splash, scaled into the 240dp splash-icon canvas so it
+    stays inside the circle Android 12+ masks the icon with (inner 160dp).
+
+    Do not hand-edit the path data: change BrandMark and regenerate.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <path android:pathData="M46.08,120 a73.92,73.92 0 1,0 147.84,0 a73.92,73.92 0 1,0 -147.84,0" android:strokeColor="@color/splash_mark" android:strokeWidth="2.2" />
+    <path android:pathData="M52.8,120 a67.2,67.2 0 1,0 134.4,0 a67.2,67.2 0 1,0 -134.4,0" android:strokeColor="@color/splash_mark" android:strokeWidth="1.4" android:strokeAlpha="0.7" />
+    <group android:name="petal0" android:pivotX="120" android:pivotY="120" android:rotation="0">
+        <path android:pathData="M120,57 C129.24,66.24 130.08,77.16 120,83.88 C109.92,77.16 110.76,66.24 120,57 Z" android:fillColor="@color/splash_mark" android:fillAlpha="0.16"
+            android:strokeColor="@color/splash_mark" android:strokeWidth="1.5" android:strokeLineJoin="round" />
+    </group>
+    <group android:name="petal1" android:pivotX="120" android:pivotY="120" android:rotation="45">
+        <path android:pathData="M120,57 C129.24,66.24 130.08,77.16 120,83.88 C109.92,77.16 110.76,66.24 120,57 Z" android:fillColor="@color/splash_mark" android:fillAlpha="0.16"
+            android:strokeColor="@color/splash_mark" android:strokeWidth="1.5" android:strokeLineJoin="round" />
+    </group>
+    <group android:name="petal2" android:pivotX="120" android:pivotY="120" android:rotation="90">
+        <path android:pathData="M120,57 C129.24,66.24 130.08,77.16 120,83.88 C109.92,77.16 110.76,66.24 120,57 Z" android:fillColor="@color/splash_mark" android:fillAlpha="0.16"
+            android:strokeColor="@color/splash_mark" android:strokeWidth="1.5" android:strokeLineJoin="round" />
+    </group>
+    <group android:name="petal3" android:pivotX="120" android:pivotY="120" android:rotation="135">
+        <path android:pathData="M120,57 C129.24,66.24 130.08,77.16 120,83.88 C109.92,77.16 110.76,66.24 120,57 Z" android:fillColor="@color/splash_mark" android:fillAlpha="0.16"
+            android:strokeColor="@color/splash_mark" android:strokeWidth="1.5" android:strokeLineJoin="round" />
+    </group>
+    <group android:name="petal4" android:pivotX="120" android:pivotY="120" android:rotation="180">
+        <path android:pathData="M120,57 C129.24,66.24 130.08,77.16 120,83.88 C109.92,77.16 110.76,66.24 120,57 Z" android:fillColor="@color/splash_mark" android:fillAlpha="0.16"
+            android:strokeColor="@color/splash_mark" android:strokeWidth="1.5" android:strokeLineJoin="round" />
+    </group>
+    <group android:name="petal5" android:pivotX="120" android:pivotY="120" android:rotation="225">
+        <path android:pathData="M120,57 C129.24,66.24 130.08,77.16 120,83.88 C109.92,77.16 110.76,66.24 120,57 Z" android:fillColor="@color/splash_mark" android:fillAlpha="0.16"
+            android:strokeColor="@color/splash_mark" android:strokeWidth="1.5" android:strokeLineJoin="round" />
+    </group>
+    <group android:name="petal6" android:pivotX="120" android:pivotY="120" android:rotation="270">
+        <path android:pathData="M120,57 C129.24,66.24 130.08,77.16 120,83.88 C109.92,77.16 110.76,66.24 120,57 Z" android:fillColor="@color/splash_mark" android:fillAlpha="0.16"
+            android:strokeColor="@color/splash_mark" android:strokeWidth="1.5" android:strokeLineJoin="round" />
+    </group>
+    <group android:name="petal7" android:pivotX="120" android:pivotY="120" android:rotation="315">
+        <path android:pathData="M120,57 C129.24,66.24 130.08,77.16 120,83.88 C109.92,77.16 110.76,66.24 120,57 Z" android:fillColor="@color/splash_mark" android:fillAlpha="0.16"
+            android:strokeColor="@color/splash_mark" android:strokeWidth="1.5" android:strokeLineJoin="round" />
+    </group>
+    <path android:pathData="M120,89.76 L146.21,135.12 L93.79,135.12 Z" android:strokeColor="@color/splash_mark" android:strokeWidth="2.2" android:strokeLineJoin="round" />
+    <path android:pathData="M120,150.24 L93.79,104.88 L146.21,104.88 Z" android:strokeColor="@color/splash_mark" android:strokeWidth="2.2" android:strokeLineJoin="round" />
+    <path android:pathData="M106.56,120 a13.44,13.44 0 1,0 26.88,0 a13.44,13.44 0 1,0 -26.88,0" android:fillColor="@color/splash_mark" android:fillAlpha="0.28" />
+    <path android:pathData="M117.82,120 a2.18,2.18 0 1,0 4.37,0 a2.18,2.18 0 1,0 -4.37,0" android:fillColor="@color/splash_mark" />
+</vector>

@@ -70,6 +70,19 @@ abstract class OrderSummary with _$OrderSummary {
     /// Business/user id of the counterparty (used by "Visit Seller Profile").
     required String counterpartyId,
     required OrderRole role,
+
+    /// The shop to open a conversation with, when there is one to open.
+    ///
+    /// Only a purchase carries one. Conversations are keyed on
+    /// `(business, customer)` and the server refuses an owner writing to
+    /// their own shop, so a sales card has no business to chat with and
+    /// [canChat] draws no button rather than opening a dead screen.
+    String? counterpartyBusinessId,
+
+    /// Number the Call button dials: the shop's on a purchase, the buyer's
+    /// shipping number on a sale. Empty when they published none, and the
+    /// button is not drawn.
+    @Default('') String counterpartyPhone,
     required OrderStatus status,
     required DateTime updatedAt,
 
@@ -115,4 +128,13 @@ abstract class OrderSummary with _$OrderSummary {
 
   bool get isOver =>
       status == OrderStatus.completed || status == OrderStatus.cancelled;
+
+  /// Whether this order can reach its counterparty by message.
+  ///
+  /// Asked here rather than at the call site so the card and the tab cannot
+  /// disagree about whether the button is drawable — the same reason
+  /// [availableActions] lives on the order.
+  bool get canChat => (counterpartyBusinessId ?? '').isNotEmpty;
+
+  bool get canCall => counterpartyPhone.isNotEmpty;
 }

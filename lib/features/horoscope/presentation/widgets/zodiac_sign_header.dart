@@ -15,14 +15,14 @@ class ZodiacSignHeader extends StatelessWidget {
     super.key,
     this.onAudioTap,
     this.iconSize = 56,
-    this.isPlaying = false,
     this.showIcon = true,
   });
 
   final ZodiacSign sign;
+  /// Opens the sign's clip. Null when the reading has none, which hides the
+  /// chip rather than offering a control that does nothing.
   final VoidCallback? onAudioTap;
   final double iconSize;
-  final bool isPlaying;
 
   /// Hide the circular icon (the card renders it in its own left rail).
   final bool showIcon;
@@ -67,7 +67,6 @@ class ZodiacSignHeader extends StatelessWidget {
               if (onAudioTap != null)
                 _AudioChip(
                   label: s.audioRashifal,
-                  isPlaying: isPlaying,
                   onTap: onAudioTap!,
                 ),
             ],
@@ -102,13 +101,8 @@ class ZodiacSignIcon extends StatelessWidget {
 }
 
 class _AudioChip extends StatelessWidget {
-  const _AudioChip({
-    required this.label,
-    required this.isPlaying,
-    required this.onTap,
-  });
+  const _AudioChip({required this.label, required this.onTap});
   final String label;
-  final bool isPlaying;
   final VoidCallback onTap;
 
   @override
@@ -138,11 +132,7 @@ class _AudioChip extends StatelessWidget {
                 style: context.textTheme.labelMedium,
               ),
             ),
-            Icon(
-              isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-              size: 20,
-              color: colors.accent,
-            ),
+            Icon(Icons.play_arrow_rounded, size: 20, color: colors.accent),
           ],
         ),
       ),

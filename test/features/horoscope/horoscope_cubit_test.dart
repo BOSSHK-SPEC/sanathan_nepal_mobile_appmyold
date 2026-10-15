@@ -33,10 +33,7 @@ void main() {
     when(() => getAll(any())).thenAnswer((_) async => Result.success(daily));
   });
 
-  HoroscopeCubit build() => HoroscopeCubit(
-    getAllPredictions: getAll,
-    tick: const Duration(milliseconds: 10),
-  );
+  HoroscopeCubit build() => HoroscopeCubit(getAllPredictions: getAll);
 
   group('HoroscopeCubit', () {
     blocTest<HoroscopeCubit, HoroscopeState>(
@@ -91,22 +88,6 @@ void main() {
     );
 
     blocTest<HoroscopeCubit, HoroscopeState>(
-      'togglePlayback starts and pauses the mocked player',
-      build: build,
-      seed: () => HoroscopeState(predictions: LoadState.loaded(daily)),
-      act: (c) async {
-        c.togglePlayback(ZodiacSign.aries);
-        await Future<void>.delayed(const Duration(milliseconds: 35));
-        c.togglePlayback(ZodiacSign.aries);
-      },
-      verify: (c) {
-        expect(c.state.isPlaying, isFalse);
-        expect(c.state.playingSign, ZodiacSign.aries);
-        expect(c.state.position, greaterThan(Duration.zero));
-      },
-    );
-
-    blocTest<HoroscopeCubit, HoroscopeState>(
       'toggleLike / toggleDetails flip per-sign sets',
       build: build,
       act: (c) => c
@@ -127,42 +108,54 @@ void main() {
       },
     );
 
-    blocTest<HoroscopeCubit, HoroscopeState>(
-      'lucky clip plays independently of the prediction clip',
-      build: build,
-      seed: () => HoroscopeState(
-        predictions: LoadState.loaded(daily),
-        playingSign: ZodiacSign.aries,
-        position: const Duration(seconds: 30),
-        isPlaying: true,
-      ),
-      act: (c) => c
-        ..togglePlayback(ZodiacSign.aries, lucky: true)
-        ..seek(1),
-      verify: (c) {
-        expect(c.state.playingLuckyClip, isTrue);
-        expect(c.state.isPlayingClip(ZodiacSign.aries, lucky: true), isTrue);
-        expect(c.state.isPlayingClip(ZodiacSign.aries), isFalse);
-        expect(c.state.positionOf(ZodiacSign.aries), Duration.zero);
-        expect(
-          c.state.positionOf(ZodiacSign.aries, lucky: true),
-          daily.first.profile!.luckyMedia.duration,
-        );
-      },
-    );
+    test('reports no clip while nothing is loaded', () {
+      final cubit = build();
+      expect(cubit.state.clipUrlOf(ZodiacSign.aries), isNull);
+      cubit.close();
+    });
 
-    blocTest<HoroscopeCubit, HoroscopeState>(
-      'seek moves the playhead proportionally',
-      build: build,
-      seed: () => HoroscopeState(
-        predictions: LoadState.loaded(daily),
-        playingSign: ZodiacSign.aries,
-      ),
-      act: (c) => c.seek(0.5),
-      verify: (c) => expect(
-        c.state.position.inSeconds,
-        (daily.first.media.duration.inSeconds * 0.5).round(),
-      ),
-    );
+    test('reports no clip when the reading carries none', () {
+      // Nothing publishes a clip yet, so the player must not be offered. The
+      // card used to render regardless, over a bar that advanced with no
+      // audio behind it.
+      final cubit = build()
+        ..emit(HoroscopeState(predictions: LoadState.loaded(daily)));
+      for (final sign in ZodiacSign.values) {
+        expect(cubit.state.clipUrlOf(sign), isNull);
+        expect(cubit.state.clipUrlOf(sign, lucky: true), isNull);
+      }
+      cubit.close();
+    });
+
+    test('reports a clip once one is published', () {
+      final withClip = [
+        daily.first.copyWith(
+          media: daily.first.media.copyWith(
+            url: 'https://www.youtube.com/watch?v=abc123',
+          ),
+        ),
+        ...daily.skip(1),
+      ];
+      final cubit = build()
+        ..emit(HoroscopeState(predictions: LoadState.loaded(withClip)));
+
+      expect(
+        cubit.state.clipUrlOf(ZodiacSign.aries),
+        'https://www.youtube.com/watch?v=abc123',
+      );
+      expect(cubit.state.clipUrlOf(ZodiacSign.taurus), isNull);
+      cubit.close();
+    });
+
+    test('treats an empty url as no clip', () {
+      final blank = [
+        daily.first.copyWith(media: daily.first.media.copyWith(url: '')),
+        ...daily.skip(1),
+      ];
+      final cubit = build()
+        ..emit(HoroscopeState(predictions: LoadState.loaded(blank)));
+      expect(cubit.state.clipUrlOf(ZodiacSign.aries), isNull);
+      cubit.close();
+    });
   });
 }

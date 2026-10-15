@@ -11,9 +11,9 @@ import '../models/panchanga_model.dart';
 import '../models/suva_sait_model.dart';
 import 'muhurta_windows.dart';
 import 'panchanga_data_source.dart';
-import 'panchanga_names.dart';
+import '../../domain/services/panchanga_names.dart';
 import 'suva_sait_seed.dart';
-import 'sun_calculator.dart';
+import '../../domain/services/sun_calculator.dart';
 
 /// Deterministic panchanga generator: sunrise/sunset from a rough solar
 /// model for the active region's default city (Kathmandu / New Delhi),
@@ -72,6 +72,13 @@ class MockPanchangaDataSource implements PanchangaDataSource {
     final ayan = SunCalculator.ayanamsha(d);
     final sunSid = (SunCalculator.sunLongitude(d) - ayan + 360) % 360;
     final moonSid = (SunCalculator.moonLongitude(d) - ayan + 360) % 360;
+    // स्पष्ट गति, measured over the next twenty-four hours rather than written
+    // down as a constant. This model's Moon is a mean one, so its motion
+    // barely varies where the real one swings between about 11°45' and
+    // 15°20' — the server's figures replace these whenever it can be reached,
+    // and the day says it is approximate when it cannot.
+    final sunMotion = _motion(SunCalculator.sunLongitude, d);
+    final moonMotion = _motion(SunCalculator.moonLongitude, d);
     final nakIndex = (moonSid / (360 / 27)).floor() % 27;
     final nakFraction = (moonSid / (360 / 27)) - (moonSid / (360 / 27)).floor();
     final yogaPos = ((sunSid + moonSid) % 360) / (360 / 27);
@@ -197,15 +204,15 @@ class MockPanchangaDataSource implements PanchangaDataSource {
           labelEn: 'Moon at sunrise',
           value: SunCalculator.formatLongitude(moonSid),
         ),
-        const PanchangaDetail(
+        PanchangaDetail(
           labelNe: 'सूर्यस्पष्ट गति',
           labelEn: 'Sun daily motion',
-          value: '0:0:59:8',
+          value: SunCalculator.formatLongitude(sunMotion),
         ),
-        const PanchangaDetail(
+        PanchangaDetail(
           labelNe: 'चन्द्रस्पष्ट गति',
           labelEn: 'Moon daily motion',
-          value: '0:13:10:35',
+          value: SunCalculator.formatLongitude(moonMotion),
         ),
         PanchangaDetail(
           labelNe: 'वेलान्तर (मिनेटमा)',
@@ -262,10 +269,10 @@ class MockPanchangaDataSource implements PanchangaDataSource {
           labelEn: 'Sun–moon difference',
           value: ((moonSid - sunSid) % 360).toStringAsFixed(6),
         ),
-        const PanchangaDetail(
+        PanchangaDetail(
           labelNe: 'गति अन्तर',
           labelEn: 'Motion difference',
-          value: '0:12:11:27',
+          value: SunCalculator.formatLongitude(moonMotion - sunMotion),
         ),
         PanchangaDetail(
           labelNe: 'चन्द्रराशि भोग्य (घडीमा)',
@@ -309,6 +316,13 @@ class MockPanchangaDataSource implements PanchangaDataSource {
       SuvaSaitSeed.build(config: _resolver.config, today: _now());
 
   // ---------------------------------------------------------------- helpers
+
+  /// Degrees [longitude] advances in the twenty-four hours from [d].
+  ///
+  /// Wrapped into `[0, 360)`: neither body moves backwards or covers a whole
+  /// circle in a day, so the wrapped difference is the motion.
+  static double _motion(double Function(double) longitude, double d) =>
+      ((longitude(d + 1) - longitude(d)) % 360 + 360) % 360;
 
   PanchangaElement _element({
     required (String, String) names,

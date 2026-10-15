@@ -8,7 +8,11 @@ enum TimeWindowKind {
   yamaganda,
   gulikaKaal,
   abhijit,
-  choghadiya;
+  choghadiya,
+
+  /// A planetary hour. Twelve divide the daylight and twelve the night, so a
+  /// hora is only an hour long at an equinox.
+  hora;
 
   static TimeWindowKind fromName(String? name) => values.firstWhere(
     (k) => k.name == name,

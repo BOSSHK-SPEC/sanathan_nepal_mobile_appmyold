@@ -4,6 +4,7 @@ import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_guard.dart';
 import '../../domain/entities/horoscope_period.dart';
 import '../../domain/entities/zodiac_sign.dart';
+import '../models/horoscope_media_model.dart';
 import '../models/horoscope_prediction_model.dart';
 import '../models/lucky_details_model.dart';
 import 'horoscope_data_source.dart';
@@ -78,7 +79,27 @@ class ApiHoroscopeDataSource implements HoroscopeDataSource {
       textNe: prediction['ne'] ?? prediction['en'] ?? '',
       textHi: prediction['hi'] ?? prediction['en'] ?? '',
       lucky: _toLucky(lucky),
+      media: _toMedia(json['mediaUrl']),
     );
+  }
+
+  /// The reading's clip, when one has been published.
+  ///
+  /// The server sends a bare url — no title, no length. A clip hosted
+  /// elsewhere (YouTube) has no duration we can know without asking the
+  /// platform, so [HoroscopeMediaModel.durationSeconds] stays 0 and the UI
+  /// reads that as "external": there is something to play, but no progress
+  /// bar to draw. With no url at all the card has nothing to offer and is not
+  /// shown.
+  static HoroscopeMediaModel _toMedia(Object? raw) {
+    if (raw is! String || raw.isEmpty) return const HoroscopeMediaModel();
+    final uri = Uri.tryParse(raw);
+    // Anything the platform would not open — or would open dangerously — is
+    // treated as no clip rather than handed to the launcher.
+    if (uri == null || !uri.isScheme('http') && !uri.isScheme('https')) {
+      return const HoroscopeMediaModel();
+    }
+    return HoroscopeMediaModel(url: raw);
   }
 
   /// Reads the server's "Lucky Details" object.

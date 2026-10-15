@@ -4,8 +4,8 @@ import '../../domain/entities/panchanga_element.dart';
 import '../../domain/entities/planet_position.dart';
 import '../../domain/entities/time_window.dart';
 import 'muhurta_windows.dart';
-import 'panchanga_names.dart';
-import 'sun_calculator.dart';
+import '../../domain/services/panchanga_names.dart';
+import '../../domain/services/sun_calculator.dart';
 
 /// Lays the server's panchanga for a day over the on-device calculation.
 ///
@@ -184,6 +184,11 @@ abstract final class PanchangaServerOverlay {
     final sunTropical = number('sunTropicalLongitude');
     final ayanamsa = number('ayanamsa');
     final declination = number('sunDeclination');
+    // स्पष्ट गति. Both are degrees travelled in the day, well under a sign, so
+    // `formatLongitude`'s `rashi:deg:min:sec` reads as `0:12:41:42` — the
+    // shape this row has always had.
+    final sunMotion = number('sunDailyMotion');
+    final moonMotion = number('moonDailyMotion');
     final dayLength = (p['dayLengthMinutes'] as num?)?.toDouble();
     final sunriseGhati =
         (sunrise.hour * 3600 + sunrise.minute * 60 + sunrise.second) /
@@ -205,6 +210,18 @@ abstract final class PanchangaServerOverlay {
           ? null
           : SunCalculator.formatLongitude(sunTropical),
       'Declination': declination?.toStringAsFixed(6),
+      'Sun daily motion': sunMotion == null
+          ? null
+          : SunCalculator.formatLongitude(sunMotion),
+      'Moon daily motion': moonMotion == null
+          ? null
+          : SunCalculator.formatLongitude(moonMotion),
+      // गति अन्तर: how much faster the Moon runs than the Sun, which is what
+      // advances the tithi. Derived here rather than sent, so it can never
+      // disagree with the two rows above it.
+      'Motion difference': (sunMotion == null || moonMotion == null)
+          ? null
+          : SunCalculator.formatLongitude(moonMotion - sunMotion),
       'Sunrise (ghati)': sunriseGhati.toStringAsFixed(6),
       'Sunrise (hours)': (sunriseGhati / 2.5).toStringAsFixed(6),
       'Apparent moon at sunrise': moonSid?.toStringAsFixed(6),

@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/kundli_chart.dart';
 import '../../domain/entities/vedic_basics.dart';
 import '../cubit/chart_cubit.dart';
+import 'sudarshana_chakra.dart';
 import '../l10n/kundli_strings.dart';
 
 /// Renders a birth chart in either regional style.
@@ -31,9 +32,11 @@ class KundliDiagram extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AspectRatio(
     aspectRatio: 1,
-    child: style == ChartStyle.north
-        ? _NorthChart(chart: chart, onHouseTap: onHouseTap)
-        : _SouthChart(chart: chart, onHouseTap: onHouseTap),
+    child: switch (style) {
+      ChartStyle.north => _NorthChart(chart: chart, onHouseTap: onHouseTap),
+      ChartStyle.south => _SouthChart(chart: chart, onHouseTap: onHouseTap),
+      ChartStyle.sudarshana => SudarshanaChakra(chart: chart),
+    },
   );
 }
 

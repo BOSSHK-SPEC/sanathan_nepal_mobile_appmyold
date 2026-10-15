@@ -22,6 +22,9 @@ abstract final class AppRoutes {
   static const String weather = '/weather';
   static const String forex = '/forex';
   static const String panchanga = '/panchanga';
+
+  /// Choghadiya / hora / kaal windows of one day.
+  static const String dayPeriods = '/panchanga/periods';
   static const String events = '/events';
   static const String eventDetails = '/events/:id';
   static const String eventCreate = '/events/new';

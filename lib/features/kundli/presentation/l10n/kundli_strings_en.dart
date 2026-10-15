@@ -73,6 +73,9 @@ class _En extends KundliStrings {
   String get northIndian => 'North';
   @override
   String get southIndian => 'South';
+
+  @override
+  String get sudarshana => 'Sudarshana';
   @override
   String get ascendant => 'Ascendant';
   @override

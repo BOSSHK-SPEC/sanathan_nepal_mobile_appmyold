@@ -11,17 +11,6 @@ abstract class HoroscopeState with _$HoroscopeState {
     @Default(HoroscopePeriod.daily) HoroscopePeriod period,
     @Default(ZodiacSign.aries) ZodiacSign selectedSign,
 
-    /// Sign whose media clip is currently loaded in the mocked player.
-    ZodiacSign? playingSign,
-
-    /// True when the loaded clip is the sign's "lucky details" video (second
-    /// player of the expanded card) rather than the prediction clip.
-    @Default(false) bool playingLuckyClip,
-
-    /// Playback head of the mocked player.
-    @Default(Duration.zero) Duration position,
-    @Default(false) bool isPlaying,
-
     /// Signs the user has "liked" (♥ under the sign icon) – session only
     /// until a backend exists.
     @Default(<ZodiacSign>{}) Set<ZodiacSign> likedSigns,
@@ -32,17 +21,16 @@ abstract class HoroscopeState with _$HoroscopeState {
 
   bool isLiked(ZodiacSign sign) => likedSigns.contains(sign);
 
-  /// Whether the clip identified by [sign] + [lucky] is the loaded one.
-  bool isClipLoaded(ZodiacSign sign, {bool lucky = false}) =>
-      playingSign == sign && playingLuckyClip == lucky;
-
-  /// Playhead of the clip [sign] + [lucky] (zero when not loaded).
-  Duration positionOf(ZodiacSign sign, {bool lucky = false}) =>
-      isClipLoaded(sign, lucky: lucky) ? position : Duration.zero;
-
-  /// True while the clip [sign] + [lucky] is playing.
-  bool isPlayingClip(ZodiacSign sign, {bool lucky = false}) =>
-      isPlaying && isClipLoaded(sign, lucky: lucky);
+  /// The clip of [sign], or null when the reading has none published.
+  ///
+  /// A reading without a clip renders no player at all — there is nothing to
+  /// open, and a card over a dead button is worse than no card.
+  String? clipUrlOf(ZodiacSign sign, {bool lucky = false}) {
+    final p = predictionFor(sign);
+    if (p == null) return null;
+    final url = lucky ? p.profile?.luckyMedia.url : p.media.url;
+    return (url == null || url.isEmpty) ? null : url;
+  }
   bool isExpanded(ZodiacSign sign) => expandedSigns.contains(sign);
 
   bool get isLoading => predictions.isLoading;

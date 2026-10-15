@@ -6,6 +6,7 @@ import '../../../../app/di/injection.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/state/load_state.dart';
+import '../../../../core/system/external_links.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/pill_tabs.dart';
 import '../../../../core/widgets/section_header.dart';
@@ -134,8 +135,11 @@ class _HoroscopeSectionBody extends StatelessWidget {
                   else ...[
                     ZodiacSignHeader(
                       sign: selected.sign,
-                      isPlaying: state.isPlayingClip(selected.sign),
-                      onAudioTap: () => cubit.togglePlayback(selected.sign),
+                      onAudioTap: state.clipUrlOf(selected.sign) == null
+                          ? null
+                          : () => ExternalLinks.website(
+                              state.clipUrlOf(selected.sign)!,
+                            ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
@@ -145,12 +149,15 @@ class _HoroscopeSectionBody extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
+                    // Always on screen: with a clip it opens; without one it
+                    // says the clip is on its way, rather than vanishing and
+                    // leaving the reader unaware the feature exists.
                     HoroscopeMediaCard(
                       media: selected.media,
-                      position: state.positionOf(selected.sign),
-                      isPlaying: state.isPlayingClip(selected.sign),
-                      onToggle: () => cubit.togglePlayback(selected.sign),
-                      onSeek: cubit.seek,
+                      onOpen: switch (state.clipUrlOf(selected.sign)) {
+                        final url? => () => ExternalLinks.website(url),
+                        null => null,
+                      },
                     ),
                   ],
                   if (showStayInformed) ...[

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region.dart';
+import 'package:sanathan_nepal_mobile_app/core/state/load_state.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_resolver.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_scope.dart';
 import 'package:sanathan_nepal_mobile_app/core/theme/app_theme.dart';
@@ -125,7 +126,7 @@ void main() {
     expect(find.text('अशुभ रत्न'), findsOneWidget);
     expect(find.text('महत्वपूर्ण वर्ष'), findsOneWidget);
     expect(find.text('किन्नुहोस्'), findsOneWidget);
-    // Second clip.
+    // The second clip's card is there, in its "coming soon" state.
     expect(find.text('मेष राशिको शुभ रङ, अंक र रत्न'), findsOneWidget);
     // About card + tabs + points.
     expect(find.text('मेष राशि को बारेमा'), findsOneWidget);
@@ -141,14 +142,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('पैसा : ', findRichText: true), findsNothing);
     expect(find.textContaining('अग्रगामी', findRichText: true), findsOneWidget);
-    // Lucky clip playback is independent of the prediction clip (the second
-    // small play control on screen belongs to the lucky clip of Aries).
-    await tester.tap(find.byIcon(Icons.play_arrow).at(1));
-    await tester.pump();
-    expect(cubit.state.playingLuckyClip, isTrue);
-    expect(cubit.state.isPlayingClip(ZodiacSign.aries, lucky: true), isTrue);
-    cubit.togglePlayback(ZodiacSign.aries, lucky: true);
-    await tester.pump();
+    // Nothing is published, so every card sits in its "coming soon" state:
+    // the slot is visible so the reader knows the feature is coming, but no
+    // control is offered. A play button used to render regardless, over a
+    // progress bar driven by a timer with no audio behind it.
+    expect(find.text('छिट्टै आउँदैछ'), findsWidgets);
+    expect(find.byIcon(Icons.hourglass_empty_rounded), findsWidgets);
+    expect(find.byIcon(Icons.play_arrow_rounded), findsNothing);
+    expect(find.byIcon(Icons.open_in_new_rounded), findsNothing);
     // Like + share.
     await tester.tap(find.byIcon(Icons.favorite_border).first);
     await tester.pump();
@@ -229,15 +230,47 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('अडियो राशिफल'), findsOneWidget);
-    expect(find.textContaining('मेष राशिफल'), findsOneWidget);
     expect(find.text('सूचित हुनुहोस्'), findsOneWidget);
-    // Toggle playback via the audio chip.
-    await tester.tap(find.text('अडियो राशिफल'));
-    await tester.pump();
-    expect(cubit.state.isPlaying, isTrue);
-    cubit.togglePlayback(cubit.state.selectedSign);
-    await tester.pump();
+    // The card holds its place and says the clip is on its way.
+    expect(find.text('अडियो राशिफल'), findsWidgets);
+    expect(find.text('छिट्टै आउँदैछ'), findsOneWidget);
+    expect(find.byIcon(Icons.play_arrow_rounded), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a published clip brings the player back', (tester) async {
+    tester.view.physicalSize = const Size(400, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final cubit = _cubit();
+    addTearDown(cubit.close);
+    await cubit.load();
+    final all = cubit.state.predictions.dataOrNull!;
+    cubit.emit(
+      cubit.state.copyWith(
+        predictions: LoadState.loaded([
+          all.first.copyWith(
+            media: all.first.media.copyWith(
+              url: 'https://www.youtube.com/watch?v=abc123',
+            ),
+          ),
+          ...all.skip(1),
+        ]),
+      ),
+    );
+
+    await tester.pumpWidget(_app(Scaffold(body: HoroscopeSection(cubit: cubit))));
+    await tester.pumpAndSettle();
+
+    // Aries is selected by default and now has a clip: the chip and the card
+    // both appear, and the card says the tap leaves the app.
+    expect(find.text('अडियो राशिफल'), findsWidgets);
+    // One in the chip, one in the card — and the waiting state is gone.
+    expect(find.byIcon(Icons.play_arrow_rounded), findsNWidgets(2));
+    expect(find.byIcon(Icons.open_in_new_rounded), findsOneWidget);
+    expect(find.text('छिट्टै आउँदैछ'), findsNothing);
+    expect(find.byIcon(Icons.hourglass_empty_rounded), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -258,7 +291,6 @@ void main() {
     await tester.pumpAndSettle();
     // Hindi UI strings.
     expect(find.text('दैनिक राशिफल'), findsOneWidget);
-    expect(find.text('ऑडियो राशिफल'), findsWidgets);
     expect(find.text('भाग्यशाली विवरण'), findsWidgets);
     expect(find.text('अधिक विवरण'), findsWidgets);
     expect(find.text('सूचित रहें'), findsOneWidget);
@@ -274,9 +306,10 @@ void main() {
     expect(find.text('मेष राशि का पुरुष'), findsOneWidget);
     expect(find.textContaining('धन : ', findRichText: true), findsOneWidget);
     expect(find.text('अभी खरीदें'), findsOneWidget);
-    // Hindi prediction text and Saka media title.
+    // Hindi prediction text, and the clip card in Hindi.
     expect(find.textContaining('आज का दिन मनोरंजन'), findsOneWidget);
     expect(find.text('मेष राशिफल – श्रावण, १९४८'), findsOneWidget);
+    expect(find.text('जल्द आ रहा है'), findsWidgets);
     // Hindi lucky days from the strip.
     expect(find.textContaining('मंगलवार'), findsWidgets);
     // Nepali-only strings must not appear.
@@ -303,7 +336,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Aries Rashifal - Shravana, 1948'), findsOneWidget);
-    expect(find.text('Audio Rashifal'), findsOneWidget);
+    expect(find.text('Audio Rashifal'), findsWidgets);
+    // English "coming soon", not a Nepali or Hindi string.
+    expect(find.text('Coming soon'), findsOneWidget);
+    expect(find.text('छिट्टै आउँदैछ'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

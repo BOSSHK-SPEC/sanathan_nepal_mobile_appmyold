@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The launch screen's colours, mirroring AppColors.launchBackground /
+    launchMark in lib/core/theme/app_colors.dart. SplashPage opens on exactly
+    this colour before blooming the running theme's gradient in, so the handover
+    from the OS splash to Flutter has nothing to flash through.
+
+    There is deliberately no values-night copy: the app's light/dark theme is
+    its own setting, not the system's, and it defaults to light — so following
+    the system here would show the wrong colour on every cold start of a
+    default-themed app on a dark-mode phone.
+
+    test/app/android_splash_test.dart fails if these drift from the Dart theme.
+-->
+<resources>
+    <color name="splash_background">#F37335</color>
+    <color name="splash_mark">#FFFFFF</color>
+</resources>

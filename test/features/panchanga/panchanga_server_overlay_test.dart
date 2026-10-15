@@ -128,6 +128,8 @@ Map<String, dynamic> _kathmandu({bool adhika = false, bool withRahu = true}) =>
         'sunSiderealLongitude': 146.97,
         'moonSiderealLongitude': 182.2,
         'sunDeclination': 3.1,
+        'sunDailyMotion': 0.974197,
+        'moonDailyMotion': 12.695079,
       },
       'dayLengthMinutes': 741.57,
     };
@@ -207,6 +209,39 @@ void main() {
       expect(day.nepalSamvatMonthEn, 'Yanla Thwa');
       final ayanamsa = day.dayDetails.firstWhere((d) => d.labelEn == 'Ayanamsha');
       expect(ayanamsa.value, '24.230100');
+    });
+
+    test('takes the daily motion of the sun and moon', () {
+      final day = PanchangaServerOverlay.apply(base, _kathmandu());
+      String row(String label) =>
+          day.dayDetails.firstWhere((d) => d.labelEn == label).value;
+
+      // 0.974197° = 58'27", 12.695079° = 12°41'42". The app used to print
+      // the mean rates here — 59'8" and 13°10'35" — as fixed strings.
+      expect(row('Sun daily motion'), '0:0:58:27');
+      expect(row('Moon daily motion'), '0:12:41:42');
+      // गति अन्तर is derived from the two above, never sent separately, so it
+      // cannot disagree with them.
+      expect(row('Motion difference'), '0:11:43:15');
+    });
+
+    test('keeps the estimate when the server sends no motion', () {
+      final payload = _kathmandu();
+      final atSunrise = payload['atSunrise']! as Map<String, dynamic>
+        ..remove('sunDailyMotion')
+        ..remove('moonDailyMotion');
+      expect(atSunrise.containsKey('sunDailyMotion'), isFalse);
+
+      final day = PanchangaServerOverlay.apply(base, payload);
+      String row(Panchanga p, String label) =>
+          p.dayDetails.firstWhere((d) => d.labelEn == label).value;
+      for (final label in const [
+        'Sun daily motion',
+        'Moon daily motion',
+        'Motion difference',
+      ]) {
+        expect(row(day, label), row(base, label));
+      }
     });
 
     test('shows the six planets of the grid in order', () {

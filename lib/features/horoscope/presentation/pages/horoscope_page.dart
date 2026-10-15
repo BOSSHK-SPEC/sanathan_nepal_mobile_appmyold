@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,7 @@ import '../../../../app/di/injection.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/state/load_state.dart';
+import '../../../../core/system/external_links.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/ad_banner.dart';
 import '../../../../core/widgets/app_bar_title.dart';
@@ -60,6 +63,14 @@ class _HoroscopeViewState extends State<HoroscopeView> {
         alignment: 0.05,
       );
     }
+  }
+
+  /// Opens a published clip where it lives. Null is not reachable from the
+  /// UI — the control is hidden without a clip — and is tolerated rather than
+  /// asserted so a race on a reload cannot crash the page.
+  void _openClip(String? url) {
+    if (url == null) return;
+    unawaited(ExternalLinks.website(url));
   }
 
   Future<void> _share(HoroscopePrediction p) async {
@@ -179,22 +190,16 @@ class _HoroscopeViewState extends State<HoroscopeView> {
                         child: HoroscopeSignCard(
                           prediction: p,
                           highlighted: p.sign == state.selectedSign,
-                          isPlaying: state.isPlayingClip(p.sign),
-                          position: state.positionOf(p.sign),
-                          onTogglePlayback: () => cubit.togglePlayback(p.sign),
-                          onSeek: cubit.seek,
+                          clipUrl: state.clipUrlOf(p.sign),
+                          onOpenClip: () => _openClip(state.clipUrlOf(p.sign)),
                           expanded: state.isExpanded(p.sign),
                           onToggleDetails: () => cubit.toggleDetails(p.sign),
                           liked: state.isLiked(p.sign),
                           onLike: () => cubit.toggleLike(p.sign),
                           onShare: () => _share(p),
-                          isLuckyPlaying: state.isPlayingClip(
-                            p.sign,
-                            lucky: true,
-                          ),
-                          luckyPosition: state.positionOf(p.sign, lucky: true),
-                          onToggleLuckyPlayback: () =>
-                              cubit.togglePlayback(p.sign, lucky: true),
+                          luckyClipUrl: state.clipUrlOf(p.sign, lucky: true),
+                          onOpenLuckyClip: () =>
+                              _openClip(state.clipUrlOf(p.sign, lucky: true)),
                           onShop: () => context.push(AppRoutes.marketplace),
                         ),
                       );

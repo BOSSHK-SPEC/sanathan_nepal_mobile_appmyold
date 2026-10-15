@@ -8,10 +8,13 @@ import '../../core/storage/key_value_store.dart';
 import 'data/datasources/api_panchanga_data_source.dart';
 import 'data/datasources/mock_panchanga_data_source.dart';
 import 'data/datasources/panchanga_data_source.dart';
+import 'data/repositories/birth_star_repository_impl.dart';
 import 'data/repositories/panchanga_repository_impl.dart';
+import 'domain/repositories/birth_star_repository.dart';
 import 'domain/repositories/panchanga_repository.dart';
 import 'domain/usecases/get_panchanga.dart';
 import 'domain/usecases/get_suva_saits.dart';
+import 'presentation/cubit/day_periods_cubit.dart';
 import 'presentation/cubit/panchanga_cubit.dart';
 
 /// Registers data sources, repositories, use cases and blocs for `panchanga`.
@@ -39,8 +42,18 @@ void registerPanchangaFeature(GetIt sl) {
     ..registerLazySingleton<PanchangaRepository>(
       () => PanchangaRepositoryImpl(sl()),
     )
+    ..registerLazySingleton<BirthStarRepository>(
+      () => BirthStarRepositoryImpl(sl<KeyValueStore>()),
+    )
     ..registerLazySingleton(() => GetPanchanga(sl()))
     ..registerLazySingleton(() => GetSuvaSaits(sl()))
+    ..registerFactoryParam<DayPeriodsCubit, DateTime?, void>(
+      (date, _) => DayPeriodsCubit(
+        getPanchanga: sl(),
+        birthStars: sl<BirthStarRepository>(),
+        date: date,
+      ),
+    )
     ..registerFactory(
       () => PanchangaCubit(
         getPanchanga: sl(),

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android 12+ draws the launch screen itself from these attributes and ignores
+    windowBackground, so the mark has to be handed over as the splash icon. The
+    icon is masked to a circle, which is why splash_mark is drawn inside the
+    inner 160dp of its 240dp canvas.
+-->
+<resources>
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_mark</item>
+        <!-- No icon plate: the mark sits straight on the brand colour. -->
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+        <!-- The window the app keeps afterwards comes from the NormalTheme
+             meta-data in AndroidManifest.xml, which Flutter applies as soon as
+             the process is up. (postSplashScreenTheme is AndroidX's attribute,
+             not the platform's — the resource linker rejects it here.) -->
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>

@@ -15,6 +15,7 @@ import '../../domain/entities/kundli_chart.dart';
 import '../../domain/entities/vedic_basics.dart';
 import '../cubit/chart_cubit.dart';
 import '../l10n/kundli_strings.dart';
+import '../widgets/dasha_timeline.dart';
 import '../widgets/kundli_diagram.dart';
 
 /// One cast chart: diagram, planet table, dasha timeline and dosha report.
@@ -109,10 +110,9 @@ class _ChartTab extends StatelessWidget {
       ),
       children: [
         AppSegmentedControl(
-          segments: [s.northIndian, s.southIndian],
-          selectedIndex: state.style == ChartStyle.north ? 0 : 1,
-          onChanged: (i) =>
-              cubit.setStyle(i == 0 ? ChartStyle.north : ChartStyle.south),
+          segments: [s.northIndian, s.southIndian, s.sudarshana],
+          selectedIndex: state.style.index,
+          onChanged: (i) => cubit.setStyle(ChartStyle.values[i]),
         ),
         const SizedBox(height: AppSpacing.lg),
         KundliDiagram(chart: chart, style: state.style),
@@ -302,6 +302,10 @@ class _DashaTab extends StatelessWidget {
       ),
       children: [
         if (current != null) _CurrentDashaCard(period: current, strings: s),
+        if (state.dashaList.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.lg),
+          DashaTimeline(periods: state.dashaList, now: DateTime.now()),
+        ],
         const SizedBox(height: AppSpacing.lg),
         Text(
           s.vimshottariNote,

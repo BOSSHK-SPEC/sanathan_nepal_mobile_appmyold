@@ -13,21 +13,17 @@ import 'sign_profile_card.dart';
 class HoroscopeDetailsPanel extends StatelessWidget {
   const HoroscopeDetailsPanel({
     required this.prediction,
-    required this.isPlaying,
-    required this.position,
-    required this.onTogglePlayback,
     super.key,
-    this.onSeek,
+    this.luckyClipUrl,
+    this.onOpenLuckyClip,
     this.onShop,
   });
 
   final HoroscopePrediction prediction;
 
-  /// Playback state of the lucky clip.
-  final bool isPlaying;
-  final Duration position;
-  final VoidCallback onTogglePlayback;
-  final ValueChanged<double>? onSeek;
+  /// The sign's "lucky" clip, when one is published. Null hides the card.
+  final String? luckyClipUrl;
+  final VoidCallback? onOpenLuckyClip;
   final VoidCallback? onShop;
 
   @override
@@ -41,10 +37,7 @@ class HoroscopeDetailsPanel extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           HoroscopeMediaCard(
             media: profile.luckyMedia,
-            position: position,
-            isPlaying: isPlaying,
-            onToggle: onTogglePlayback,
-            onSeek: onSeek,
+            onOpen: luckyClipUrl == null ? null : onOpenLuckyClip,
             height: 130,
           ),
           const SizedBox(height: AppSpacing.md),

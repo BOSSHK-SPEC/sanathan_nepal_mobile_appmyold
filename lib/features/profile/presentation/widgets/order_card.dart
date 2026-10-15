@@ -193,19 +193,27 @@ class OrderCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SmallGradientButton(
-                            label: s.call,
-                            icon: Icons.call,
-                            height: 22,
-                            onPressed: onCall,
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                          SmallGradientButton(
-                            label: s.chat,
-                            icon: Icons.mark_chat_unread_outlined,
-                            height: 22,
-                            onPressed: onChat,
-                          ),
+                          // Drawn only when there is somewhere for them to
+                          // go. Both used to render unconditionally on every
+                          // card and do nothing at all when tapped, which
+                          // reads as a broken app rather than a missing
+                          // number.
+                          if (order.canCall && onCall != null) ...[
+                            SmallGradientButton(
+                              label: s.call,
+                              icon: Icons.call,
+                              height: 22,
+                              onPressed: onCall,
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                          ],
+                          if (order.canChat && onChat != null)
+                            SmallGradientButton(
+                              label: s.chat,
+                              icon: Icons.mark_chat_unread_outlined,
+                              height: 22,
+                              onPressed: onChat,
+                            ),
                         ],
                       ),
                     ],

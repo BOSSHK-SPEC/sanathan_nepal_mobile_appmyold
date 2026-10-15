@@ -223,12 +223,27 @@ class ApiActivityDataSource implements ActivityDataSource {
         ? Map<String, dynamic>.from(items.first as Map)
         : const <String, dynamic>{};
 
+    final isBuyer = role == OrderRole.buyer;
+    final shipping = json['shipping'] is Map
+        ? Map<String, dynamic>.from(json['shipping'] as Map)
+        : const <String, dynamic>{};
+
     return OrderSummary(
       id: json['id'] as String? ?? '',
       productName: _localized(first['title'])['en'] ?? '',
       price: ApiMoney.toMajor(json['totalMinor']),
-      counterpartyName: _counterparty(json),
+      // Whose name this is depends on which list the card is in. Both roles
+      // used to read the shipping address, which is always the buyer's — so a
+      // purchase card told the buyer it was "From" themselves.
+      counterpartyName: isBuyer
+          ? first['sellerName'] as String? ?? ''
+          : _shippingName(shipping),
       counterpartyId: first['sellerId'] as String? ?? '',
+      // A seller has no shop to write to: they own it, and the server refuses
+      // a message from an owner to their own business.
+      counterpartyBusinessId: isBuyer ? first['businessId'] as String? : null,
+      counterpartyPhone:
+          (isBuyer ? first['sellerPhone'] : shipping['phone']) as String? ?? '',
       role: role,
       status: _status(json['status'] as String?),
       updatedAt: ApiTime.instantOr(json['updatedAt'], DateTime.now()),
@@ -237,14 +252,14 @@ class ApiActivityDataSource implements ActivityDataSource {
     );
   }
 
-  static String _counterparty(Map<String, dynamic> json) {
-    final shipping = json['shipping'];
-    if (shipping is! Map) return '';
-    return [
-      shipping['firstName'],
-      shipping['lastName'],
-    ].whereType<String>().where((part) => part.isNotEmpty).join(' ');
-  }
+  /// The buyer, as they wrote themselves on the delivery address.
+  ///
+  /// Only a sales card may use this: shipping details belong to whoever placed
+  /// the order, never to the shop fulfilling it.
+  static String _shippingName(Map<String, dynamic> shipping) => [
+    shipping['firstName'],
+    shipping['lastName'],
+  ].whereType<String>().where((part) => part.isNotEmpty).join(' ');
 
   /// The server's ten states, mapped one-for-one onto what the card shows.
   ///

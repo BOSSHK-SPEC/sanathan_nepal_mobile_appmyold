@@ -70,6 +70,9 @@ class _Hi extends KundliStrings {
   String get northIndian => 'उत्तर';
   @override
   String get southIndian => 'दक्षिण';
+
+  @override
+  String get sudarshana => 'सुदर्शन';
   @override
   String get ascendant => 'लग्न';
   @override

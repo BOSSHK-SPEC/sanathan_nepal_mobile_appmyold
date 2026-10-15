@@ -3,7 +3,10 @@ part of 'chart_cubit.dart';
 /// North Indian charts are diamond-shaped with fixed *houses*; South Indian
 /// charts are a fixed grid of *signs*. Readers are fluent in one or the
 /// other, so this is a preference, not a detail.
-enum ChartStyle { north, south }
+/// How the birth chart is drawn. North and South are the two regional
+/// diagrams; the Sudarshana chakra is the same chart read from three
+/// reference points at once.
+enum ChartStyle { north, south, sudarshana }
 
 enum ChartTab { chart, planets, dasha, dosha }
 

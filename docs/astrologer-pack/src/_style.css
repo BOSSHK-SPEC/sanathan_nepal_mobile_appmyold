@@ -1,0 +1,31 @@
+@page { size: A4; margin: 18mm 16mm 20mm; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Gill Sans", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+  color: #1c1c1c;
+}
+.mark { display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #E05A16; padding-bottom: 8px; margin-bottom: 18px; }
+.mark .name { font-size: 12pt; font-weight: 700; letter-spacing: .04em; color: #B8400A; }
+.mark .doc { margin-left: auto; font-size: 9pt; color: #5E5E5E; }
+h1 { font-size: 21pt; margin: 0 0 4px; line-height: 1.15; }
+.lede { font-size: 11pt; color: #3B3B3B; margin: 0 0 18px; max-width: 46em; }
+h2 { font-size: 13pt; margin: 22px 0 6px; padding-top: 10px; border-top: 1px solid #DFDFDF; }
+h3 { font-size: 11pt; margin: 14px 0 4px; }
+p, li { max-width: 46em; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0 14px; font-size: 9.5pt; }
+th, td { border: 1px solid #D5D5D5; padding: 5px 7px; text-align: left; vertical-align: top; }
+th { background: #F6F1EA; font-weight: 700; }
+td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fill { background: #FFFDF5; }
+.note { background: #FFF8EC; border: 1px solid #E8D4A0; border-radius: 6px; padding: 10px 12px; margin: 12px 0; }
+.note strong { color: #6B5222; }
+.ask { background: #F3F8F3; border: 1px solid #BEDCBE; border-radius: 6px; padding: 10px 12px; margin: 12px 0; }
+.ask strong { color: #1F4D22; }
+code { font-family: "SF Mono", Menlo, monospace; font-size: 9.5pt; background: #F3F3F3; padding: 1px 4px; border-radius: 3px; }
+ul, ol { padding-left: 20px; }
+.q { font-weight: 700; color: #B8400A; }
+footer { margin-top: 26px; border-top: 1px solid #DFDFDF; padding-top: 8px; font-size: 8.5pt; color: #6B6B6B; }
+.page-break { break-before: page; }

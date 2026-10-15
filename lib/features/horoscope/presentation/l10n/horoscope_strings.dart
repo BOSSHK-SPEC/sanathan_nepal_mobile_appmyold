@@ -15,6 +15,9 @@ abstract class HoroscopeStrings {
 
   String get title;
   String get audioRashifal;
+
+  /// Shown on the clip card while no rashifal clip is published yet.
+  String get clipComingSoon;
   String get luckyDetails;
   String get moreDetails;
   String get lessDetails;
@@ -56,6 +59,8 @@ class _Ne extends HoroscopeStrings {
   String get title => 'राशिफल';
   @override
   String get audioRashifal => 'अडियो राशिफल';
+  @override
+  String get clipComingSoon => 'छिट्टै आउँदैछ';
   @override
   String get luckyDetails => 'भाग्यशाली विवरण';
   @override
@@ -122,6 +127,8 @@ class _En extends HoroscopeStrings {
   @override
   String get audioRashifal => 'Audio Rashifal';
   @override
+  String get clipComingSoon => 'Coming soon';
+  @override
   String get luckyDetails => 'Lucky Details';
   @override
   String get moreDetails => 'More Details';
@@ -187,6 +194,8 @@ class _Hi extends HoroscopeStrings {
   String get title => 'राशिफल';
   @override
   String get audioRashifal => 'ऑडियो राशिफल';
+  @override
+  String get clipComingSoon => 'जल्द आ रहा है';
   @override
   String get luckyDetails => 'भाग्यशाली विवरण';
   @override

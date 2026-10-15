@@ -62,6 +62,9 @@ abstract class KundliStrings {
   String get dosha;
   String get northIndian;
   String get southIndian;
+
+  /// The three-ring chart read from lagna, Moon and Sun at once.
+  String get sudarshana;
   String get ascendant;
   String get moonSign;
   String get sunSign;

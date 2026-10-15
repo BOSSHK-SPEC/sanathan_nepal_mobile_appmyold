@@ -44,6 +44,7 @@ const _$TimeWindowKindEnumMap = {
   TimeWindowKind.gulikaKaal: 'gulikaKaal',
   TimeWindowKind.abhijit: 'abhijit',
   TimeWindowKind.choghadiya: 'choghadiya',
+  TimeWindowKind.hora: 'hora',
 };
 
 const _$ChoghadiyaQualityEnumMap = {

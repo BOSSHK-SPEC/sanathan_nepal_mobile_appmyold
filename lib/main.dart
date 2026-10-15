@@ -8,11 +8,15 @@ import 'app/di/injection.dart';
 import 'core/auth/auth_session_manager.dart';
 import 'core/push/push_coordinator.dart';
 import 'core/session/session_sync.dart';
+import 'core/utils/app_boot.dart';
 import 'features/app_settings/presentation/cubit/app_settings_cubit.dart';
 import 'features/session/presentation/cubit/session_cubit.dart';
 import 'features/system/presentation/cubit/system_cubit.dart';
 
 Future<void> main() async {
+  // Starts the clock the splash is measured against, so the time spent below
+  // counts towards it instead of being added to it.
+  AppBoot.markStarted();
   WidgetsFlutterBinding.ensureInitialized();
   await Future.wait([initializeDateFormatting(), configureDependencies()]);
   await Future.wait([

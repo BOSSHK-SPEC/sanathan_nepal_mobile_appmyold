@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Night mode beats platform version when Android picks a resource folder, so
+    values-night/styles.xml would otherwise win on Android 12+ and the phone
+    would fall back to a blank splash. This folder is that folder's v31 twin.
+-->
+<resources>
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_mark</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+        <!-- The window the app keeps afterwards comes from the NormalTheme
+             meta-data in AndroidManifest.xml, which Flutter applies as soon as
+             the process is up. (postSplashScreenTheme is AndroidX's attribute,
+             not the platform's — the resource linker rejects it here.) -->
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>

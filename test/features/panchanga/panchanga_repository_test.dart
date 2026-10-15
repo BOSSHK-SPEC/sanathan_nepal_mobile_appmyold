@@ -7,7 +7,7 @@ import 'package:sanathan_nepal_mobile_app/core/region/region.dart';
 import 'package:sanathan_nepal_mobile_app/core/region/region_resolver.dart';
 import 'package:sanathan_nepal_mobile_app/features/panchanga/data/datasources/mock_panchanga_data_source.dart';
 import 'package:sanathan_nepal_mobile_app/features/panchanga/data/datasources/panchanga_data_source.dart';
-import 'package:sanathan_nepal_mobile_app/features/panchanga/data/datasources/sun_calculator.dart';
+import 'package:sanathan_nepal_mobile_app/features/panchanga/domain/services/sun_calculator.dart';
 import 'package:sanathan_nepal_mobile_app/features/panchanga/data/repositories/panchanga_repository_impl.dart';
 import 'package:sanathan_nepal_mobile_app/features/panchanga/domain/entities/time_window.dart';
 

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/region/region.dart';
 import '../../domain/entities/time_window.dart';
+import '../../domain/services/day_factors.dart';
 
 /// Feature-local trilingual strings for panchanga & suva sait / muhurat.
 abstract class PanchangaStrings {
@@ -65,6 +66,67 @@ abstract class PanchangaStrings {
   String get inauspicious;
   String get auspicious;
 
+  // Day periods screen: Choghadiya, hora and the kaal windows on one page.
+  String get dayPeriods;
+  String get hora;
+
+  /// The weekday kaal windows as a group (Rahu, Yamaganda, Gulika, Abhijit).
+  /// Not "inauspicious": Abhijit sits among them and is the opposite.
+  String get kaalWindows;
+  String get dayHalf;
+  String get nightHalf;
+  String get nowLabel;
+  String get neutralQuality;
+
+  /// The night runs to tomorrow's sunrise, which is a second day's data.
+  String get nightUnavailable;
+
+  /// Footer: these divisions follow whichever sunrise is shown above them.
+  String get periodsNote;
+
+  // Day factors: season, ayana, the direction to avoid, and — once a birth
+  // star is known — tara bala, chandra bala and chandrashtama.
+  String get dayFactors;
+  String get ritu;
+  String get ayana;
+  String get dishaShool;
+  String get taraBala;
+  String get chandraBala;
+  String get chandrashtama;
+  String get birthStar;
+  String get pada;
+  String get setBirthStar;
+  String get birthStarWhy;
+
+  /// Shown once both boxes are filled, in place of the explanation.
+  String get birthStarSet;
+  String get chandrashtamaToday;
+  String get chandrashtamaNotToday;
+  List<String> get taraNames;
+  List<String> get rituNames;
+  List<String> get ayanaNames;
+  List<String> get dishaNames;
+
+  /// "Moon in the 8th" — the house the Moon stands in from the birth sign.
+  String houseLabel(int house);
+
+  String taraLabel(Tara tara) => taraNames[tara.index];
+  String rituLabel(Ritu ritu) => rituNames[ritu.index];
+  String ayanaLabel(Ayana ayana) => ayanaNames[ayana.index];
+  String dishaLabel(Disha disha) => dishaNames[disha.index];
+
+  String dayQualityLabel(DayQuality quality) => switch (quality) {
+    DayQuality.good => auspicious,
+    DayQuality.mixed => neutralQuality,
+    DayQuality.bad => inauspicious,
+  };
+
+  String qualityLabel(ChoghadiyaQuality quality) => switch (quality) {
+    ChoghadiyaQuality.good => auspicious,
+    ChoghadiyaQuality.neutral => neutralQuality,
+    ChoghadiyaQuality.bad => inauspicious,
+  };
+
   // "Suva Sait" (Nepal) vs "Shubh Muhurat" (India) wording.
   String get shubhMuhurat;
   String get pageTitleMuhurat;
@@ -92,6 +154,7 @@ abstract class PanchangaStrings {
     TimeWindowKind.gulikaKaal => gulikaKaal,
     TimeWindowKind.abhijit => abhijitMuhurat,
     TimeWindowKind.choghadiya => choghadiya,
+    TimeWindowKind.hora => hora,
   };
 
   /// Section title / page title / links depending on the region wording.
@@ -196,6 +259,66 @@ class _Ne extends PanchangaStrings {
   String get abhijitMuhurat => 'अभिजित मुहूर्त';
   @override
   String get choghadiya => 'चौघडिया';
+
+  @override
+  String get dayPeriods => 'दिनका समयहरू';
+
+  @override
+  String get dayFactors => 'आजका योगहरू';
+  @override
+  String houseLabel(int house) => 'चन्द्रमा $house औं भावमा';
+  @override
+  String get ritu => 'ऋतु';
+  @override
+  String get ayana => 'अयन';
+  @override
+  String get dishaShool => 'दिशाशूल';
+  @override
+  String get taraBala => 'तारा बल';
+  @override
+  String get chandraBala => 'चन्द्र बल';
+  @override
+  String get chandrashtama => 'चन्द्राष्टम';
+  @override
+  String get birthStar => 'जन्म नक्षत्र';
+  @override
+  String get pada => 'चरण';
+  @override
+  String get setBirthStar => 'जन्म नक्षत्र छान्नुहोस्';
+  @override
+  String get birthStarWhy => 'तारा बल र चन्द्र बल जन्म नक्षत्रबाट गनिन्छ।';
+  @override
+  String get birthStarSet => 'माथिका तीन पङ्क्ति यसै जन्म नक्षत्रबाट गनिएका हुन्।';
+  @override
+  String get chandrashtamaToday => 'आज चन्द्राष्टम छ';
+  @override
+  String get chandrashtamaNotToday => 'आज चन्द्राष्टम छैन';
+  @override
+  List<String> get taraNames => const ['जन्म', 'सम्पत्', 'विपत्', 'क्षेम', 'प्रत्यरि', 'साधक', 'वध', 'मित्र', 'अतिमित्र'];
+  @override
+  List<String> get rituNames => const ['वसन्त', 'ग्रीष्म', 'वर्षा', 'शरद', 'हेमन्त', 'शिशिर'];
+  @override
+  List<String> get ayanaNames => const ['उत्तरायण', 'दक्षिणायन'];
+  @override
+  List<String> get dishaNames => const ['पूर्व', 'आग्नेय', 'दक्षिण', 'नैऋत्य', 'पश्चिम', 'वायव्य', 'उत्तर', 'ईशान'];
+
+  @override
+  String get kaalWindows => 'कालहरू';
+  @override
+  String get hora => 'होरा';
+  @override
+  String get dayHalf => 'दिन';
+  @override
+  String get nightHalf => 'रात';
+  @override
+  String get nowLabel => 'अहिले';
+  @override
+  String get neutralQuality => 'सामान्य';
+  @override
+  String get nightUnavailable => 'रातको समय भोलिको सूर्योदयमा निर्भर छ।';
+  @override
+  String get periodsNote => 'यी भागहरू माथि देखिएको सूर्योदय–सूर्यास्तबाटै गनिन्छन्।';
+
   @override
   String get inauspicious => 'अशुभ';
   @override
@@ -309,6 +432,66 @@ class _Hi extends PanchangaStrings {
   String get abhijitMuhurat => 'अभिजित मुहूर्त';
   @override
   String get choghadiya => 'चौघड़िया';
+
+  @override
+  String get dayPeriods => 'दिन के समय';
+
+  @override
+  String get dayFactors => 'आज के योग';
+  @override
+  String houseLabel(int house) => 'चंद्रमा $house वें भाव में';
+  @override
+  String get ritu => 'ऋतु';
+  @override
+  String get ayana => 'अयन';
+  @override
+  String get dishaShool => 'दिशाशूल';
+  @override
+  String get taraBala => 'तारा बल';
+  @override
+  String get chandraBala => 'चंद्र बल';
+  @override
+  String get chandrashtama => 'चंद्राष्टम';
+  @override
+  String get birthStar => 'जन्म नक्षत्र';
+  @override
+  String get pada => 'चरण';
+  @override
+  String get setBirthStar => 'जन्म नक्षत्र चुनें';
+  @override
+  String get birthStarWhy => 'तारा बल और चंद्र बल जन्म नक्षत्र से गिने जाते हैं।';
+  @override
+  String get birthStarSet => 'ऊपर की तीन पंक्तियाँ इसी जन्म नक्षत्र से गिनी गई हैं।';
+  @override
+  String get chandrashtamaToday => 'आज चंद्राष्टम है';
+  @override
+  String get chandrashtamaNotToday => 'आज चंद्राष्टम नहीं है';
+  @override
+  List<String> get taraNames => const ['जन्म', 'संपत्', 'विपत्', 'क्षेम', 'प्रत्यरि', 'साधक', 'वध', 'मित्र', 'अतिमित्र'];
+  @override
+  List<String> get rituNames => const ['वसंत', 'ग्रीष्म', 'वर्षा', 'शरद', 'हेमंत', 'शिशिर'];
+  @override
+  List<String> get ayanaNames => const ['उत्तरायण', 'दक्षिणायन'];
+  @override
+  List<String> get dishaNames => const ['पूर्व', 'आग्नेय', 'दक्षिण', 'नैऋत्य', 'पश्चिम', 'वायव्य', 'उत्तर', 'ईशान'];
+
+  @override
+  String get kaalWindows => 'काल';
+  @override
+  String get hora => 'होरा';
+  @override
+  String get dayHalf => 'दिन';
+  @override
+  String get nightHalf => 'रात';
+  @override
+  String get nowLabel => 'अभी';
+  @override
+  String get neutralQuality => 'सामान्य';
+  @override
+  String get nightUnavailable => 'रात का समय कल के सूर्योदय पर निर्भर है।';
+  @override
+  String get periodsNote => 'ये भाग ऊपर दिखाए गए सूर्योदय–सूर्यास्त से ही गिने जाते हैं।';
+
   @override
   String get inauspicious => 'अशुभ';
   @override
@@ -424,6 +607,80 @@ class _En extends PanchangaStrings {
   String get abhijitMuhurat => 'Abhijit Muhurat';
   @override
   String get choghadiya => 'Choghadiya';
+
+  @override
+  String get dayPeriods => 'Day periods';
+
+  @override
+  String get dayFactors => "Today's factors";
+  @override
+  String houseLabel(int house) => 'Moon in the ${_ordinal(house)}';
+
+  /// 1st, 2nd, 3rd, 4th … 11th, 12th — the teens take "th" whatever they end
+  /// in, which is why 11 and 12 are not "11st" and "12nd".
+  static String _ordinal(int n) {
+    final suffix = (n % 100 >= 11 && n % 100 <= 13)
+        ? 'th'
+        : switch (n % 10) {
+            1 => 'st',
+            2 => 'nd',
+            3 => 'rd',
+            _ => 'th',
+          };
+    return '$n$suffix';
+  }
+  @override
+  String get ritu => 'Ritu';
+  @override
+  String get ayana => 'Ayana';
+  @override
+  String get dishaShool => 'Disha Shool';
+  @override
+  String get taraBala => 'Tara Bala';
+  @override
+  String get chandraBala => 'Chandra Bala';
+  @override
+  String get chandrashtama => 'Chandrashtama';
+  @override
+  String get birthStar => 'Birth star';
+  @override
+  String get pada => 'Pada';
+  @override
+  String get setBirthStar => 'Choose your birth star';
+  @override
+  String get birthStarWhy => 'Tara Bala and Chandra Bala are counted from your birth star.';
+  @override
+  String get birthStarSet => 'The three rows above are counted from this.';
+  @override
+  String get chandrashtamaToday => 'Chandrashtama today';
+  @override
+  String get chandrashtamaNotToday => 'Not Chandrashtama today';
+  @override
+  List<String> get taraNames => const ['Janma', 'Sampat', 'Vipat', 'Kshema', 'Pratyari', 'Sadhaka', 'Vadha', 'Mitra', 'Ati Mitra'];
+  @override
+  List<String> get rituNames => const ['Vasanta', 'Grishma', 'Varsha', 'Sharad', 'Hemanta', 'Shishira'];
+  @override
+  List<String> get ayanaNames => const ['Uttarayana', 'Dakshinayana'];
+  @override
+  List<String> get dishaNames => const ['East', 'South-east', 'South', 'South-west', 'West', 'North-west', 'North', 'North-east'];
+
+  @override
+  String get kaalWindows => 'Kaal';
+  @override
+  String get hora => 'Hora';
+  @override
+  String get dayHalf => 'Day';
+  @override
+  String get nightHalf => 'Night';
+  @override
+  String get nowLabel => 'Now';
+  @override
+  String get neutralQuality => 'Fair';
+  @override
+  String get nightUnavailable => 'The night runs to tomorrow\'s sunrise.';
+  @override
+  String get periodsNote => 'Divisions of the sunrise and sunset shown above.';
+
   @override
   String get inauspicious => 'Inauspicious';
   @override

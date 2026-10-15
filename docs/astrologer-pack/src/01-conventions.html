@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Calculation conventions</title>
+<link rel="stylesheet" href="_style.css"></head><body>
+<div class="mark"><span class="name">SANATAN NEPAL</span><span class="doc">Review pack · document 2 of 4</span></div>
+
+<h1>Calculation conventions</h1>
+<p class="lede">Every rule the app applies, written out so it can be checked. Please mark anything that disagrees with your almanac — a cross in the margin is enough.</p>
+
+<h2>1 · The foundation</h2>
+<table>
+  <tr><th style="width:30%">Setting</th><th style="width:38%">What the app uses</th><th>Note</th></tr>
+  <tr><td>Ephemeris</td><td>A modern astronomical ephemeris (astronomy-engine)</td><td>Sun and Moon positions accurate to well under a minute of arc.</td></tr>
+  <tr><td>Ayanamsa</td><td><strong>Lahiri (Chitrapaksha)</strong></td><td>Applied to every sidereal value. See question 1.</td></tr>
+  <tr><td>Sunrise</td><td><strong>Upper limb, corrected for refraction</strong></td><td>Not the centre of the disc. This moves every boundary below by roughly two minutes. See question 2.</td></tr>
+  <tr><td>Moonrise / moonset</td><td>Centre of the disc, first occurrence after sunrise</td><td>Left blank on a day where none occurs.</td></tr>
+  <tr><td>Reference place — Nepal</td><td>Kathmandu, 27.7172° N, 85.3240° E, UTC +5:45</td><td>All Nepal users currently see Kathmandu times. See question 3.</td></tr>
+  <tr><td>Reference place — India</td><td>New Delhi, UTC +5:30</td><td>All India users currently see New Delhi times.</td></tr>
+  <tr><td>Day boundary</td><td>Sunrise to sunrise</td><td>The night belongs to the day it began on.</td></tr>
+</table>
+
+<h2>2 · The five limbs</h2>
+<p>Tithi, nakshatra, yoga and karana are all reported <strong>as they stand at sunrise</strong>, together with the exact clock time at which each one ends and the name of the one that follows. End times are found to the second.</p>
+<table>
+  <tr><th style="width:22%">Limb</th><th>Rule used</th></tr>
+  <tr><td>Tithi</td><td>Each 12° of elongation of the Moon from the Sun. Paksha from the tithi number.</td></tr>
+  <tr><td>Nakshatra</td><td>Each 13°20′ of the Moon's sidereal longitude.</td></tr>
+  <tr><td>Yoga</td><td>Each 13°20′ of the sum of the Sun's and Moon's sidereal longitudes.</td></tr>
+  <tr><td>Karana</td><td>Half a tithi, 6° of elongation.</td></tr>
+  <tr><td>Lunar month</td><td><strong>Both</strong> amanta and purnimanta are computed, with an adhika-masa flag. The app currently displays purnimanta. See question 4.</td></tr>
+  <tr><td>Vrat marked</td><td>Ekadashi, Purnima, Amavasya only. See question 9.</td></tr>
+  <tr><td>Eras shown</td><td>Bikram Sambat, Nepal Sambat (year and month), Shaka.</td></tr>
+</table>
+
+<h2>3 · The kaal windows</h2>
+<p>The daylight, sunrise to sunset, is divided into <strong>eight equal parts</strong>. Each window below occupies one numbered part, counting from sunrise.</p>
+<table>
+  <tr><th>Weekday</th><th class="num">Rahu Kaal</th><th class="num">Yamaganda</th><th class="num">Gulika Kaal</th></tr>
+  <tr><td>Sunday</td><td class="num">8th</td><td class="num">5th</td><td class="num">7th</td></tr>
+  <tr><td>Monday</td><td class="num">2nd</td><td class="num">4th</td><td class="num">6th</td></tr>
+  <tr><td>Tuesday</td><td class="num">7th</td><td class="num">3rd</td><td class="num">5th</td></tr>
+  <tr><td>Wednesday</td><td class="num">5th</td><td class="num">2nd</td><td class="num">4th</td></tr>
+  <tr><td>Thursday</td><td class="num">6th</td><td class="num">1st</td><td class="num">3rd</td></tr>
+  <tr><td>Friday</td><td class="num">4th</td><td class="num">7th</td><td class="num">2nd</td></tr>
+  <tr><td>Saturday</td><td class="num">3rd</td><td class="num">6th</td><td class="num">1st</td></tr>
+</table>
+<p><strong>Abhijit muhurta:</strong> the daylight is divided into <strong>fifteen</strong> muhurtas and Abhijit is the <strong>eighth</strong>. The app does <em>not</em> use "local noon ± 24 minutes". See question 5.</p>
+
+<h2 class="page-break">4 · Choghadiya</h2>
+<p>Eight equal parts of the daylight, then eight equal parts of the night. The day and the night sequences run in different directions — the day advances one name at a time, the night moves back two.</p>
+<h3>Day, from sunrise</h3>
+<table>
+  <tr><th>Weekday</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>
+  <tr><td>Sunday</td><td>Udveg</td><td>Char</td><td>Labh</td><td>Amrit</td><td>Kaal</td><td>Shubh</td><td>Rog</td><td>Udveg</td></tr>
+  <tr><td>Monday</td><td>Amrit</td><td>Kaal</td><td>Shubh</td><td>Rog</td><td>Udveg</td><td>Char</td><td>Labh</td><td>Amrit</td></tr>
+  <tr><td>Tuesday</td><td>Rog</td><td>Udveg</td><td>Char</td><td>Labh</td><td>Amrit</td><td>Kaal</td><td>Shubh</td><td>Rog</td></tr>
+  <tr><td>Wednesday</td><td>Labh</td><td>Amrit</td><td>Kaal</td><td>Shubh</td><td>Rog</td><td>Udveg</td><td>Char</td><td>Labh</td></tr>
+  <tr><td>Thursday</td><td>Shubh</td><td>Rog</td><td>Udveg</td><td>Char</td><td>Labh</td><td>Amrit</td><td>Kaal</td><td>Shubh</td></tr>
+  <tr><td>Friday</td><td>Char</td><td>Labh</td><td>Amrit</td><td>Kaal</td><td>Shubh</td><td>Rog</td><td>Udveg</td><td>Char</td></tr>
+  <tr><td>Saturday</td><td>Kaal</td><td>Shubh</td><td>Rog</td><td>Udveg</td><td>Char</td><td>Labh</td><td>Amrit</td><td>Kaal</td></tr>
+</table>
+<h3>Night, from sunset to the next sunrise</h3>
+<table>
+  <tr><th>Weekday</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>
+  <tr><td>Sunday</td><td>Shubh</td><td>Amrit</td><td>Char</td><td>Rog</td><td>Kaal</td><td>Labh</td><td>Udveg</td><td>Shubh</td></tr>
+  <tr><td>Monday</td><td>Char</td><td>Rog</td><td>Kaal</td><td>Labh</td><td>Udveg</td><td>Shubh</td><td>Amrit</td><td>Char</td></tr>
+  <tr><td>Tuesday</td><td>Kaal</td><td>Labh</td><td>Udveg</td><td>Shubh</td><td>Amrit</td><td>Char</td><td>Rog</td><td>Kaal</td></tr>
+  <tr><td>Wednesday</td><td>Udveg</td><td>Shubh</td><td>Amrit</td><td>Char</td><td>Rog</td><td>Kaal</td><td>Labh</td><td>Udveg</td></tr>
+  <tr><td>Thursday</td><td>Amrit</td><td>Char</td><td>Rog</td><td>Kaal</td><td>Labh</td><td>Udveg</td><td>Shubh</td><td>Amrit</td></tr>
+  <tr><td>Friday</td><td>Rog</td><td>Kaal</td><td>Labh</td><td>Udveg</td><td>Shubh</td><td>Amrit</td><td>Char</td><td>Rog</td></tr>
+  <tr><td>Saturday</td><td>Labh</td><td>Udveg</td><td>Shubh</td><td>Amrit</td><td>Char</td><td>Rog</td><td>Kaal</td><td>Labh</td></tr>
+</table>
+<p>Quality shown to the user: <strong>auspicious</strong> — Char, Labh, Amrit, Shubh; <strong>inauspicious</strong> — Udveg, Kaal, Rog. See question 6.</p>
+
+<h2>5 · Hora</h2>
+<p>Twelve equal parts of the daylight and twelve of the night, so a hora is only sixty minutes long at an equinox. The first hora after sunrise belongs to the lord of the weekday, and each following hora takes the next lord in Chaldean order:</p>
+<p style="font-size:11pt"><strong>Shani → Guru → Mangal → Surya → Shukra → Budha → Chandra →</strong> (repeating)</p>
+<p>Twenty-four horas later the sequence arrives at the lord of the next weekday, which is the check we use to know the table is right.</p>
+<table>
+  <tr><th style="width:30%">Quality shown</th><th>Lords</th></tr>
+  <tr><td>Auspicious</td><td>Guru, Shukra, Budha, Chandra</td></tr>
+  <tr><td>Fair</td><td>Surya</td></tr>
+  <tr><td>Inauspicious</td><td>Shani, Mangal</td></tr>
+</table>
+<div class="note"><strong>Please check this classification.</strong> Almanacs differ over the Sun in particular, and some treat Budha as variable rather than benefic. See question 7.</div>
+
+<h2>6 · Planets and charts</h2>
+<p>Planetary positions shown on the panchang screen — Mangal, Budha, Guru, Shukra, Shani, Rahu and Ketu — are sidereal longitudes with the rashi, taken at sunrise. Rahu is the <strong>mean</strong> node, and Ketu is placed opposite it.</p>
+<div class="note"><strong>The birth chart is a separate, weaker calculation and is not yet trustworthy.</strong> It presently uses an older mean-longitude method accurate to roughly one degree, marks only Rahu and Ketu as retrograde, and uses whole-sign houses. We are replacing it with the same ephemeris the panchang uses. Please do not verify chart output from the current build — panchang output is ready for review, charts are not.</div>
+
+<footer>Sanatan Nepal · document 2 of 4 · mark corrections anywhere on this page.</footer>
+</body></html>

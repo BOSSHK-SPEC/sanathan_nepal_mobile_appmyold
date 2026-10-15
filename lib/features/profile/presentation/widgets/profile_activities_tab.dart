@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/system/external_links.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/state_widgets.dart';
 import '../../domain/entities/appointment_summary.dart';
@@ -150,6 +151,21 @@ Future<void> _openDetails(BuildContext context, String id) async {
   await cubit.load();
 }
 
+/// Dials the order's counterparty, saying so when the device cannot.
+///
+/// A failed `tel:` hand-off is silent otherwise — on a tablet with no dialler
+/// the button simply appears dead, which is the bug this screen already had.
+Future<void> _callCounterparty(BuildContext context, OrderSummary order) async {
+  final label = ProfileStrings.of(context).call;
+  final l10n = context.l10n;
+  final messenger = ScaffoldMessenger.of(context);
+  final opened = await ExternalLinks.call(order.counterpartyPhone);
+  if (opened || !context.mounted) return;
+  messenger.showSnackBar(
+    SnackBar(content: Text('$label — ${l10n.somethingWentWrong}')),
+  );
+}
+
 /// Sends the user off to book, and picks up the new appointment on return.
 Future<void> _book(BuildContext context) async {
   final cubit = context.read<ActivityCubit>();
@@ -215,8 +231,14 @@ class _OrdersSection extends StatelessWidget {
             onRate: (r) => cubit.rate(o.id, r),
             onVisitSeller: () =>
                 context.push(AppRoutes.businessProfilePath(o.counterpartyId)),
-            onCall: () {},
-            onChat: () {},
+            onCall: () => _callCounterparty(context, o),
+            // Opens the customer/shop conversation, the same thread a message
+            // from the shop's own page lands in — so a buyer asking about an
+            // order and a buyer asking about a listing reach one inbox, not
+            // two the owner has to correlate by hand.
+            onChat: () => context.push(
+              AppRoutes.businessMessageThreadPath(o.counterpartyBusinessId!),
+            ),
           ),
       ],
     );

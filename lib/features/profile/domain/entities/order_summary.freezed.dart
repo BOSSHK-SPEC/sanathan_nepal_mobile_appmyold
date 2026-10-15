@@ -17,7 +17,16 @@ mixin _$OrderSummary {
  String get id; String get productName;/// Order price in the region currency (NPR / INR).
  double get price;/// Seller name for purchases, buyer name for sales.
  String get counterpartyName;/// Business/user id of the counterparty (used by "Visit Seller Profile").
- String get counterpartyId; OrderRole get role; OrderStatus get status; DateTime get updatedAt;/// Seller's listed price (S.P) shown on sales cards.
+ String get counterpartyId; OrderRole get role;/// The shop to open a conversation with, when there is one to open.
+///
+/// Only a purchase carries one. Conversations are keyed on
+/// `(business, customer)` and the server refuses an owner writing to
+/// their own shop, so a sales card has no business to chat with and
+/// [canChat] draws no button rather than opening a dead screen.
+ String? get counterpartyBusinessId;/// Number the Call button dials: the shop's on a purchase, the buyer's
+/// shipping number on a sale. Empty when they published none, and the
+/// button is not drawn.
+ String get counterpartyPhone; OrderStatus get status; DateTime get updatedAt;/// Seller's listed price (S.P) shown on sales cards.
  double? get sellingPrice;/// Buyer rating (1–5) once the purchase is completed.
  int? get rating; String? get imageUrl;
 /// Create a copy of OrderSummary
@@ -30,16 +39,16 @@ $OrderSummaryCopyWith<OrderSummary> get copyWith => _$OrderSummaryCopyWithImpl<O
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.price, price) || other.price == price)&&(identical(other.counterpartyName, counterpartyName) || other.counterpartyName == counterpartyName)&&(identical(other.counterpartyId, counterpartyId) || other.counterpartyId == counterpartyId)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.sellingPrice, sellingPrice) || other.sellingPrice == sellingPrice)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.price, price) || other.price == price)&&(identical(other.counterpartyName, counterpartyName) || other.counterpartyName == counterpartyName)&&(identical(other.counterpartyId, counterpartyId) || other.counterpartyId == counterpartyId)&&(identical(other.role, role) || other.role == role)&&(identical(other.counterpartyBusinessId, counterpartyBusinessId) || other.counterpartyBusinessId == counterpartyBusinessId)&&(identical(other.counterpartyPhone, counterpartyPhone) || other.counterpartyPhone == counterpartyPhone)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.sellingPrice, sellingPrice) || other.sellingPrice == sellingPrice)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,productName,price,counterpartyName,counterpartyId,role,status,updatedAt,sellingPrice,rating,imageUrl);
+int get hashCode => Object.hash(runtimeType,id,productName,price,counterpartyName,counterpartyId,role,counterpartyBusinessId,counterpartyPhone,status,updatedAt,sellingPrice,rating,imageUrl);
 
 @override
 String toString() {
-  return 'OrderSummary(id: $id, productName: $productName, price: $price, counterpartyName: $counterpartyName, counterpartyId: $counterpartyId, role: $role, status: $status, updatedAt: $updatedAt, sellingPrice: $sellingPrice, rating: $rating, imageUrl: $imageUrl)';
+  return 'OrderSummary(id: $id, productName: $productName, price: $price, counterpartyName: $counterpartyName, counterpartyId: $counterpartyId, role: $role, counterpartyBusinessId: $counterpartyBusinessId, counterpartyPhone: $counterpartyPhone, status: $status, updatedAt: $updatedAt, sellingPrice: $sellingPrice, rating: $rating, imageUrl: $imageUrl)';
 }
 
 
@@ -50,7 +59,7 @@ abstract mixin class $OrderSummaryCopyWith<$Res>  {
   factory $OrderSummaryCopyWith(OrderSummary value, $Res Function(OrderSummary) _then) = _$OrderSummaryCopyWithImpl;
 @useResult
 $Res call({
- String id, String productName, double price, String counterpartyName, String counterpartyId, OrderRole role, OrderStatus status, DateTime updatedAt, double? sellingPrice, int? rating, String? imageUrl
+ String id, String productName, double price, String counterpartyName, String counterpartyId, OrderRole role, String? counterpartyBusinessId, String counterpartyPhone, OrderStatus status, DateTime updatedAt, double? sellingPrice, int? rating, String? imageUrl
 });
 
 
@@ -67,7 +76,7 @@ class _$OrderSummaryCopyWithImpl<$Res>
 
 /// Create a copy of OrderSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? productName = null,Object? price = null,Object? counterpartyName = null,Object? counterpartyId = null,Object? role = null,Object? status = null,Object? updatedAt = null,Object? sellingPrice = freezed,Object? rating = freezed,Object? imageUrl = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? productName = null,Object? price = null,Object? counterpartyName = null,Object? counterpartyId = null,Object? role = null,Object? counterpartyBusinessId = freezed,Object? counterpartyPhone = null,Object? status = null,Object? updatedAt = null,Object? sellingPrice = freezed,Object? rating = freezed,Object? imageUrl = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,productName: null == productName ? _self.productName : productName // ignore: cast_nullable_to_non_nullable
@@ -75,7 +84,9 @@ as String,price: null == price ? _self.price : price // ignore: cast_nullable_to
 as double,counterpartyName: null == counterpartyName ? _self.counterpartyName : counterpartyName // ignore: cast_nullable_to_non_nullable
 as String,counterpartyId: null == counterpartyId ? _self.counterpartyId : counterpartyId // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
-as OrderRole,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as OrderRole,counterpartyBusinessId: freezed == counterpartyBusinessId ? _self.counterpartyBusinessId : counterpartyBusinessId // ignore: cast_nullable_to_non_nullable
+as String?,counterpartyPhone: null == counterpartyPhone ? _self.counterpartyPhone : counterpartyPhone // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as OrderStatus,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,sellingPrice: freezed == sellingPrice ? _self.sellingPrice : sellingPrice // ignore: cast_nullable_to_non_nullable
 as double?,rating: freezed == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
@@ -92,7 +103,7 @@ as String?,
 
 
 class _OrderSummary extends OrderSummary {
-  const _OrderSummary({required this.id, required this.productName, required this.price, required this.counterpartyName, required this.counterpartyId, required this.role, required this.status, required this.updatedAt, this.sellingPrice, this.rating, this.imageUrl}): super._();
+  const _OrderSummary({required this.id, required this.productName, required this.price, required this.counterpartyName, required this.counterpartyId, required this.role, this.counterpartyBusinessId, this.counterpartyPhone = '', required this.status, required this.updatedAt, this.sellingPrice, this.rating, this.imageUrl}): super._();
   
 
 @override final  String id;
@@ -104,6 +115,17 @@ class _OrderSummary extends OrderSummary {
 /// Business/user id of the counterparty (used by "Visit Seller Profile").
 @override final  String counterpartyId;
 @override final  OrderRole role;
+/// The shop to open a conversation with, when there is one to open.
+///
+/// Only a purchase carries one. Conversations are keyed on
+/// `(business, customer)` and the server refuses an owner writing to
+/// their own shop, so a sales card has no business to chat with and
+/// [canChat] draws no button rather than opening a dead screen.
+@override final  String? counterpartyBusinessId;
+/// Number the Call button dials: the shop's on a purchase, the buyer's
+/// shipping number on a sale. Empty when they published none, and the
+/// button is not drawn.
+@override@JsonKey() final  String counterpartyPhone;
 @override final  OrderStatus status;
 @override final  DateTime updatedAt;
 /// Seller's listed price (S.P) shown on sales cards.
@@ -122,16 +144,16 @@ _$OrderSummaryCopyWith<_OrderSummary> get copyWith => __$OrderSummaryCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.price, price) || other.price == price)&&(identical(other.counterpartyName, counterpartyName) || other.counterpartyName == counterpartyName)&&(identical(other.counterpartyId, counterpartyId) || other.counterpartyId == counterpartyId)&&(identical(other.role, role) || other.role == role)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.sellingPrice, sellingPrice) || other.sellingPrice == sellingPrice)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.productName, productName) || other.productName == productName)&&(identical(other.price, price) || other.price == price)&&(identical(other.counterpartyName, counterpartyName) || other.counterpartyName == counterpartyName)&&(identical(other.counterpartyId, counterpartyId) || other.counterpartyId == counterpartyId)&&(identical(other.role, role) || other.role == role)&&(identical(other.counterpartyBusinessId, counterpartyBusinessId) || other.counterpartyBusinessId == counterpartyBusinessId)&&(identical(other.counterpartyPhone, counterpartyPhone) || other.counterpartyPhone == counterpartyPhone)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.sellingPrice, sellingPrice) || other.sellingPrice == sellingPrice)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.imageUrl, imageUrl) || other.imageUrl == imageUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,productName,price,counterpartyName,counterpartyId,role,status,updatedAt,sellingPrice,rating,imageUrl);
+int get hashCode => Object.hash(runtimeType,id,productName,price,counterpartyName,counterpartyId,role,counterpartyBusinessId,counterpartyPhone,status,updatedAt,sellingPrice,rating,imageUrl);
 
 @override
 String toString() {
-  return 'OrderSummary(id: $id, productName: $productName, price: $price, counterpartyName: $counterpartyName, counterpartyId: $counterpartyId, role: $role, status: $status, updatedAt: $updatedAt, sellingPrice: $sellingPrice, rating: $rating, imageUrl: $imageUrl)';
+  return 'OrderSummary(id: $id, productName: $productName, price: $price, counterpartyName: $counterpartyName, counterpartyId: $counterpartyId, role: $role, counterpartyBusinessId: $counterpartyBusinessId, counterpartyPhone: $counterpartyPhone, status: $status, updatedAt: $updatedAt, sellingPrice: $sellingPrice, rating: $rating, imageUrl: $imageUrl)';
 }
 
 
@@ -142,7 +164,7 @@ abstract mixin class _$OrderSummaryCopyWith<$Res> implements $OrderSummaryCopyWi
   factory _$OrderSummaryCopyWith(_OrderSummary value, $Res Function(_OrderSummary) _then) = __$OrderSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String productName, double price, String counterpartyName, String counterpartyId, OrderRole role, OrderStatus status, DateTime updatedAt, double? sellingPrice, int? rating, String? imageUrl
+ String id, String productName, double price, String counterpartyName, String counterpartyId, OrderRole role, String? counterpartyBusinessId, String counterpartyPhone, OrderStatus status, DateTime updatedAt, double? sellingPrice, int? rating, String? imageUrl
 });
 
 
@@ -159,7 +181,7 @@ class __$OrderSummaryCopyWithImpl<$Res>
 
 /// Create a copy of OrderSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? productName = null,Object? price = null,Object? counterpartyName = null,Object? counterpartyId = null,Object? role = null,Object? status = null,Object? updatedAt = null,Object? sellingPrice = freezed,Object? rating = freezed,Object? imageUrl = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? productName = null,Object? price = null,Object? counterpartyName = null,Object? counterpartyId = null,Object? role = null,Object? counterpartyBusinessId = freezed,Object? counterpartyPhone = null,Object? status = null,Object? updatedAt = null,Object? sellingPrice = freezed,Object? rating = freezed,Object? imageUrl = freezed,}) {
   return _then(_OrderSummary(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,productName: null == productName ? _self.productName : productName // ignore: cast_nullable_to_non_nullable
@@ -167,7 +189,9 @@ as String,price: null == price ? _self.price : price // ignore: cast_nullable_to
 as double,counterpartyName: null == counterpartyName ? _self.counterpartyName : counterpartyName // ignore: cast_nullable_to_non_nullable
 as String,counterpartyId: null == counterpartyId ? _self.counterpartyId : counterpartyId // ignore: cast_nullable_to_non_nullable
 as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
-as OrderRole,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as OrderRole,counterpartyBusinessId: freezed == counterpartyBusinessId ? _self.counterpartyBusinessId : counterpartyBusinessId // ignore: cast_nullable_to_non_nullable
+as String?,counterpartyPhone: null == counterpartyPhone ? _self.counterpartyPhone : counterpartyPhone // ignore: cast_nullable_to_non_nullable
+as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as OrderStatus,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,sellingPrice: freezed == sellingPrice ? _self.sellingPrice : sellingPrice // ignore: cast_nullable_to_non_nullable
 as double?,rating: freezed == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable

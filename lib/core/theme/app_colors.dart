@@ -113,6 +113,20 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color adBanner;
   final Color shimmer;
 
+  /// The colour the Android launch window is painted in
+  /// (`android/app/src/main/res/values/colors.xml`), and the colour
+  /// `SplashPage` opens on before it blooms into the running theme's gradient.
+  ///
+  /// One value in both ui modes on purpose: the app's theme is its own setting
+  /// (defaulting to light), not the system's, so the launch screen — which
+  /// Android paints before any Dart runs — cannot know which way it will go.
+  /// Picking the system's would flash the wrong colour on every cold start for
+  /// anyone whose phone is dark but whose app is not.
+  static Color get launchBackground => light.primaryGradient.colors.first;
+
+  /// The ink the launch mark is drawn in, on [launchBackground].
+  static Color get launchMark => light.onPrimary;
+
   static const AppColors light = AppColors(
     background: AppPalette.white,
     surface: AppPalette.white,

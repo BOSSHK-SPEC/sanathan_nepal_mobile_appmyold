@@ -75,6 +75,54 @@ Map<String, dynamic> _entry({String sign = 'leo', String period = 'weekly'}) =>
 }
 
 void main() {
+  group('the reading\'s clip', () {
+    Future<String?> urlFor(Object? mediaUrl) async {
+      final built = _build(
+        (_) async => _json({..._entry(), 'mediaUrl': ?mediaUrl}),
+      );
+      final p = await built.source.fetchPrediction(
+        ZodiacSign.leo,
+        HoroscopePeriod.weekly,
+      );
+      return p.media.url;
+    }
+
+    test('is carried through when the server publishes one', () async {
+      const link = 'https://www.youtube.com/watch?v=abc123';
+      expect(await urlFor(link), link);
+    });
+
+    test('is absent when no clip is published', () async {
+      // The server sends no `mediaUrl` until an editor or a composer sets one.
+      // The card must read that as "nothing to play" rather than drawing an
+      // empty player over a progress bar that moves with no sound.
+      expect(await urlFor(null), isNull);
+      expect(await urlFor(''), isNull);
+    });
+
+    test('drops a link the platform should not be handed', () async {
+      // This url is passed to the launcher; a scheme other than http(s) is a
+      // link we never vetted, tapped by a user who trusts the app.
+      expect(await urlFor('javascript:alert(1)'), isNull);
+      expect(await urlFor('file:///etc/passwd'), isNull);
+      expect(await urlFor('not a url at all'), isNull);
+    });
+
+    test('carries no duration, so the UI knows it is external', () async {
+      final built = _build(
+        (_) async => _json({
+          ..._entry(),
+          'mediaUrl': 'https://youtu.be/abc123',
+        }),
+      );
+      final p = await built.source.fetchPrediction(
+        ZodiacSign.leo,
+        HoroscopePeriod.weekly,
+      );
+      expect(p.media.durationSeconds, 0);
+    });
+  });
+
   test('asks for the period the user picked', () async {
     final built = _build((_) async => _json([_entry()]));
 

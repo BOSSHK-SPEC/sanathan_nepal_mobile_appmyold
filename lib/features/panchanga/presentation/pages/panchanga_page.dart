@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_bar_title.dart';
 import '../../../../core/widgets/state_widgets.dart';
 import '../cubit/panchanga_cubit.dart';
 import '../l10n/panchanga_strings.dart';
+import '../widgets/day_periods_link.dart';
 import '../widgets/panchanga_day_header.dart';
 import '../widgets/panchanga_table.dart';
 import '../widgets/suva_sait_section.dart';
@@ -68,6 +69,10 @@ class PanchangaView extends StatelessWidget {
                   panchanga: p,
                   showCalendar: showCalendar,
                 ),
+                if (p != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  DayPeriodsLink(panchanga: p, now: DateTime.now()),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 SuvaSaitSection(
                   cubit: cubit,

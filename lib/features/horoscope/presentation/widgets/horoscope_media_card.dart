@@ -1,39 +1,49 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/horoscope_media.dart';
-import 'horoscope_format.dart';
+import '../l10n/horoscope_strings.dart';
 
-/// Video/audio player card ("Aries Rashifal - Baishak,2079", big play
-/// button, progress bar and `5:07 / 15:28` read-out). Playback is driven by
-/// the cubit – this widget is purely presentational.
+/// The "राशिफल" clip attached to a reading, in whichever of its two states
+/// tells the truth today.
+///
+/// * **[onOpen] given** — a clip is published. The card opens it where it
+///   lives; it does not pretend to play it in place.
+/// * **[onOpen] null** — nothing is published yet, and the card says so. It
+///   keeps the slot on screen so the feature is visibly on its way, and it
+///   offers no control, because a control that does nothing is the thing this
+///   replaced: the card used to draw a progress bar and a running clock driven
+///   by a one-second timer with no audio behind it.
+///
+/// Announcing "coming soon" is a promise, so only show this where the clip is
+/// genuinely planned.
 class HoroscopeMediaCard extends StatelessWidget {
   const HoroscopeMediaCard({
     required this.media,
-    required this.position,
-    required this.isPlaying,
-    required this.onToggle,
     super.key,
-    this.onSeek,
+    this.onOpen,
     this.height = 150,
   });
 
   final HoroscopeMedia media;
-  final Duration position;
-  final bool isPlaying;
-  final VoidCallback onToggle;
-  final ValueChanged<double>? onSeek;
+
+  /// Opens the clip. Null puts the card in its "coming soon" state.
+  final VoidCallback? onOpen;
+
   final double height;
+
+  bool get _hasClip => onOpen != null;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final lang = context.languageCode;
-    final devanagari = context.usesDevanagariDigits;
-    final total = media.duration.inSeconds;
-    final fraction = total == 0 ? 0.0 : position.inSeconds / total;
-    return Container(
+    final s = HoroscopeStrings.of(context);
+    final title = media.titleFor(context.languageCode);
+    final heading = title.isEmpty ? s.audioRashifal : title;
+
+    final card = Container(
       height: height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -41,8 +51,10 @@ class HoroscopeMediaCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            colors.primary.withValues(alpha: 0.85),
-            colors.primaryVariant.withValues(alpha: 0.85),
+            // Waiting reads as quieter than ready, without going grey and
+            // looking like a failure.
+            colors.primary.withValues(alpha: _hasClip ? 0.85 : 0.42),
+            colors.primaryVariant.withValues(alpha: _hasClip ? 0.85 : 0.42),
           ],
         ),
       ),
@@ -53,14 +65,14 @@ class HoroscopeMediaCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.md,
               AppSpacing.sm,
-              AppSpacing.sm,
+              AppSpacing.md,
               0,
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
-                    media.titleFor(lang),
+                    heading,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: context.textTheme.labelMedium?.copyWith(
@@ -69,109 +81,128 @@ class HoroscopeMediaCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.info_outline, size: 16, color: colors.onPrimary),
               ],
             ),
           ),
           Expanded(
             child: Center(
-              child: Semantics(
-                button: true,
-                label: isPlaying ? 'Pause' : 'Play',
-                child: InkWell(
-                  onTap: onToggle,
-                  customBorder: const CircleBorder(),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colors.onPrimary.withValues(alpha: 0.9),
-                    ),
-                    child: Icon(
-                      isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      color: colors.primary,
-                      size: 30,
-                    ),
-                  ),
-                ),
-              ),
+              child: _hasClip
+                  ? _PlayButton(colors: colors)
+                  : _ComingSoon(label: s.clipComingSoon, colors: colors),
             ),
           ),
-          _ProgressBar(fraction: fraction, onSeek: onSeek),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.md,
-              AppSpacing.xs,
+              0,
               AppSpacing.md,
               AppSpacing.sm,
             ),
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: onToggle,
-                  child: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
-                    size: 18,
-                    color: colors.onPrimary,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    '${HoroscopeFormat.clock(position, nepali: devanagari)} / '
-                    '${HoroscopeFormat.clock(media.duration, nepali: devanagari)}',
+                    s.audioRashifal,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: context.textTheme.labelSmall?.copyWith(
-                      color: colors.onPrimary,
+                      color: colors.onPrimary.withValues(
+                        alpha: _hasClip ? 1 : 0.75,
+                      ),
                     ),
                   ),
                 ),
-                Icon(Icons.fullscreen, size: 18, color: colors.onPrimary),
+                // Only where there is somewhere to go: the icon says the tap
+                // leaves the app, and without a clip there is no tap.
+                if (_hasClip)
+                  Icon(
+                    Icons.open_in_new_rounded,
+                    size: 16,
+                    color: colors.onPrimary,
+                  ),
               ],
             ),
           ),
         ],
       ),
     );
+
+    if (!_hasClip) {
+      return Semantics(
+        label: '$heading — ${s.clipComingSoon}',
+        child: ExcludeSemantics(child: card),
+      );
+    }
+    return Semantics(
+      button: true,
+      label: heading,
+      child: InkWell(
+        onTap: onOpen,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: card,
+      ),
+    );
   }
 }
 
-class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.fraction, this.onSeek});
-  final double fraction;
-  final ValueChanged<double>? onSeek;
+class _PlayButton extends StatelessWidget {
+  const _PlayButton({required this.colors});
+  final AppColors colors;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 44,
+    height: 44,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: colors.onPrimary.withValues(alpha: 0.9),
+    ),
+    child: Icon(Icons.play_arrow_rounded, color: colors.primary, size: 30),
+  );
+}
+
+/// The waiting state: an outline where the play button will be, and the words.
+///
+/// Outlined rather than filled so it does not read as a button someone has
+/// failed to press.
+class _ComingSoon extends StatelessWidget {
+  const _ComingSoon({required this.label, required this.colors});
+
+  final String label;
+  final AppColors colors;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    return LayoutBuilder(
-      builder: (context, constraints) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: onSeek == null
-            ? null
-            : (d) => onSeek!(d.localPosition.dx / constraints.maxWidth),
-        child: SizedBox(
-          height: 14,
-          child: Center(
-            child: Stack(
-              children: [
-                Container(
-                  height: 3,
-                  color: colors.onPrimary.withValues(alpha: 0.35),
-                ),
-                FractionallySizedBox(
-                  widthFactor: fraction.clamp(0.0, 1.0),
-                  child: Container(height: 3, color: colors.onPrimary),
-                ),
-              ],
-            ),
+    final onPrimary = colors.onPrimary;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: onPrimary.withValues(alpha: 0.7)),
+          ),
+          child: Icon(
+            Icons.hourglass_empty_rounded,
+            color: onPrimary.withValues(alpha: 0.9),
+            size: 20,
           ),
         ),
-      ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textTheme.labelMedium?.copyWith(
+            color: onPrimary,
+            fontWeight: FontWeight.w600,
+            letterSpacing: .2,
+          ),
+        ),
+      ],
     );
   }
 }
